@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Admin</title>
+<title>Admin Login</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
@@ -10,9 +10,10 @@
 
 <div class="container">
 
-<h2>Admin</h2>
-
+<!-- LOGIN -->
 <div id="loginBox">
+
+<h2>Login Admin</h2>
 
 <input id="email" placeholder="Email">
 <input id="senha" type="password" placeholder="Senha">
@@ -21,17 +22,28 @@
 
 </div>
 
+<!-- PAINEL -->
 <div id="painel" style="display:none">
 
-<h3>Cadastro</h3>
+<h2>Painel de Cadastro</h2>
 
-<input id="nome" placeholder="Editora">
+<hr>
+
+<h3>📌 Nova Editora</h3>
+
+<input id="nome" placeholder="Nome da editora">
 <input id="cnpj" placeholder="CNPJ">
-<input id="lojas" placeholder="Lojas (001,002)">
+<input id="lojas" placeholder="Lojas (001,002,003)">
 
-<input id="emailContato" placeholder="Email contato">
+<hr>
+
+<h3>📧 Contato</h3>
+
+<input id="emailContato" placeholder="Email do contato">
 
 <button onclick="salvar()">Salvar</button>
+
+<br><br>
 
 <button onclick="logout()">Sair</button>
 
