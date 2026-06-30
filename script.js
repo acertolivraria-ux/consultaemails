@@ -33,17 +33,19 @@ window.pesquisar = async function () {
   let editoraValida = null;
 
   /* =========================
-     1. VALIDAR EDITORA
+     VALIDAR EDITORA
   ========================= */
   editorasSnap.forEach(doc => {
+
     const d = doc.data();
 
     if (
       d.nome?.toLowerCase() === editoraInput ||
       d.cnpj === editoraInput
     ) {
-      editoraValida = doc.id;
+      editoraValida = d.cnpj; // 👈 IMPORTANTE: usar o CNPJ
     }
+
   });
 
   if (!editoraValida) {
@@ -53,19 +55,24 @@ window.pesquisar = async function () {
   }
 
   /* =========================
-     2. FILTRAR CONTATOS
+     FILTRAR CONTATOS (CORRETO)
   ========================= */
+
   contatosSnap.forEach(doc => {
+
     const c = doc.data();
 
-    if (c.lojas?.includes(loja)) {
+    if (
+      c.loja === loja &&
+      c.editora === editoraValida
+    ) {
       emailsAtuais.push(c.email);
     }
+
   });
 
   renderResultado();
 };
-
 /* =========================
    RENDERIZAÇÃO NA TELA
 ========================= */
