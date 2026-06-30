@@ -3,7 +3,10 @@ import { db, auth } from "./firebase-config.js";
 import {
   collection,
   addDoc,
-  getDocs
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  doc
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 import {
@@ -14,9 +17,11 @@ import {
 
 let userLogado = null;
 
-/* 🔐 LOGIN */
-window.login = function () {
+/* =========================
+   LOGIN
+========================= */
 
+window.login = function () {
   const email = document.getElementById("email").value;
   const senha = document.getElementById("senha").value;
 
@@ -24,65 +29,55 @@ window.login = function () {
     .catch(err => alert("Erro: " + err.message));
 };
 
-/* 🔎 VERIFICA LOGIN */
-onAuthStateChanged(auth, user => {
+/* =========================
+   AUTH STATE
+========================= */
 
+onAuthStateChanged(auth, async user => {
   userLogado = user;
 
   if (user) {
     document.getElementById("loginBox").style.display = "none";
     document.getElementById("painel").style.display = "block";
+
+    await carregarLojas();
+    await carregarEditoras();
+
   } else {
     document.getElementById("loginBox").style.display = "block";
     document.getElementById("painel").style.display = "none";
   }
-
 });
 
-/* 🚪 LOGOUT */
+/* =========================
+   LOGOUT
+========================= */
+
 window.logout = function () {
-  signOut(auth);
+  signOut(auth)
+    .then(() => {
+      alert("Logout realizado!");
+    })
+    .catch(err => alert(err.message));
 };
 
-/* 💾 SALVAR NO BANCO */
-window.salvar = async function () {
+/* =========================
+   ABAS
+========================= */
 
-  const nome = document.getElementById("nome").value;
-  const cnpj = document.getElementById("cnpj").value;
-  const lojas = document.getElementById("lojas").value
-    .split(",")
-    .map(l => l.trim());
-
-  const email = document.getElementById("emailContato").value;
-
-  if (!nome || !cnpj) {
-    alert("Preencha os dados da editora");
-    return;
-  }
-
-  await addDoc(collection(db, "editoras"), {
-    nome,
-    cnpj,
-    lojas,
-    contatos: [
-      { email }
-    ]
-  });
-
-  alert("Salvo com sucesso!");
-
-  document.getElementById("emailContato").value = "";
-};
 window.mostrarAba = function (aba) {
-
   document.getElementById("aba-lojas").style.display = "none";
   document.getElementById("aba-editoras").style.display = "none";
   document.getElementById("aba-contatos").style.display = "none";
 
   document.getElementById("aba-" + aba).style.display = "block";
 };
-window.salvarLoja = async function () {
 
+/* =========================
+   LOJAS
+========================= */
+
+window.salvarLoja = async function () {
   const numero = document.getElementById("numeroLoja").value.trim();
   const nome = document.getElementById("nomeLoja").value.trim();
 
@@ -91,36 +86,42 @@ window.salvarLoja = async function () {
     return;
   }
 
-  const snap = await getDocs(collection(db, "lojas"));
-
-  let existe = false;
-
-  snap.forEach(doc => {
-    const d = doc.data();
-
-    if (d.numero === numero || d.nome.toLowerCase() === nome.toLowerCase()) {
-      existe = true;
-    }
-  });
-
-  if (existe) {
-    alert("❌ Já existe uma loja com esse número ou nome");
-    return;
-  }
-
   await addDoc(collection(db, "lojas"), {
     numero,
     nome
   });
 
-  alert("✔ Loja cadastrada com sucesso!");
-
-  // LIMPAR CAMPOS
+  alert("Loja cadastrada!");
   document.getElementById("numeroLoja").value = "";
   document.getElementById("nomeLoja").value = "";
-};
-window.salvarEditora = async function () {
 
+  await carregarLojas();
+};
+
+async function carregarLojas() {
+  const snap = await getDocs(collection(db, "lojas"));
+
+  let html = "";
+
+  snap.forEach(d => {
+    const data = d.data();
+
+    html += `
+      <label>
+        <input type="checkbox" class="lojaCheck" value="${data.numero}">
+        ${data.numero} - ${data.nome}
+      </label><br>
+    `;
+  });
+
+  document.getElementById("lojasCheckbox").innerHTML = html;
+}
+
+/* =========================
+   EDITORAS
+========================= */
+
+window.salvarEditora = async function () {
   const nome = document.getElementById("nomeEditora").value.trim();
   const cnpj = document.getElementById("cnpjEditora").value.trim();
 
@@ -129,34 +130,40 @@ window.salvarEditora = async function () {
     return;
   }
 
-  const snap = await getDocs(collection(db, "editoras"));
-
-  let existe = false;
-
-  snap.forEach(doc => {
-    const d = doc.data();
-
-    if (d.cnpj === cnpj) {
-      existe = true;
-    }
-  });
-
-  if (existe) {
-    alert("❌ Já existe uma editora com esse CNPJ");
-    return;
-  }
-
   await addDoc(collection(db, "editoras"), {
     nome,
     cnpj
   });
 
-  alert("✔ Editora cadastrada com sucesso!");
-
-  // LIMPAR CAMPOS
+  alert("Editora cadastrada!");
   document.getElementById("nomeEditora").value = "";
   document.getElementById("cnpjEditora").value = "";
+
+  await carregarEditoras();
 };
+
+async function carregarEditoras() {
+  const snap = await getDocs(collection(db, "editoras"));
+
+  let html = "";
+
+  snap.forEach(d => {
+    const data = d.data();
+
+    html += `
+      <label>
+        <input type="checkbox" class="editoraCheck" value="${data.cnpj}">
+        ${data.nome}
+      </label><br>
+    `;
+  });
+
+  document.getElementById("editorasCheckbox").innerHTML = html;
+}
+
+/* =========================
+   CONTATOS
+========================= */
 
 window.salvarContato = async function () {
 
@@ -170,7 +177,7 @@ window.salvarContato = async function () {
     .map(el => el.value);
 
   if (!email || lojas.length === 0 || editoras.length === 0) {
-    alert("Preencha e-mail, lojas e editoras");
+    alert("Preencha email, lojas e editoras");
     return;
   }
 
@@ -181,51 +188,24 @@ window.salvarContato = async function () {
     editoras
   });
 
-  alert("✔ Contato salvo!");
+  alert("Contato salvo!");
+
+  document.getElementById("emailContato").value = "";
+  document.getElementById("nomeContato").value = "";
 };
 
-window.substituirContato = async function (emailAntigo, novoDados, todasLojas = false) {
+/* =========================
+   CSV IMPORT
+========================= */
 
-  const snap = await getDocs(collection(db, "contatos"));
-
-  snap.forEach(async (docItem) => {
-    const d = docItem.data();
-
-    if (d.email === emailAntigo) {
-
-      if (todasLojas) {
-        // substitui global
-        await updateDoc(doc(db, "contatos", docItem.id), novoDados);
-      } else {
-        // substituição parcial (você define lógica depois)
-        await updateDoc(doc(db, "contatos", docItem.id), novoDados);
-      }
-    }
-  });
-
-};
-window.excluirContato = async function (email, todasLojas = false) {
-
-  const snap = await getDocs(collection(db, "contatos"));
-
-  snap.forEach(async (docItem) => {
-    const d = docItem.data();
-
-    if (d.email === email) {
-
-      if (todasLojas) {
-        await deleteDoc(doc(db, "contatos", docItem.id));
-      } else {
-        await deleteDoc(doc(db, "contatos", docItem.id));
-      }
-    }
-  });
-
-};
 window.importarCSV = async function () {
 
   const file = document.getElementById("csvFile").files[0];
-  if (!file) return alert("Selecione um CSV");
+
+  if (!file) {
+    alert("Selecione um arquivo CSV");
+    return;
+  }
 
   const text = await file.text();
   const linhas = text.split("\n");
@@ -243,33 +223,31 @@ window.importarCSV = async function () {
       await addDoc(collection(db, "contatos"), {
         email,
         nome: nome || null,
-        lojas: [loja],
-        editoras: [cnpj]
+        lojas: [loja.trim()],
+        editoras: [cnpj.trim()]
       });
 
     }
   }
 
-  alert("✔ CSV importado!");
+  alert("CSV importado com sucesso!");
 };
-window.logout = function () {
 
-  signOut(auth)
-    .then(() => {
+/* =========================
+   PLACEHOLDER FUTURO
+   (substituir/excluir contato)
+========================= */
 
-      alert("Logout realizado com sucesso!");
+window.excluirContato = async function (email) {
 
-      // volta para tela de login
-      document.getElementById("loginBox").style.display = "block";
-      document.getElementById("painel").style.display = "none";
+  const snap = await getDocs(collection(db, "contatos"));
 
-      // (opcional) limpar campos
-      document.getElementById("email").value = "";
-      document.getElementById("senha").value = "";
+  snap.forEach(async d => {
+    const data = d.data();
 
-    })
-    .catch((error) => {
-      alert("Erro ao sair: " + error.message);
-    });
+    if (data.email === email) {
+      await deleteDoc(doc(db, "contatos", d.id));
+    }
+  });
 
 };
