@@ -1,6 +1,10 @@
 import { db, auth } from "./firebase-config.js";
 
 import {
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+import {
   collection,
   addDoc
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
@@ -174,4 +178,26 @@ window.salvarContato = async function () {
   // LIMPAR CAMPOS
   document.getElementById("emailContato").value = "";
   document.getElementById("lojasContato").value = "";
+};
+
+window.logout = function () {
+
+  signOut(auth)
+    .then(() => {
+
+      alert("Logout realizado com sucesso!");
+
+      // volta para tela de login
+      document.getElementById("loginBox").style.display = "block";
+      document.getElementById("painel").style.display = "none";
+
+      // (opcional) limpar campos
+      document.getElementById("email").value = "";
+      document.getElementById("senha").value = "";
+
+    })
+    .catch((error) => {
+      alert("Erro ao sair: " + error.message);
+    });
+
 };
