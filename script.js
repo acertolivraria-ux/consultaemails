@@ -1,63 +1,96 @@
-import {
-  db
-} from "./firebase-config.js";
+import { db } from "./firebase-config.js";
 
 import {
   collection,
   getDocs
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
-let resultadoAtual = null;
+/* =========================
+   ESTADO GLOBAL DA BUSCA
+========================= */
+let emailsAtuais = [];
 
+/* =========================
+   FUNÇÃO PRINCIPAL DE BUSCA
+========================= */
 window.pesquisar = async function () {
 
   const loja = document.getElementById("loja").value.trim();
   const editoraInput = document.getElementById("editora").value.trim().toLowerCase();
 
-  const snap = await getDocs(collection(db, "editoras"));
+  if (!loja || !editoraInput) {
+    alert("Preencha loja e editora");
+    return;
+  }
 
-  resultadoAtual = null;
+  emailsAtuais = [];
 
-  snap.forEach(doc => {
+  const contatosSnap = await getDocs(collection(db, "contatos"));
+  const editorasSnap = await getDocs(collection(db, "editoras"));
 
-    const data = doc.data();
+  let editoraValida = null;
 
-    const matchEditora =
-      data.nome?.toLowerCase() === editoraInput ||
-      data.cnpj === editoraInput;
+  /* =========================
+     1. VALIDAR EDITORA
+  ========================= */
+  editorasSnap.forEach(doc => {
+    const d = doc.data();
 
-    const matchLoja =
-      data.lojas?.includes(loja);
-
-    if (matchEditora && matchLoja) {
-      resultadoAtual = data;
+    if (
+      d.nome?.toLowerCase() === editoraInput ||
+      d.cnpj === editoraInput
+    ) {
+      editoraValida = doc.id;
     }
-
   });
 
-  render();
+  if (!editoraValida) {
+    document.getElementById("resultado").innerHTML =
+      "<p>❌ Editora não encontrada</p>";
+    return;
+  }
+
+  /* =========================
+     2. FILTRAR CONTATOS
+  ========================= */
+  contatosSnap.forEach(doc => {
+    const c = doc.data();
+
+    if (c.lojas?.includes(loja)) {
+      emailsAtuais.push(c.email);
+    }
+  });
+
+  renderResultado();
 };
 
-function render() {
+/* =========================
+   RENDERIZAÇÃO NA TELA
+========================= */
+function renderResultado() {
 
   const div = document.getElementById("resultado");
 
-  if (!resultadoAtual) {
-    div.innerHTML = "<p>Nenhum resultado encontrado</p>";
+  if (emailsAtuais.length === 0) {
+    div.innerHTML = "<p>⚠️ Nenhum contato encontrado</p>";
     return;
   }
 
   let html = `
-    <button onclick="copiarTodos()">📋 Copiar todos</button>
+    <button onclick="copiarTodos()">
+      📋 Copiar todos
+    </button>
     <br><br>
   `;
 
-  resultadoAtual.contatos?.forEach(c => {
+  emailsAtuais.forEach(email => {
 
     html += `
       <div class="email">
-        <span>${c.email}</span>
-        <button onclick="copiar('${c.email}')">📋</button>
+        <span>${email}</span>
+        <button onclick="copiar('${email}')">
+          📋
+        </button>
       </div>
     `;
 
@@ -66,13 +99,24 @@ function render() {
   div.innerHTML = html;
 }
 
+/* =========================
+   COPIAR UM EMAIL
+========================= */
 window.copiar = function (email) {
   navigator.clipboard.writeText(email);
-  alert("Copiado!");
+  alert("E-mail copiado!");
 };
 
+/* =========================
+   COPIAR TODOS
+========================= */
 window.copiarTodos = function () {
-  const lista = resultadoAtual.contatos.map(c => c.email).join(";");
-  navigator.clipboard.writeText(lista);
-  alert("Todos os e-mails copiados!");
+
+  if (!emailsAtuais.length) return;
+
+  const texto = emailsAtuais.join(";");
+
+  navigator.clipboard.writeText(texto);
+
+  alert("Todos os e-mails foram copiados!");
 };
