@@ -99,54 +99,51 @@
     <div class="dropdown-multi">
 
       <button type="button" onclick="toggleLojasDropdown()">
-        Selecionar lojas ▼
-      </button>
+        <div id="aba-contatos" class="aba" style="display:none">
 
-      <div id="lojasDropdownList" class="dropdown-content" style="display:none;">
-      </div>
+  <h3>Cadastrar Contato</h3>
 
-    </div>
+  <label>Email *</label>
+  <input id="emailContato" type="email" placeholder="email@empresa.com">
 
-    <br><br>
+  <label>Nome (opcional)</label>
+  <input id="nomeContato" placeholder="Nome do responsável">
 
-    <button onclick="salvarContato()">Salvar Contato</button>
+  <br><br>
 
-    <hr>
+  <label>Editora *</label>
+  <select id="cnpjContato">
+    <option value="">Selecione a editora</option>
+  </select>
 
-    <h3>Pesquisar Contatos</h3>
+  <br><br>
 
-    <input id="pesquisaContato" placeholder="Email, nome, loja ou CNPJ">
-    <button onclick="pesquisarContatos()">Pesquisar</button>
+  <label>Lojas *</label>
 
-    <hr>
+  <div class="dropdown-multi">
 
-    <table id="tabelaContatos">
+    <button type="button" onclick="toggleLojasDropdown()">
+      Selecionar lojas ▼
+    </button>
 
-      <thead>
-        <tr>
-          <th>Loja</th>
-          <th>Editora</th>
-          <th>Nome</th>
-          <th>Email</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-
-      <tbody></tbody>
-
-    </table>
-
-    <hr>
-
-    <h3>Importação CSV</h3>
-
-    <input type="file" id="csvFile" accept=".csv">
-
-    <br><br>
-
-    <button onclick="importarCSV()">Importar CSV</button>
+    <div id="lojasDropdownList" class="dropdown-content" style="display:none;"></div>
 
   </div>
+
+  <br><br>
+
+  <button onclick="salvarContato()">Salvar Contato</button>
+
+  <hr>
+
+  <h3>Importação CSV</h3>
+
+  <input type="file" id="csvFile" accept=".csv">
+  <br><br>
+
+  <button onclick="importarCSV()">Importar CSV</button>
+
+</div>
 
 </div>
 
