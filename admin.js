@@ -301,7 +301,7 @@ window.importarCSV = async function () {
 
     if (!linha.trim()) continue;
 
-    const [loja, cnpj, emails, nome] = linha.split(",");
+    const [loja, cnpj, emails, nome] = linha.split(";");
 
     if (!loja || !cnpj || !emails) continue;
 
