@@ -72,3 +72,49 @@ window.salvar = async function () {
 
   document.getElementById("emailContato").value = "";
 };
+window.mostrarAba = function (aba) {
+
+  document.getElementById("aba-lojas").style.display = "none";
+  document.getElementById("aba-editoras").style.display = "none";
+  document.getElementById("aba-contatos").style.display = "none";
+
+  document.getElementById("aba-" + aba).style.display = "block";
+};
+window.salvarLoja = async function () {
+
+  const numero = document.getElementById("numeroLoja").value;
+  const nome = document.getElementById("nomeLoja").value;
+
+  await addDoc(collection(db, "lojas"), {
+    numero,
+    nome
+  });
+
+  alert("Loja salva!");
+};
+window.salvarEditora = async function () {
+
+  const nome = document.getElementById("nomeEditora").value;
+  const cnpj = document.getElementById("cnpjEditora").value;
+
+  await addDoc(collection(db, "editoras"), {
+    nome,
+    cnpj
+  });
+
+  alert("Editora salva!");
+};
+window.salvarContato = async function () {
+
+  const email = document.getElementById("emailContato").value;
+  const lojas = document.getElementById("lojasContato").value
+    .split(",")
+    .map(l => l.trim());
+
+  await addDoc(collection(db, "contatos"), {
+    email,
+    lojas
+  });
+
+  alert("Contato salvo!");
+};
