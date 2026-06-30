@@ -1,99 +1,294 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
 <meta charset="UTF-8">
-<title>Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Painel Administrativo</title>
+
 <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
 <div class="menu">
-  <a href="index.html">🔎 Consulta</a>
-  <a href="admin.html">🔐 Admin</a>
-  <a href="#" onclick="logout()">🚪 Sair (Logout)</a>
+
+<a href="index.html">🔎 Consulta</a>
+<a href="admin.html">🔐 Administração</a>
+<a href="#" onclick="logout()">🚪 Logout</a>
+
 </div>
 
 <div class="container">
 
 <!-- LOGIN -->
+
 <div id="loginBox">
 
-  <h2>Login</h2>
+<h2>Login</h2>
 
-  <input id="email" placeholder="Email">
-  <input id="senha" type="password" placeholder="Senha">
+<input
+id="email"
+type="email"
+placeholder="Email">
 
-  <button onclick="login()">Entrar</button>
+<input
+id="senha"
+type="password"
+placeholder="Senha">
+
+<button onclick="login()">
+Entrar
+</button>
 
 </div>
 
 <!-- PAINEL -->
-<div id="painel" style="display:none">
 
-  <h2>Painel Administrativo</h2>
+<div id="painel" style="display:none;">
 
-  <!-- BOTÕES DAS ABAS -->
-  <div class="tabs">
-    <button onclick="mostrarAba('lojas')">🏬 Lojas</button>
-    <button onclick="mostrarAba('editoras')">🏢 Editoras</button>
-    <button onclick="mostrarAba('contatos')">📧 Contatos</button>
-  </div>
+<h2>Painel Administrativo</h2>
 
-  <hr>
+<div class="tabs">
 
-  <!-- ABA LOJAS -->
-  <div id="aba-lojas" class="aba">
+<button onclick="mostrarAba('lojas')">
+🏬 Lojas
+</button>
 
-    <h3>Cadastrar Loja</h3>
+<button onclick="mostrarAba('editoras')">
+🏢 Editoras
+</button>
 
-    <input id="numeroLoja" placeholder="Número">
-    <input id="nomeLoja" placeholder="Nome">
+<button onclick="mostrarAba('contatos')">
+📧 Contatos
+</button>
 
-    <button onclick="salvarLoja()">Salvar Loja</button>
+</div>
 
-  </div>
+<hr>
 
-  <!-- ABA EDITORAS -->
-  <div id="aba-editoras" class="aba" style="display:none">
+<!-- ========================= -->
+<!-- LOJAS -->
+<!-- ========================= -->
 
-    <h3>Cadastrar Editora</h3>
+<div id="aba-lojas" class="aba">
 
-    <input id="nomeEditora" placeholder="Nome">
-    <input id="cnpjEditora" placeholder="CNPJ">
+<h3>Cadastro de Loja</h3>
 
-    <button onclick="salvarEditora()">Salvar Editora</button>
+<input
+id="numeroLoja"
+placeholder="Número">
 
-  </div>
+<input
+id="nomeLoja"
+placeholder="Nome">
 
-  <!-- ABA CONTATOS -->
-  <div id="aba-contatos" class="aba" style="display:none">
+<button onclick="salvarLoja()">
+Salvar Loja
+</button>
 
-    <h3>Cadastrar Contato</h3>
+</div>
 
-    <input id="emailContato" placeholder="Email">
-    <input id="nomeContato" placeholder="Nome (opcional)">
+<!-- ========================= -->
+<!-- EDITORAS -->
+<!-- ========================= -->
 
-    <h4>Lojas</h4>
-    <div id="lojasCheckbox"></div>
+<div
+id="aba-editoras"
+class="aba"
+style="display:none;">
 
-    <h4>Editoras</h4>
-    <div id="editorasCheckbox"></div>
+<h3>Cadastro de Editora</h3>
 
-    <button onclick="salvarContato()">Salvar Contato</button>
+<input
+id="cnpjEditora"
+placeholder="CNPJ">
 
-    <hr>
+<input
+id="nomeEditora"
+placeholder="Nome">
 
-    <h3>Importar CSV</h3>
+<button onclick="salvarEditora()">
+Salvar Editora
+</button>
 
-    <p>
-      Formato: Loja (A), CNPJ (B), Emails separados por ; (C), Nome (D)
-    </p>
+</div>
 
-    <input type="file" id="csvFile" accept=".csv">
-    <button onclick="importarCSV()">Importar CSV</button>
+<!-- ========================= -->
+<!-- CONTATOS -->
+<!-- ========================= -->
 
-  </div>
+<div
+id="aba-contatos"
+class="aba"
+style="display:none;">
+
+<h2>Cadastro de Contatos</h2>
+
+<hr>
+
+<h3>Novo Contato</h3>
+
+<label>Email *</label>
+
+<input
+type="email"
+id="emailContato"
+placeholder="email@empresa.com">
+
+<label>Nome do responsável (opcional)</label>
+
+<input
+id="nomeContato"
+placeholder="Nome">
+
+<br><br>
+
+<label>Pesquisar CNPJ</label>
+
+<input
+id="pesquisaEditora"
+placeholder="Digite parte do CNPJ...">
+
+<div
+id="editorasCheckbox"
+class="listaCheckbox">
+</div>
+
+<br>
+
+<label>Pesquisar Loja</label>
+
+<input
+id="pesquisaLoja"
+placeholder="Número ou nome da loja">
+
+<div
+id="lojasCheckbox"
+class="listaCheckbox">
+</div>
+
+<br>
+
+<button onclick="salvarContato()">
+Salvar Contato
+</button>
+
+<hr>
+
+<h3>Pesquisar Contatos</h3>
+
+<input
+id="pesquisaContato"
+placeholder="Email, nome, CNPJ ou loja">
+
+<button onclick="pesquisarContatos()">
+
+Pesquisar
+
+</button>
+
+<hr>
+
+<table id="tabelaContatos">
+
+<thead>
+
+<tr>
+
+<th>Loja</th>
+
+<th>Editora</th>
+
+<th>Responsável</th>
+
+<th>Email</th>
+
+<th>Ações</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+</tbody>
+
+</table>
+
+<hr>
+
+<h3>Importação CSV</h3>
+
+<p>
+
+Formato esperado:
+
+</p>
+
+<table>
+
+<tr>
+
+<th>Coluna</th>
+
+<th>Conteúdo</th>
+
+</tr>
+
+<tr>
+
+<td>A</td>
+
+<td>Número da Loja</td>
+
+</tr>
+
+<tr>
+
+<td>B</td>
+
+<td>CNPJ</td>
+
+</tr>
+
+<tr>
+
+<td>C</td>
+
+<td>E-mails separados por ;</td>
+
+</tr>
+
+<tr>
+
+<td>D</td>
+
+<td>Nome do responsável (opcional)</td>
+
+</tr>
+
+</table>
+
+<br>
+
+<input
+type="file"
+id="csvFile"
+accept=".csv">
+
+<br><br>
+
+<button onclick="importarCSV()">
+
+Importar CSV
+
+</button>
+
+</div>
 
 </div>
 
@@ -102,4 +297,5 @@
 <script type="module" src="admin.js"></script>
 
 </body>
+
 </html>
