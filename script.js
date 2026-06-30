@@ -1,3 +1,4 @@
+alert("JavaScript carregou!");
 const dados = [
   {
     editora: "Abril",
