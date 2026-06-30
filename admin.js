@@ -161,22 +161,97 @@ window.salvarEditora = async function () {
 window.salvarContato = async function () {
 
   const email = document.getElementById("emailContato").value.trim();
-  const lojas = document.getElementById("lojasContato").value
-    .split(",")
-    .map(l => l.trim());
+  const nome = document.getElementById("nomeContato").value.trim();
+
+  const lojas = Array.from(document.querySelectorAll(".lojaCheck:checked"))
+    .map(el => el.value);
+
+  const editoras = Array.from(document.querySelectorAll(".editoraCheck:checked"))
+    .map(el => el.value);
+
+  if (!email || lojas.length === 0 || editoras.length === 0) {
+    alert("Preencha e-mail, lojas e editoras");
+    return;
+  }
 
   await addDoc(collection(db, "contatos"), {
     email,
-    lojas
+    nome: nome || null,
+    lojas,
+    editoras
   });
 
   alert("✔ Contato salvo!");
-
-  // LIMPAR CAMPOS
-  document.getElementById("emailContato").value = "";
-  document.getElementById("lojasContato").value = "";
 };
 
+window.substituirContato = async function (emailAntigo, novoDados, todasLojas = false) {
+
+  const snap = await getDocs(collection(db, "contatos"));
+
+  snap.forEach(async (docItem) => {
+    const d = docItem.data();
+
+    if (d.email === emailAntigo) {
+
+      if (todasLojas) {
+        // substitui global
+        await updateDoc(doc(db, "contatos", docItem.id), novoDados);
+      } else {
+        // substituição parcial (você define lógica depois)
+        await updateDoc(doc(db, "contatos", docItem.id), novoDados);
+      }
+    }
+  });
+
+};
+window.excluirContato = async function (email, todasLojas = false) {
+
+  const snap = await getDocs(collection(db, "contatos"));
+
+  snap.forEach(async (docItem) => {
+    const d = docItem.data();
+
+    if (d.email === email) {
+
+      if (todasLojas) {
+        await deleteDoc(doc(db, "contatos", docItem.id));
+      } else {
+        await deleteDoc(doc(db, "contatos", docItem.id));
+      }
+    }
+  });
+
+};
+window.importarCSV = async function () {
+
+  const file = document.getElementById("csvFile").files[0];
+  if (!file) return alert("Selecione um CSV");
+
+  const text = await file.text();
+  const linhas = text.split("\n");
+
+  for (let linha of linhas) {
+
+    const [loja, cnpj, emails, nome] = linha.split(",");
+
+    if (!loja || !cnpj || !emails) continue;
+
+    const listaEmails = emails.split(";").map(e => e.trim());
+
+    for (let email of listaEmails) {
+
+      await addDoc(collection(db, "contatos"), {
+        email,
+        nome: nome || null,
+        lojas: [loja],
+        editoras: [cnpj]
+      });
+
+    }
+  }
+
+  alert("✔ CSV importado!");
+};
 window.logout = function () {
 
   signOut(auth)
