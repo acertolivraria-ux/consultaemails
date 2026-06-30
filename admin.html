@@ -2,18 +2,23 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Admin Login</title>
+<title>Admin</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+
+<div class="menu">
+  <a href="index.html">🔎 Consulta</a>
+  <a href="admin.html">🔐 Admin</a>
+</div>
 
 <div class="container">
 
 <!-- LOGIN -->
 <div id="loginBox">
 
-<h2>Login Admin</h2>
+<h2>Login</h2>
 
 <input id="email" placeholder="Email">
 <input id="senha" type="password" placeholder="Senha">
@@ -25,32 +30,56 @@
 <!-- PAINEL -->
 <div id="painel" style="display:none">
 
-<h2>Painel de Cadastro</h2>
+<h2>Painel Administrativo</h2>
+
+<!-- BOTÕES DAS ABAS -->
+<div class="tabs">
+
+<button onclick="mostrarAba('lojas')">🏬 Lojas</button>
+<button onclick="mostrarAba('editoras')">🏢 Editoras</button>
+<button onclick="mostrarAba('contatos')">📧 Contatos</button>
+
+</div>
 
 <hr>
 
-<h3>📌 Nova Editora</h3>
+<!-- ABA LOJAS -->
+<div id="aba-lojas" class="aba">
 
-<input id="nome" placeholder="Nome da editora">
-<input id="cnpj" placeholder="CNPJ">
-<input id="lojas" placeholder="Lojas (001,002,003)">
+<h3>Cadastrar Loja</h3>
 
-<hr>
-<h3>🏬 Cadastrar Loja</h3>
-
-<input id="numeroLoja" placeholder="Número da loja">
-<input id="nomeLoja" placeholder="Nome da loja">
+<input id="numeroLoja" placeholder="Número">
+<input id="nomeLoja" placeholder="Nome">
 
 <button onclick="salvarLoja()">Salvar Loja</button>
 
-<hr>
-<h3>📧 Contato</h3>
+</div>
 
-<input id="emailContato" placeholder="Email do contato">
+<!-- ABA EDITORAS -->
+<div id="aba-editoras" class="aba" style="display:none">
 
-<button onclick="salvar()">Salvar</button>
+<h3>Cadastrar Editora</h3>
 
-<br><br>
+<input id="nomeEditora" placeholder="Nome">
+<input id="cnpjEditora" placeholder="CNPJ">
+
+<button onclick="salvarEditora()">Salvar Editora</button>
+
+</div>
+
+<!-- ABA CONTATOS -->
+<div id="aba-contatos" class="aba" style="display:none">
+
+<h3>Cadastrar Contato</h3>
+
+<input id="emailContato" placeholder="Email">
+<input id="lojasContato" placeholder="Lojas (001,002)">
+
+<button onclick="salvarContato()">Salvar Contato</button>
+
+</div>
+
+<br>
 
 <button onclick="logout()">Sair</button>
 
