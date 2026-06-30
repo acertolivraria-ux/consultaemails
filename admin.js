@@ -52,19 +52,20 @@ onAuthStateChanged(auth, async (user) => {
 
     await carregarLojas();
     await carregarEditoras();
-    await carregarContatos();
 
 });
-window.mostrarAba = function (aba) {
+window.mostrarAba = async function (aba) {
 
-    document.querySelectorAll(".aba").forEach(a => {
+  document.querySelectorAll(".aba").forEach(a => {
+    a.style.display = "none";
+  });
 
-        a.style.display = "none";
+  document.getElementById("aba-" + aba).style.display = "block";
 
-    });
-
-    document.getElementById("aba-" + aba).style.display = "block";
-
+  // 🔥 carrega contatos só quando abrir a aba
+  if (aba === "contatos") {
+    await carregarContatos();
+  }
 };
 let lojasSelecionadas = new Set();
 async function carregarLojas() {
@@ -171,7 +172,9 @@ window.salvarContato = async function () {
   document.getElementById("cnpjContato").value = "";
   lojasSelecionadas.clear();
 
-  await carregarContatos();
+document.querySelectorAll("#lojasDropdownList input")
+  .forEach(cb => cb.checked = false);
+
 };
 async function carregarContatos() {
 
@@ -187,42 +190,12 @@ async function carregarContatos() {
   });
 
   renderContatos(contatos);
+
+  // 🔥 garante reset visual correto dos checkboxes
+  document.querySelectorAll("#lojasDropdownList input")
+    .forEach(cb => cb.checked = false);
 }
-function renderContatos(lista) {
 
-  const tbody = document.querySelector("#tabelaContatos tbody");
-
-  tbody.innerHTML = "";
-
-  lista.forEach(c => {
-
-    tbody.innerHTML += `
-      <tr>
-        <td>${c.loja}</td>
-        <td>${c.editora}</td>
-        <td>${c.nome || "-"}</td>
-        <td>${c.email}</td>
-        <td>
-          <button onclick="editarContato('${c.id}')">✏️</button>
-          <button onclick="excluirContato('${c.id}','${c.email}','${c.editora}')">🗑️</button>
-        </td>
-      </tr>
-    `;
-  });
-}
-window.pesquisarContatos = function () {
-
-  const termo = document.getElementById("pesquisaContato").value.toLowerCase();
-
-  const filtrado = contatos.filter(c =>
-    c.email.toLowerCase().includes(termo) ||
-    (c.nome || "").toLowerCase().includes(termo) ||
-    c.loja.includes(termo) ||
-    c.editora.includes(termo)
-  );
-
-  renderContatos(filtrado);
-};
 window.editarContato = async function (id) {
 
   const contato = contatos.find(c => c.id === id);
@@ -254,7 +227,6 @@ window.editarContato = async function (id) {
     }
   }
 
-  await carregarContatos();
 };
 window.excluirContato = async function (id, email, editora) {
 
@@ -280,7 +252,6 @@ window.excluirContato = async function (id, email, editora) {
     }
   }
 
-  await carregarContatos();
 };
 window.importarCSV = async function () {
 
@@ -292,48 +263,55 @@ window.importarCSV = async function () {
   }
 
   const text = await file.text();
-  const linhas = text.split("\n");
 
-  // vamos agrupar o CSV por loja + editora
+  const linhas = text
+    .split("\n")
+    .map(l => l.trim())
+    .filter(l => l);
+
   const mapa = new Map();
 
   for (let linha of linhas) {
 
-    if (!linha.trim()) continue;
+    if (!linha) continue;
 
-    const [loja, cnpj, emails, nome] = linha.split(";");
+    const partes = linha.split(";");
+
+    const loja = partes[0]?.trim();
+    const cnpj = partes[1]?.trim();
+    const emails = partes[2]?.trim();
+    const nome = partes[3]?.trim();
 
     if (!loja || !cnpj || !emails) continue;
 
-    const chave = `${loja.trim()}_${cnpj.trim()}`;
+    const chave = `${loja}_${cnpj}`;
 
     if (!mapa.has(chave)) {
       mapa.set(chave, []);
     }
 
-    const listaEmails = emails.split(";").map(e => e.trim());
+    const listaEmails = emails.split("|").map(e => e.trim());
 
-    listaEmails.forEach(email => {
-      if (!email) return;
+    for (let email of listaEmails) {
+
+      if (!email) continue;
 
       mapa.get(chave).push({
         email,
         nome: nome || null,
-        loja: loja.trim(),
-        editora: cnpj.trim()
+        loja,
+        editora: cnpj
       });
-    });
+    }
   }
 
   let removidos = 0;
   let criados = 0;
 
-  // processa cada grupo (LOJA + EDITORA)
   for (let [chave, novosContatos] of mapa.entries()) {
 
     const [loja, editora] = chave.split("_");
 
-    // 1. BUSCAR EXISTENTES
     const q = query(
       collection(db, "contatos"),
       where("loja", "==", loja),
@@ -342,23 +320,19 @@ window.importarCSV = async function () {
 
     const snap = await getDocs(q);
 
-    // 2. APAGAR EXISTENTES (SOBRESCRITA REAL)
     for (let docSnap of snap.docs) {
       await deleteDoc(doc(db, "contatos", docSnap.id));
       removidos++;
     }
 
-    // 3. INSERIR NOVOS DO CSV
     for (let c of novosContatos) {
-
       await addDoc(collection(db, "contatos"), c);
       criados++;
     }
   }
 
-  alert(
-    `Importação concluída!\n\nRemovidos: ${removidos}\nCriados: ${criados}`
-  );
+  alert(`Importação concluída!\n\nRemovidos: ${removidos}\nCriados: ${criados}`);
 
-  await carregarContatos();
+  // 🔥 limpeza de estado global
+  lojasSelecionadas.clear();
 };
