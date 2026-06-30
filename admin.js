@@ -66,27 +66,44 @@ window.mostrarAba = function (aba) {
     document.getElementById("aba-" + aba).style.display = "block";
 
 };
+let lojasSelecionadas = new Set();
 async function carregarLojas() {
 
-    lojas = [];
+  const div = document.getElementById("lojasDropdownList");
 
-    const snap = await getDocs(collection(db, "lojas"));
+  div.innerHTML = "";
 
-    snap.forEach(doc => {
+  const snap = await getDocs(collection(db, "lojas"));
 
-        lojas.push({
+  snap.forEach(doc => {
 
-            id: doc.id,
+    const l = doc.data();
 
-            ...doc.data()
-
-        });
-
-    });
-
-    montarListaLojas();
-
+    div.innerHTML += `
+      <label>
+        <input type="checkbox" value="${l.numero}"
+          onchange="toggleLoja('${l.numero}')">
+        ${l.numero} - ${l.nome}
+      </label><br>
+    `;
+  });
 }
+window.toggleLoja = function (numero) {
+
+  if (lojasSelecionadas.has(numero)) {
+    lojasSelecionadas.delete(numero);
+  } else {
+    lojasSelecionadas.add(numero);
+  }
+};
+window.toggleLojasDropdown = function () {
+
+  const el = document.getElementById("lojasDropdownList");
+
+  el.style.display = el.style.display === "block"
+    ? "none"
+    : "block";
+};
 function montarListaLojas(filtro = "") {
 
     const div = document.getElementById("lojasCheckbox");
@@ -126,24 +143,22 @@ document
 });
 async function carregarEditoras() {
 
-    editoras = [];
+  const select = document.getElementById("cnpjContato");
 
-    const snap = await getDocs(collection(db, "editoras"));
+  select.innerHTML = `<option value="">Selecione a editora</option>`;
 
-    snap.forEach(doc => {
+  const snap = await getDocs(collection(db, "editoras"));
 
-        editoras.push({
+  snap.forEach(doc => {
 
-            id: doc.id,
+    const e = doc.data();
 
-            ...doc.data()
-
-        });
-
-    });
-
-    montarListaEditoras();
-
+    select.innerHTML += `
+      <option value="${e.cnpj}">
+        ${e.cnpj} - ${e.nome}
+      </option>
+    `;
+  });
 }
 function montarListaEditoras(filtro = "") {
 
@@ -190,19 +205,18 @@ window.salvarContato = async function () {
 
   const email = document.getElementById("emailContato").value.trim();
   const nome = document.getElementById("nomeContato").value.trim();
+  const editora = document.getElementById("cnpjContato").value;
 
-  const editora = document.querySelector("input[name='editora']:checked")?.value;
+  const lojas = Array.from(lojasSelecionadas);
 
-  const lojasSel = Array.from(
-    document.querySelectorAll(".ck-loja:checked")
-  ).map(e => e.value);
-
-  if (!email || !editora || lojasSel.length === 0) {
-    alert("Preencha email, editora e pelo menos uma loja");
+  if (!email || !editora || lojas.length === 0) {
+    alert("Preencha email, editora e lojas");
     return;
   }
 
-  for (let loja of lojasSel) {
+  let criados = 0;
+
+  for (let loja of lojas) {
 
     const q = query(
       collection(db, "contatos"),
@@ -221,9 +235,17 @@ window.salvarContato = async function () {
       editora,
       loja
     });
+
+    criados++;
   }
 
-  alert("Contato salvo com sucesso!");
+  alert(`${criados} contato(s) criado(s)`);
+
+  // reset
+  document.getElementById("emailContato").value = "";
+  document.getElementById("nomeContato").value = "";
+  document.getElementById("cnpjContato").value = "";
+  lojasSelecionadas.clear();
 
   await carregarContatos();
 };
