@@ -1,17 +1,56 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import {
+  db,
+  auth
+} from "./firebase-config.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCxE43A8C5Fvy0jecQD-4iYmASrGgRtY6g",
-  authDomain: "consultaemails-55dc7.firebaseapp.com",
-  projectId: "consultaemails-55dc7",
-  storageBucket: "consultaemails-55dc7.firebasestorage.app",
-  messagingSenderId: "666632159596",
-  appId: "1:666632159596:web:ec61c881762692e1f37349"
+import {
+  collection,
+  addDoc
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+import {
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+window.login = function () {
+
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
+
+  signInWithEmailAndPassword(auth, email, senha)
+    .catch(err => alert(err.message));
 };
 
-const app = initializeApp(firebaseConfig);
+onAuthStateChanged(auth, user => {
 
-export const db = getFirestore(app);
-export const auth = getAuth(app);
+  if (user) {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("painel").style.display = "block";
+  }
+
+});
+
+window.logout = function () {
+  signOut(auth);
+};
+
+window.salvar = async function () {
+
+  const nome = document.getElementById("nome").value;
+  const cnpj = document.getElementById("cnpj").value;
+  const lojas = document.getElementById("lojas").value.split(",").map(l => l.trim());
+  const email = document.getElementById("emailContato").value;
+
+  await addDoc(collection(db, "editoras"), {
+    nome,
+    cnpj,
+    lojas,
+    contatos: [
+      { email }
+    ]
+  });
+
+  alert("Salvo com sucesso!");
+};
