@@ -104,43 +104,7 @@ window.toggleLojasDropdown = function () {
     ? "none"
     : "block";
 };
-function montarListaLojas(filtro = "") {
 
-    const div = document.getElementById("lojasCheckbox");
-
-    div.innerHTML = "";
-
-    lojas
-        .filter(l =>
-            l.numero.includes(filtro) ||
-            l.nome.toLowerCase().includes(filtro.toLowerCase())
-        )
-        .sort((a, b) => a.numero.localeCompare(b.numero))
-        .forEach(loja => {
-
-            div.innerHTML += `
-<label>
-
-<input
-type="checkbox"
-class="checkLoja"
-value="${loja.numero}">
-
-${loja.numero} - ${loja.nome}
-
-</label><br>
-`;
-
-        });
-
-}
-document
-.getElementById("pesquisaLoja")
-.addEventListener("input", e => {
-
-    montarListaLojas(e.target.value);
-
-});
 async function carregarEditoras() {
 
   const select = document.getElementById("cnpjContato");
@@ -160,47 +124,7 @@ async function carregarEditoras() {
     `;
   });
 }
-function montarListaEditoras(filtro = "") {
 
-    const div = document.getElementById("editorasCheckbox");
-
-    div.innerHTML = "";
-
-    editoras
-        .filter(e =>
-            e.cnpj.includes(filtro)
-        )
-        .sort((a, b) => a.cnpj.localeCompare(b.cnpj))
-        .forEach(editora => {
-
-            div.innerHTML += `
-<label>
-
-<input
-type="radio"
-name="editora"
-
-class="radioEditora"
-
-value="${editora.cnpj}">
-
-${editora.cnpj}
-
- - ${editora.nome}
-
-</label><br>
-`;
-
-        });
-
-}
-document
-.getElementById("pesquisaEditora")
-.addEventListener("input", e => {
-
-    montarListaEditoras(e.target.value);
-
-});
 window.salvarContato = async function () {
 
   const email = document.getElementById("emailContato").value.trim();
