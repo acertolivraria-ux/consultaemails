@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Admin</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Admin</h2>
+
+<div id="loginBox">
+
+<input id="email" placeholder="Email">
+<input id="senha" type="password" placeholder="Senha">
+
+<button onclick="login()">Entrar</button>
+
+</div>
+
+<div id="painel" style="display:none">
+
+<h3>Cadastro</h3>
+
+<input id="nome" placeholder="Editora">
+<input id="cnpj" placeholder="CNPJ">
+<input id="lojas" placeholder="Lojas (001,002)">
+
+<input id="emailContato" placeholder="Email contato">
+
+<button onclick="salvar()">Salvar</button>
+
+<button onclick="logout()">Sair</button>
+
+</div>
+
+</div>
+
+<script type="module" src="admin.js"></script>
+
+</body>
+</html>
