@@ -189,8 +189,6 @@ async function carregarContatos() {
     });
   });
 
-  renderContatos(contatos);
-
   // 🔥 garante reset visual correto dos checkboxes
   document.querySelectorAll("#lojasDropdownList input")
     .forEach(cb => cb.checked = false);
