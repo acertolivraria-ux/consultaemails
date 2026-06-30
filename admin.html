@@ -2,293 +2,151 @@
 <html lang="pt-BR">
 
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Painel Administrativo</title>
+<title>Admin</title>
 
 <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
 
 <div class="menu">
-
-<a href="index.html">🔎 Consulta</a>
-<a href="admin.html">🔐 Administração</a>
-<a href="#" onclick="logout()">🚪 Logout</a>
-
+  <a href="index.html">🔎 Consulta</a>
+  <a href="admin.html">🔐 Admin</a>
+  <a href="#" onclick="logout()">🚪 Sair</a>
 </div>
 
 <div class="container">
 
 <!-- LOGIN -->
-
 <div id="loginBox">
 
-<h2>Login</h2>
+  <h2>Login</h2>
 
-<input
-id="email"
-type="email"
-placeholder="Email">
+  <input id="email" type="email" placeholder="Email">
+  <input id="senha" type="password" placeholder="Senha">
 
-<input
-id="senha"
-type="password"
-placeholder="Senha">
-
-<button onclick="login()">
-Entrar
-</button>
+  <button onclick="login()">Entrar</button>
 
 </div>
 
 <!-- PAINEL -->
+<div id="painel" style="display:none">
 
-<div id="painel" style="display:none;">
+  <h2>Painel Administrativo</h2>
 
-<h2>Painel Administrativo</h2>
+  <!-- ABAS -->
+  <div class="tabs">
 
-<div class="tabs">
+    <button onclick="mostrarAba('lojas')">🏬 Lojas</button>
+    <button onclick="mostrarAba('editoras')">🏢 Editoras</button>
+    <button onclick="mostrarAba('contatos')">📧 Contatos</button>
 
-<button onclick="mostrarAba('lojas')">
-🏬 Lojas
-</button>
+  </div>
 
-<button onclick="mostrarAba('editoras')">
-🏢 Editoras
-</button>
+  <hr>
 
-<button onclick="mostrarAba('contatos')">
-📧 Contatos
-</button>
+  <!-- ===================== LOJAS ===================== -->
+  <div id="aba-lojas" class="aba">
 
-</div>
+    <h3>Cadastrar Loja</h3>
 
-<hr>
+    <input id="numeroLoja" placeholder="Número">
+    <input id="nomeLoja" placeholder="Nome">
 
-<!-- ========================= -->
-<!-- LOJAS -->
-<!-- ========================= -->
+    <button onclick="salvarLoja()">Salvar Loja</button>
 
-<div id="aba-lojas" class="aba">
+  </div>
 
-<h3>Cadastro de Loja</h3>
+  <!-- ===================== EDITORAS ===================== -->
+  <div id="aba-editoras" class="aba" style="display:none">
 
-<input
-id="numeroLoja"
-placeholder="Número">
+    <h3>Cadastrar Editora</h3>
 
-<input
-id="nomeLoja"
-placeholder="Nome">
+    <input id="cnpjEditora" placeholder="CNPJ">
+    <input id="nomeEditora" placeholder="Nome">
 
-<button onclick="salvarLoja()">
-Salvar Loja
-</button>
+    <button onclick="salvarEditora()">Salvar Editora</button>
 
-</div>
+  </div>
 
-<!-- ========================= -->
-<!-- EDITORAS -->
-<!-- ========================= -->
+  <!-- ===================== CONTATOS ===================== -->
+  <div id="aba-contatos" class="aba" style="display:none">
 
-<div
-id="aba-editoras"
-class="aba"
-style="display:none;">
+    <h3>Cadastrar Contato</h3>
 
-<h3>Cadastro de Editora</h3>
+    <label>Email *</label>
+    <input id="emailContato" type="email" placeholder="email@empresa.com">
 
-<input
-id="cnpjEditora"
-placeholder="CNPJ">
+    <label>Nome (opcional)</label>
+    <input id="nomeContato" placeholder="Nome do responsável">
 
-<input
-id="nomeEditora"
-placeholder="Nome">
+    <br><br>
 
-<button onclick="salvarEditora()">
-Salvar Editora
-</button>
+    <!-- EDITORA -->
+    <label>Editora *</label>
+    <select id="cnpjContato">
+      <option value="">Selecione a editora</option>
+    </select>
 
-</div>
+    <br><br>
 
-<!-- ========================= -->
-<!-- CONTATOS -->
-<!-- ========================= -->
+    <!-- LOJAS MULTI -->
+    <label>Lojas *</label>
 
-<div
-id="aba-contatos"
-class="aba"
-style="display:none;">
+    <div class="dropdown-multi">
 
-<h2>Cadastro de Contatos</h2>
+      <button type="button" onclick="toggleLojasDropdown()">
+        Selecionar lojas ▼
+      </button>
 
-<hr>
+      <div id="lojasDropdownList" class="dropdown-content" style="display:none;">
+      </div>
 
-<h3>Novo Contato</h3>
+    </div>
 
-<label>Email *</label>
+    <br><br>
 
-<input
-type="email"
-id="emailContato"
-placeholder="email@empresa.com">
+    <button onclick="salvarContato()">Salvar Contato</button>
 
-<label>Nome do responsável (opcional)</label>
+    <hr>
 
-<input
-id="nomeContato"
-placeholder="Nome">
+    <h3>Pesquisar Contatos</h3>
 
-<br><br>
+    <input id="pesquisaContato" placeholder="Email, nome, loja ou CNPJ">
+    <button onclick="pesquisarContatos()">Pesquisar</button>
 
-<label>Pesquisar CNPJ</label>
+    <hr>
 
-<input
-id="pesquisaEditora"
-placeholder="Digite parte do CNPJ...">
+    <table id="tabelaContatos">
 
-<div
-id="editorasCheckbox"
-class="listaCheckbox">
-</div>
+      <thead>
+        <tr>
+          <th>Loja</th>
+          <th>Editora</th>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
 
-<br>
+      <tbody></tbody>
 
-<label>Pesquisar Loja</label>
+    </table>
 
-<input
-id="pesquisaLoja"
-placeholder="Número ou nome da loja">
+    <hr>
 
-<div
-id="lojasCheckbox"
-class="listaCheckbox">
-</div>
+    <h3>Importação CSV</h3>
 
-<br>
+    <input type="file" id="csvFile" accept=".csv">
 
-<button onclick="salvarContato()">
-Salvar Contato
-</button>
+    <br><br>
 
-<hr>
+    <button onclick="importarCSV()">Importar CSV</button>
 
-<h3>Pesquisar Contatos</h3>
-
-<input
-id="pesquisaContato"
-placeholder="Email, nome, CNPJ ou loja">
-
-<button onclick="pesquisarContatos()">
-
-Pesquisar
-
-</button>
-
-<hr>
-
-<table id="tabelaContatos">
-
-<thead>
-
-<tr>
-
-<th>Loja</th>
-
-<th>Editora</th>
-
-<th>Responsável</th>
-
-<th>Email</th>
-
-<th>Ações</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-</tbody>
-
-</table>
-
-<hr>
-
-<h3>Importação CSV</h3>
-
-<p>
-
-Formato esperado:
-
-</p>
-
-<table>
-
-<tr>
-
-<th>Coluna</th>
-
-<th>Conteúdo</th>
-
-</tr>
-
-<tr>
-
-<td>A</td>
-
-<td>Número da Loja</td>
-
-</tr>
-
-<tr>
-
-<td>B</td>
-
-<td>CNPJ</td>
-
-</tr>
-
-<tr>
-
-<td>C</td>
-
-<td>E-mails separados por ;</td>
-
-</tr>
-
-<tr>
-
-<td>D</td>
-
-<td>Nome do responsável (opcional)</td>
-
-</tr>
-
-</table>
-
-<br>
-
-<input
-type="file"
-id="csvFile"
-accept=".csv">
-
-<br><br>
-
-<button onclick="importarCSV()">
-
-Importar CSV
-
-</button>
-
-</div>
+  </div>
 
 </div>
 
@@ -297,5 +155,4 @@ Importar CSV
 <script type="module" src="admin.js"></script>
 
 </body>
-
 </html>
