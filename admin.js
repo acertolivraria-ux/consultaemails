@@ -82,31 +82,84 @@ window.mostrarAba = function (aba) {
 };
 window.salvarLoja = async function () {
 
-  const numero = document.getElementById("numeroLoja").value;
-  const nome = document.getElementById("nomeLoja").value;
+  const numero = document.getElementById("numeroLoja").value.trim();
+  const nome = document.getElementById("nomeLoja").value.trim();
+
+  if (!numero || !nome) {
+    alert("Preencha todos os campos");
+    return;
+  }
+
+  const snap = await getDocs(collection(db, "lojas"));
+
+  let existe = false;
+
+  snap.forEach(doc => {
+    const d = doc.data();
+
+    if (d.numero === numero || d.nome.toLowerCase() === nome.toLowerCase()) {
+      existe = true;
+    }
+  });
+
+  if (existe) {
+    alert("❌ Já existe uma loja com esse número ou nome");
+    return;
+  }
 
   await addDoc(collection(db, "lojas"), {
     numero,
     nome
   });
 
-  alert("Loja salva!");
+  alert("✔ Loja cadastrada com sucesso!");
+
+  // LIMPAR CAMPOS
+  document.getElementById("numeroLoja").value = "";
+  document.getElementById("nomeLoja").value = "";
 };
 window.salvarEditora = async function () {
 
-  const nome = document.getElementById("nomeEditora").value;
-  const cnpj = document.getElementById("cnpjEditora").value;
+  const nome = document.getElementById("nomeEditora").value.trim();
+  const cnpj = document.getElementById("cnpjEditora").value.trim();
+
+  if (!nome || !cnpj) {
+    alert("Preencha todos os campos");
+    return;
+  }
+
+  const snap = await getDocs(collection(db, "editoras"));
+
+  let existe = false;
+
+  snap.forEach(doc => {
+    const d = doc.data();
+
+    if (d.cnpj === cnpj) {
+      existe = true;
+    }
+  });
+
+  if (existe) {
+    alert("❌ Já existe uma editora com esse CNPJ");
+    return;
+  }
 
   await addDoc(collection(db, "editoras"), {
     nome,
     cnpj
   });
 
-  alert("Editora salva!");
+  alert("✔ Editora cadastrada com sucesso!");
+
+  // LIMPAR CAMPOS
+  document.getElementById("nomeEditora").value = "";
+  document.getElementById("cnpjEditora").value = "";
 };
+
 window.salvarContato = async function () {
 
-  const email = document.getElementById("emailContato").value;
+  const email = document.getElementById("emailContato").value.trim();
   const lojas = document.getElementById("lojasContato").value
     .split(",")
     .map(l => l.trim());
@@ -116,5 +169,9 @@ window.salvarContato = async function () {
     lojas
   });
 
-  alert("Contato salvo!");
+  alert("✔ Contato salvo!");
+
+  // LIMPAR CAMPOS
+  document.getElementById("emailContato").value = "";
+  document.getElementById("lojasContato").value = "";
 };
