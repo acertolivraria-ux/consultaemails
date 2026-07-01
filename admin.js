@@ -334,3 +334,21 @@ window.importarCSV = async function () {
   // 🔥 limpeza de estado global
   lojasSelecionadas.clear();
 };
+const profileToggle = document.getElementById("profileToggle");
+const profileDropdown = document.getElementById("profileDropdown");
+
+if (profileToggle && profileDropdown) {
+
+  profileToggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    profileDropdown.classList.toggle("show");
+  });
+
+  document.addEventListener("click", () => {
+    profileDropdown.classList.remove("show");
+  });
+
+  profileDropdown.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
+}
