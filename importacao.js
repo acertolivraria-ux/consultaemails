@@ -199,58 +199,56 @@ async function executarImportacao(lista) {
     atualizarProgresso();
   }
 }
-async function importarCSV() {
+window.importarCSV = async function () {
 
-  const file = document.getElementById("csvFile").files[0];
+  try {
 
-  if (!file) {
-    alert("Selecione um arquivo CSV");
-    return;
+    const file = document.getElementById("csvFile").files[0];
+
+    if (!file) {
+      alert("Selecione um arquivo CSV");
+      return;
+    }
+
+    progressoAtual = 0;
+    totalLinhas = 0;
+    criados = 0;
+    removidos = 0;
+    ignorados = 0;
+
+    const text = await file.text();
+
+    const linhasBrutas = text
+      .split("\n")
+      .map(l => l.trim())
+      .filter(l => l);
+
+    totalLinhas = linhasBrutas.length;
+
+    const lista = parseCSV(text);
+
+    totalLinhas = lista.length;
+
+    atualizarProgresso();
+
+    await executarImportacao(lista);
+
+    atualizarProgresso();
+
+    alert(
+      `Importação concluída!\n\n` +
+      `✔ Criados: ${criados}\n` +
+      `🗑 Removidos: ${removidos}\n` +
+      `⚠ Ignorados: ${ignorados}`
+    );
+
+    document.querySelectorAll("#lojasDropdownList input")
+      .forEach(cb => cb.checked = false);
+
+    document.getElementById("csvFile").value = "";
+
+  } catch (e) {
+    console.error(e);
+    alert("Erro na importação. Veja o console.");
   }
-
-  // 🔄 reset de estado
-  progressoAtual = 0;
-  totalLinhas = 0;
-  criados = 0;
-  removidos = 0;
-  ignorados = 0;
-
-  const text = await file.text();
-
-  // 📄 parse inicial de linhas
-  const linhasBrutas = text
-    .split("\n")
-    .map(l => l.trim())
-    .filter(l => l);
-
-  totalLinhas = linhasBrutas.length;
-
-  // 🔥 transforma CSV em estrutura limpa
-  const lista = parseCSV(text);
-
-  totalLinhas = lista.length;
-
-  atualizarProgresso();
-
-  // 🚀 executa importação
-  await executarImportacao(lista);
-
-  // 📊 finalização
-  atualizarProgresso();
-
-  alert(
-    `Importação concluída!\n\n` +
-    `✔ Criados: ${criados}\n` +
-    `🗑 Removidos: ${removidos}\n` +
-    `⚠ Ignorados: ${ignorados}`
-  );
-
-  // 🧹 limpa estado do sistema
-  lojasSelecionadas.clear();
-
-  document.querySelectorAll("#lojasDropdownList input")
-    .forEach(cb => cb.checked = false);
-
-  document.getElementById("csvFile").value = "";
 };
-window.importarCSV = importarCSV;
