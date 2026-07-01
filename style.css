@@ -236,3 +236,45 @@ button:active {
 .menu a:last-of-type {
   margin-left: auto;
 }
+.profile-menu {
+  position: relative;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+
+  min-width: 160px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  box-shadow: var(--shadow);
+
+  display: none;
+
+  padding: 6px;
+}
+
+.profile-dropdown.show {
+  display: block;
+}
+
+.profile-dropdown button {
+  width: 100%;
+  margin: 0;
+
+  background: transparent;
+  color: var(--text);
+
+  border: none;
+  box-shadow: none;
+
+  text-align: left;
+}
+
+.profile-dropdown button:hover {
+  background: rgba(127,127,127,.08);
+}
