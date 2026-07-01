@@ -253,3 +253,4 @@ window.importarCSV = async function () {
 
   document.getElementById("csvFile").value = "";
 };
+window.importarCSV = importarCSV;
