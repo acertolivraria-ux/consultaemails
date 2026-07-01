@@ -29,7 +29,11 @@ function emailValido(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 function parseCSV(texto) {
-  const linhas = texto
+
+  // 🔥 normaliza quebras de linha quebradas dentro do campo de emails
+  const normalizado = texto.replace(/\|\s*\n\s*/g, "|");
+
+  const linhas = normalizado
     .split("\n")
     .map(l => limparTexto(l))
     .filter(l => l);
@@ -37,6 +41,7 @@ function parseCSV(texto) {
   const resultado = [];
 
   for (let i = 0; i < linhas.length; i++) {
+
     const linha = linhas[i];
 
     // 🔥 ignora cabeçalho (linha 1)
@@ -59,6 +64,7 @@ function parseCSV(texto) {
     const emails = emailsRaw.split("|");
 
     for (let email of emails) {
+
       email = limparTexto(email);
 
       if (!email || !emailValido(email)) {
