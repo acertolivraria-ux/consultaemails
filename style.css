@@ -161,10 +161,9 @@ button:active {
 .menu {
   display: flex;
   align-items: center;
-  gap: 18px;
+  justify-content: space-between;
 
   padding: 12px 20px;
-
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 
@@ -173,12 +172,18 @@ button:active {
   z-index: 100;
 }
 
+.menu-left,
+.menu-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .menu a {
   color: var(--muted);
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
-
   transition: 0.15s ease;
 }
 
