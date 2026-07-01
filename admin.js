@@ -16,44 +16,57 @@ import {
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-let usuario = null;
 
-let lojas = [];
-let editoras = [];
+/* =========================
+   ESTADO GLOBAL
+========================= */
+
+let usuario = null;
+let lojasSelecionadas = new Set();
 let contatos = [];
+
+/* =========================
+   LOGIN / LOGOUT
+========================= */
+
 window.login = function () {
 
-    const email = document.getElementById("email").value;
-    const senha = document.getElementById("senha").value;
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
 
-    signInWithEmailAndPassword(auth, email, senha)
-        .catch(err => alert(err.message));
-
+  signInWithEmailAndPassword(auth, email, senha)
+    .catch(err => alert(err.message));
 };
+
 window.logout = async function () {
-
-    await signOut(auth);
-
+  await signOut(auth);
 };
+
+/* =========================
+   AUTH STATE
+========================= */
+
 onAuthStateChanged(auth, async (user) => {
 
-    usuario = user;
+  usuario = user;
 
-    if (!user) {
+  if (!user) {
+    document.getElementById("loginBox").style.display = "block";
+    document.getElementById("painel").style.display = "none";
+    return;
+  }
 
-        document.getElementById("loginBox").style.display = "block";
-        document.getElementById("painel").style.display = "none";
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("painel").style.display = "block";
 
-        return;
-    }
-
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("painel").style.display = "block";
-
-    await carregarLojas();
-    await carregarEditoras();
-
+  await carregarLojas();
+  await carregarEditoras();
 });
+
+/* =========================
+   ABAS
+========================= */
+
 window.mostrarAba = async function (aba) {
 
   document.querySelectorAll(".aba").forEach(a => {
@@ -62,41 +75,44 @@ window.mostrarAba = async function (aba) {
 
   document.getElementById("aba-" + aba).style.display = "block";
 
-  // 🔥 carrega contatos só quando abrir a aba
   if (aba === "contatos") {
     await carregarContatos();
   }
 };
-let lojasSelecionadas = new Set();
+
+/* =========================
+   LOJAS
+========================= */
+
 async function carregarLojas() {
 
   const div = document.getElementById("lojasDropdownList");
-
   div.innerHTML = "";
 
   const snap = await getDocs(collection(db, "lojas"));
 
-  snap.forEach(doc => {
-
-    const l = doc.data();
+  snap.forEach(d => {
+    const l = d.data();
 
     div.innerHTML += `
       <label>
-        <input type="checkbox" value="${l.numero}"
+        <input type="checkbox"
+          value="${l.numero}"
           onchange="toggleLoja('${l.numero}')">
         ${l.numero} - ${l.nome}
       </label><br>
     `;
   });
 }
-window.toggleLoja = function (numero) {
 
+window.toggleLoja = function (numero) {
   if (lojasSelecionadas.has(numero)) {
     lojasSelecionadas.delete(numero);
   } else {
     lojasSelecionadas.add(numero);
   }
 };
+
 window.toggleLojasDropdown = function () {
 
   const el = document.getElementById("lojasDropdownList");
@@ -106,6 +122,10 @@ window.toggleLojasDropdown = function () {
     : "block";
 };
 
+/* =========================
+   EDITORAS
+========================= */
+
 async function carregarEditoras() {
 
   const select = document.getElementById("cnpjContato");
@@ -114,9 +134,8 @@ async function carregarEditoras() {
 
   const snap = await getDocs(collection(db, "editoras"));
 
-  snap.forEach(doc => {
-
-    const e = doc.data();
+  snap.forEach(d => {
+    const e = d.data();
 
     select.innerHTML += `
       <option value="${e.cnpj}">
@@ -126,12 +145,15 @@ async function carregarEditoras() {
   });
 }
 
+/* =========================
+   SALVAR CONTATO (MANUAL)
+========================= */
+
 window.salvarContato = async function () {
 
   const email = document.getElementById("emailContato").value.trim();
   const nome = document.getElementById("nomeContato").value.trim();
   const editora = document.getElementById("cnpjContato").value;
-
   const lojas = Array.from(lojasSelecionadas);
 
   if (!email || !editora || lojas.length === 0) {
@@ -166,16 +188,20 @@ window.salvarContato = async function () {
 
   alert(`${criados} contato(s) criado(s)`);
 
-  // reset
   document.getElementById("emailContato").value = "";
   document.getElementById("nomeContato").value = "";
   document.getElementById("cnpjContato").value = "";
+
   lojasSelecionadas.clear();
 
-document.querySelectorAll("#lojasDropdownList input")
-  .forEach(cb => cb.checked = false);
-
+  document.querySelectorAll("#lojasDropdownList input")
+    .forEach(cb => cb.checked = false);
 };
+
+/* =========================
+   CONTATOS
+========================= */
+
 async function carregarContatos() {
 
   contatos = [];
@@ -189,20 +215,24 @@ async function carregarContatos() {
     });
   });
 
-  // 🔥 garante reset visual correto dos checkboxes
   document.querySelectorAll("#lojasDropdownList input")
     .forEach(cb => cb.checked = false);
 }
 
+/* =========================
+   EDITAR CONTATO
+========================= */
+
 window.editarContato = async function (id) {
 
   const contato = contatos.find(c => c.id === id);
+  if (!contato) return;
 
   const novoEmail = prompt("Novo email:", contato.email);
   if (!novoEmail) return;
 
   const modo = confirm(
-    "OK = alterar apenas esta loja\nCancelar = alterar todas as lojas da editora"
+    "OK = alterar apenas este\nCancelar = alterar todos da editora"
   );
 
   if (modo) {
@@ -224,12 +254,16 @@ window.editarContato = async function (id) {
       });
     }
   }
-
 };
+
+/* =========================
+   EXCLUIR CONTATO
+========================= */
+
 window.excluirContato = async function (id, email, editora) {
 
   const modo = confirm(
-    "OK = excluir apenas esta loja\nCancelar = excluir todas as lojas da editora"
+    "OK = excluir apenas este\nCancelar = excluir todos da editora"
   );
 
   if (modo) {
@@ -249,90 +283,6 @@ window.excluirContato = async function (id, email, editora) {
       }
     }
   }
-
-};
-window.importarCSV = async function () {
-
-  const file = document.getElementById("csvFile").files[0];
-
-  if (!file) {
-    alert("Selecione um arquivo CSV");
-    return;
-  }
-
-  const text = await file.text();
-
-  const linhas = text
-    .split("\n")
-    .map(l => l.trim())
-    .filter(l => l);
-
-  const mapa = new Map();
-
-  for (let linha of linhas) {
-
-    if (!linha) continue;
-
-    const partes = linha.split(";");
-
-    const loja = partes[0]?.trim();
-    const cnpj = partes[1]?.trim();
-    const emails = partes[2]?.trim();
-    const nome = partes[3]?.trim();
-
-    if (!loja || !cnpj || !emails) continue;
-
-    const chave = `${loja}_${cnpj}`;
-
-    if (!mapa.has(chave)) {
-      mapa.set(chave, []);
-    }
-
-    const listaEmails = emails.split("|").map(e => e.trim());
-
-    for (let email of listaEmails) {
-
-      if (!email) continue;
-
-      mapa.get(chave).push({
-        email,
-        nome: nome || null,
-        loja,
-        editora: cnpj
-      });
-    }
-  }
-
-  let removidos = 0;
-  let criados = 0;
-
-  for (let [chave, novosContatos] of mapa.entries()) {
-
-    const [loja, editora] = chave.split("_");
-
-    const q = query(
-      collection(db, "contatos"),
-      where("loja", "==", loja),
-      where("editora", "==", editora)
-    );
-
-    const snap = await getDocs(q);
-
-    for (let docSnap of snap.docs) {
-      await deleteDoc(doc(db, "contatos", docSnap.id));
-      removidos++;
-    }
-
-    for (let c of novosContatos) {
-      await addDoc(collection(db, "contatos"), c);
-      criados++;
-    }
-  }
-
-  alert(`Importação concluída!\n\nRemovidos: ${removidos}\nCriados: ${criados}`);
-
-  // 🔥 limpeza de estado global
-  lojasSelecionadas.clear();
 };
 const profileToggle = document.getElementById("profileToggle");
 const profileDropdown = document.getElementById("profileDropdown");
