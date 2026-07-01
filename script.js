@@ -1,4 +1,3 @@
-console.log("SCRIPT CARREGOU");
 import { db } from "./firebase-config.js";
 
 import {
@@ -129,3 +128,33 @@ window.copiarTodos = function () {
 
   alert("Todos os e-mails foram copiados!");
 };
+const root = document.body;
+
+// botão do toggle
+const toggleBtn = document.getElementById("themeToggle");
+
+// pega tema salvo
+const savedTheme = localStorage.getItem("theme");
+
+// aplica tema inicial
+if (savedTheme) {
+  root.setAttribute("data-theme", savedTheme);
+  if (toggleBtn) {
+    toggleBtn.textContent = savedTheme === "dark" ? "☀️" : "🌙";
+  }
+} else {
+  root.setAttribute("data-theme", "light");
+}
+
+// evento do botão
+if (toggleBtn) {
+  toggleBtn.addEventListener("click", () => {
+    const current = root.getAttribute("data-theme");
+    const next = current === "dark" ? "light" : "dark";
+
+    root.setAttribute("data-theme", next);
+    localStorage.setItem("theme", next);
+
+    toggleBtn.textContent = next === "dark" ? "☀️" : "🌙";
+  });
+}
