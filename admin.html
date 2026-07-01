@@ -8,42 +8,46 @@
 <title>Admin</title>
 
 <link rel="stylesheet" href="style.css">
-  <script>
-  (function () {
-    const theme = localStorage.getItem("theme") || "light";
-    document.documentElement.setAttribute("data-theme", theme);
-  })();
+
+<script>
+(function () {
+  const theme = localStorage.getItem("theme") || "light";
+  document.documentElement.setAttribute("data-theme", theme);
+})();
 </script>
+
 </head>
 
 <body>
 
- <div class="menu">
+<!-- ================= MENU ================= -->
+<div class="menu">
+
   <div class="menu-left">
     <a href="index.html">🔎 Consulta</a>
     <a href="admin.html">🔐 Admin</a>
   </div>
 
   <div class="menu-right">
-  <button id="themeToggle" class="theme-toggle">🌙</button>
 
-  <div class="profile-menu">
-    <button id="profileToggle" class="theme-toggle">
-      👤
-    </button>
+    <button id="themeToggle" class="theme-toggle">🌙</button>
 
-    <div id="profileDropdown" class="profile-dropdown">
-      <button onclick="logout()">
-        🚪 Sair
-      </button>
+    <div class="profile-menu">
+      <button id="profileToggle" class="theme-toggle">👤</button>
+
+      <div id="profileDropdown" class="profile-dropdown">
+        <button onclick="logout()">🚪 Sair</button>
+      </div>
     </div>
+
   </div>
-</div>
+
 </div>
 
+<!-- ================= CONTAINER ================= -->
 <div class="container">
 
-<!-- LOGIN -->
+<!-- ================= LOGIN ================= -->
 <div id="loginBox">
 
   <h2>Login</h2>
@@ -55,12 +59,12 @@
 
 </div>
 
-<!-- PAINEL -->
+<!-- ================= PAINEL ================= -->
 <div id="painel" style="display:none">
 
   <h2>Painel Administrativo</h2>
 
-  <!-- ABAS -->
+  <!-- ================= ABAS ================= -->
   <div class="tabs">
 
     <button onclick="mostrarAba('lojas')">🏬 Lojas</button>
@@ -71,7 +75,7 @@
 
   <hr>
 
-  <!-- ===================== LOJAS ===================== -->
+  <!-- ================= LOJAS ================= -->
   <div id="aba-lojas" class="aba">
 
     <h3>Cadastrar Loja</h3>
@@ -83,7 +87,7 @@
 
   </div>
 
-  <!-- ===================== EDITORAS ===================== -->
+  <!-- ================= EDITORAS ================= -->
   <div id="aba-editoras" class="aba" style="display:none">
 
     <h3>Cadastrar Editora</h3>
@@ -95,7 +99,7 @@
 
   </div>
 
-  <!-- ===================== CONTATOS ===================== -->
+  <!-- ================= CONTATOS ================= -->
   <div id="aba-contatos" class="aba" style="display:none">
 
     <h3>Cadastrar Contato</h3>
@@ -108,7 +112,6 @@
 
     <br><br>
 
-    <!-- EDITORA -->
     <label>Editora *</label>
     <select id="cnpjContato">
       <option value="">Selecione a editora</option>
@@ -116,66 +119,44 @@
 
     <br><br>
 
-    <!-- LOJAS MULTI -->
     <label>Lojas *</label>
 
     <div class="dropdown-multi">
 
       <button type="button" onclick="toggleLojasDropdown()">
-        <div id="aba-contatos" class="aba" style="display:none">
+        Selecionar lojas ▼
+      </button>
 
-  <h3>Cadastrar Contato</h3>
+      <div id="lojasDropdownList" class="dropdown-content" style="display:none;"></div>
 
-  <label>Email *</label>
-  <input id="emailContato" type="email" placeholder="email@empresa.com">
+    </div>
 
-  <label>Nome (opcional)</label>
-  <input id="nomeContato" placeholder="Nome do responsável">
+    <br><br>
 
-  <br><br>
+    <button onclick="salvarContato()">Salvar Contato</button>
 
-  <label>Editora *</label>
-  <select id="cnpjContato">
-    <option value="">Selecione a editora</option>
-  </select>
+    <hr>
 
-  <br><br>
+    <h3>Importação CSV</h3>
 
-  <label>Lojas *</label>
+    <input type="file" id="csvFile" accept=".csv">
 
-  <div class="dropdown-multi">
+    <br><br>
 
-    <button type="button" onclick="toggleLojasDropdown()">
-      Selecionar lojas ▼
-    </button>
+    <button onclick="importarCSV()">Importar CSV</button>
 
-    <div id="lojasDropdownList" class="dropdown-content" style="display:none;"></div>
+    <div id="importProgress" style="margin-top:10px;"></div>
 
   </div>
 
-  <br><br>
-
-  <button onclick="salvarContato()">Salvar Contato</button>
-
-  <hr>
-
-  <h3>Importação CSV</h3>
-
-  <input type="file" id="csvFile" accept=".csv">
-  <br><br>
-
-  <button onclick="importarCSV()">Importar CSV</button>
-
-  <div id="importProgress" style="margin-top:10px;"></div>
-
 </div>
 
 </div>
 
-</div>
-
+<!-- ================= SCRIPTS ================= -->
 <script type="module" src="admin.js"></script>
-  <script type="module">
+
+<script type="module">
   import { initThemeToggle } from "./theme.js";
   initThemeToggle("themeToggle");
 </script>
