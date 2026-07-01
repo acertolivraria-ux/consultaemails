@@ -221,3 +221,13 @@ button:active {
 
   padding: 8px;
 }
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* empurra tudo depois dele pro lado direito */
+.menu a:last-of-type {
+  margin-left: auto;
+}
