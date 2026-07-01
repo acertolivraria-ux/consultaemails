@@ -199,7 +199,7 @@ async function executarImportacao(lista) {
     atualizarProgresso();
   }
 }
-window.importarCSV = async function () {
+async function importarCSV() {
 
   const file = document.getElementById("csvFile").files[0];
 
