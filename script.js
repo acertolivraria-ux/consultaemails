@@ -29,23 +29,26 @@ window.pesquisar = async function () {
   const contatosSnap = await getDocs(collection(db, "contatos"));
   const editorasSnap = await getDocs(collection(db, "editoras"));
 
-  let editoraValida = null;
+let editorasValidas = [];
 
-  /* =========================
-     VALIDAR EDITORA
-  ========================= */
-  editorasSnap.forEach(doc => {
+editorasSnap.forEach(doc => {
 
-    const d = doc.data();
+  const d = doc.data();
 
-    if (
-      d.nome?.toLowerCase() === editoraInput ||
-      d.cnpj === editoraInput
-    ) {
-      editoraValida = d.cnpj; // 👈 IMPORTANTE: usar o CNPJ
-    }
+  if (
+    d.nome?.toLowerCase() === editoraInput ||
+    d.cnpj === editoraInput
+  ) {
+    editorasValidas.push(d.cnpj);
+  }
 
-  });
+});
+
+if (editorasValidas.length === 0) {
+  document.getElementById("resultado").innerHTML =
+    "<p>❌ Editora não encontrada</p>";
+  return;
+}
 
   if (!editoraValida) {
     document.getElementById("resultado").innerHTML =
