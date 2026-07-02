@@ -50,7 +50,7 @@ if (editorasValidas.length === 0) {
   return;
 }
 
-  if (!editoraValida) {
+  if (!editorasValidas) {
     document.getElementById("resultado").innerHTML =
       "<p>❌ Editora não encontrada</p>";
     return;
