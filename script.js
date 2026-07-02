@@ -64,12 +64,12 @@ if (editorasValidas.length === 0) {
 
     const c = doc.data();
 
-    if (
-      c.loja === loja &&
-      c.editora === editoraValida
-    ) {
-      emailsAtuais.push(c.email);
-    }
+if (
+  c.loja === loja &&
+  editorasValidas.includes(c.editora)
+) {
+  emailsAtuais.push(c.email);
+}
 
   });
 
