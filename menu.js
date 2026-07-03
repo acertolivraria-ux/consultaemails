@@ -10,6 +10,7 @@ import {
    DROPDOWN ADMIN
 ===================================== */
 
+const profileDropdown = document.getElementById("profileDropdown");
 const adminToggle = document.getElementById("adminToggle");
 const adminDropdown = document.getElementById("adminDropdown");
 
@@ -32,7 +33,6 @@ if (adminToggle && adminDropdown) {
 ===================================== */
 
 const profileToggle = document.getElementById("profileToggle");
-const profileDropdown = document.getElementById("profileDropdown");
 
 if (profileToggle && profileDropdown) {
 
