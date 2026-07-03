@@ -161,3 +161,88 @@ if (toggleBtn) {
     toggleBtn.textContent = next === "dark" ? "☀️" : "🌙";
   });
 }
+import { auth } from "./firebase-config.js";
+
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+/* =========================
+   ELEMENTOS DO MENU
+========================= */
+
+const profileToggle = document.getElementById("profileToggle");
+const profileDropdown = document.getElementById("profileDropdown");
+
+const loginForm = document.getElementById("loginForm");
+const logoutBox = document.getElementById("logoutBox");
+
+const loginBtn = document.getElementById("loginBtn");
+
+/* =========================
+   ABRIR / FECHAR MENU 👤
+========================= */
+
+if (profileToggle && profileDropdown) {
+
+  profileToggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    profileDropdown.classList.toggle("show");
+  });
+
+  document.addEventListener("click", () => {
+    profileDropdown.classList.remove("show");
+  });
+
+  profileDropdown.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
+}
+
+/* =========================
+   LOGIN
+========================= */
+
+if (loginBtn) {
+  loginBtn.addEventListener("click", async () => {
+
+    const email = document.getElementById("loginEmail").value;
+    const senha = document.getElementById("loginSenha").value;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, senha);
+    } catch (err) {
+      alert("Erro: " + err.message);
+    }
+  });
+}
+
+/* =========================
+   LOGOUT
+========================= */
+
+window.logout = async function () {
+  await signOut(auth);
+};
+
+/* =========================
+   ESTADO LOGIN (AUTOMÁTICO)
+========================= */
+
+onAuthStateChanged(auth, (user) => {
+
+  if (user) {
+
+    // LOGADO
+    loginForm.style.display = "none";
+    logoutBox.style.display = "block";
+
+  } else {
+
+    // DESLOGADO
+    loginForm.style.display = "block";
+    logoutBox.style.display = "none";
+  }
+});
