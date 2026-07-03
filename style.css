@@ -308,3 +308,30 @@ button:active {
   border-radius: 4px;
   font-family: Consolas, monospace;
 }
+.admin-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.admin-menu .profile-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 180px;
+}
+
+.admin-menu.show .profile-dropdown {
+  display: block;
+}
+
+.admin-menu a {
+  display: block;
+  padding: 8px 10px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.admin-menu a:hover {
+  background: rgba(127,127,127,0.1);
+}
