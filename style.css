@@ -196,40 +196,48 @@ button:hover {
 /* =========================
    ADMIN DROPDOWN (CORRIGIDO)
 ========================= */
-.admin-menu {
-  position: relative;
+.dropdown-admin{
+    position:relative;
+    display:inline-block;
 }
 
-.admin-menu .profile-dropdown {
-  display: none;
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
+.menu-dropdown{
+    display:none;
 
-  min-width: 200px;
+    position:absolute;
+    top:calc(100% + 6px);
+    left:0;
 
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
+    min-width:220px;
 
-  box-shadow: var(--shadow);
-  padding: 8px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+
+    box-shadow:var(--shadow);
+
+    padding:6px;
+
+    z-index:1000;
 }
 
-.admin-menu.show .profile-dropdown {
-  display: block;
+.menu-dropdown.show{
+    display:block;
 }
 
-.admin-menu a {
-  display: block;
-  padding: 8px 10px;
-  text-decoration: none;
-  color: var(--text);
-  border-radius: 6px;
+.menu-dropdown a{
+    display:block;
+
+    padding:8px 12px;
+
+    color:var(--text);
+    text-decoration:none;
+
+    border-radius:8px;
 }
 
-.admin-menu a:hover {
-  background: rgba(127,127,127,0.1);
+.menu-dropdown a:hover{
+    background:rgba(127,127,127,.08);
 }
 
 /* =========================
@@ -279,4 +287,21 @@ button:hover {
   background: rgba(127,127,127,0.15);
   padding: 2px 5px;
   border-radius: 4px;
+}
+.menu-btn{
+    background:transparent;
+    color:var(--text);
+
+    border:none;
+
+    width:auto;
+
+    padding:8px 10px;
+
+    margin:0;
+
+    box-shadow:none;
+}
+.menu-btn:hover{
+    background:rgba(127,127,127,.08);
 }
