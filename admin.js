@@ -1,152 +1,184 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+import { db } from "./firebase-config.js";
 
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
-<title>Admin</title>
+/* =====================================
+   ESTADO
+===================================== */
 
-<link rel="stylesheet" href="style.css">
+let usuarioLogado = null;
 
-<script>
-(function () {
-  const theme = localStorage.getItem("theme") || "light";
-  document.documentElement.setAttribute("data-theme", theme);
-})();
-</script>
+/* =====================================
+   ABAS
+===================================== */
 
-</head>
+window.mostrarAba = function (aba) {
 
-<body>
+  document.querySelectorAll(".aba").forEach(el => {
+    el.style.display = "none";
+  });
 
-<!-- ================= MENU ================= -->
-<div class="menu">
+  const target = document.getElementById("aba-" + aba);
 
-  <div class="menu-left">
+  if (target) {
+    target.style.display = "block";
+  }
 
-    <a href="index.html">🔎 Consulta</a>
+};
 
-    <!-- ADMIN DROPDOWN -->
-    <div class="admin-menu" id="adminMenu">
+/* =====================================
+   LOJAS
+===================================== */
 
-      <button id="adminToggle" class="theme-toggle">
-        ⚙️ Admin ▾
-      </button>
+window.salvarLoja = async function () {
 
-      <div class="profile-dropdown">
-        <a href="admin.html#cadastro">📝 Cadastro</a>
-        <a href="admin.html#alteracao">🔍 Alteração / Consulta</a>
-      </div>
+  const numero = document.getElementById("numeroLoja").value.trim();
+  const nome = document.getElementById("nomeLoja").value.trim();
 
-    </div>
+  if (!numero || !nome) {
+    alert("Preencha todos os campos.");
+    return;
+  }
 
-  </div>
+  const existeNumero = await getDocs(
+    query(collection(db, "lojas"), where("numero", "==", numero))
+  );
 
-  <div class="menu-right">
+  if (!existeNumero.empty) {
+    alert("Já existe uma loja com esse número.");
+    return;
+  }
 
-    <button id="themeToggle" class="theme-toggle">🌙</button>
+  const existeNome = await getDocs(
+    query(collection(db, "lojas"), where("nome", "==", nome))
+  );
 
-    <!-- LOGIN/LOGOUT -->
-    <div class="profile-menu">
+  if (!existeNome.empty) {
+    alert("Já existe uma loja com esse nome.");
+    return;
+  }
 
-      <button id="profileToggle" class="theme-toggle">👤</button>
+  await addDoc(collection(db, "lojas"), {
+    numero,
+    nome
+  });
 
-      <div id="profileDropdown" class="profile-dropdown">
+  alert("Loja cadastrada com sucesso!");
 
-        <div id="loginForm">
-          <input id="loginEmail" placeholder="Email">
-          <input id="loginSenha" type="password" placeholder="Senha">
-          <button id="loginBtn">Entrar</button>
-        </div>
+  document.getElementById("numeroLoja").value = "";
+  document.getElementById("nomeLoja").value = "";
 
-        <div id="logoutBox" style="display:none;">
-          <p>Logado</p>
-          <button onclick="logout()">🚪 Sair</button>
-        </div>
+};
 
-      </div>
+/* =====================================
+   EDITORAS
+===================================== */
 
-    </div>
+window.salvarEditora = async function () {
 
-  </div>
+  const cnpj = document.getElementById("cnpjEditora").value.trim();
+  const nome = document.getElementById("nomeEditora").value.trim();
 
-</div>
+  if (!cnpj || !nome) {
+    alert("Preencha todos os campos.");
+    return;
+  }
 
-<!-- ================= CONTAINER ================= -->
-<div class="container">
+  const existe = await getDocs(
+    query(collection(db, "editoras"), where("cnpj", "==", cnpj))
+  );
 
-<!-- ================= PAINEL ================= -->
-<div id="painel">
+  if (!existe.empty) {
+    alert("Já existe uma editora com esse CNPJ.");
+    return;
+  }
 
-  <h2>Painel Administrativo</h2>
+  await addDoc(collection(db, "editoras"), {
+    cnpj,
+    nome
+  });
 
-  <!-- ================= ABAS ================= -->
-  <div class="tabs">
+  alert("Editora cadastrada com sucesso!");
 
-    <button onclick="mostrarAba('lojas')">🏬 Lojas</button>
-    <button onclick="mostrarAba('editoras')">🏢 Editoras</button>
-    <button onclick="mostrarAba('contatos')">📧 Contatos</button>
+  document.getElementById("cnpjEditora").value = "";
+  document.getElementById("nomeEditora").value = "";
 
-  </div>
+};
 
-  <hr>
+/* =====================================
+   IMPORTAÇÃO CSV
+===================================== */
 
-  <!-- ================= LOJAS ================= -->
-  <div id="aba-lojas" class="aba">
+window.importarCSV = function () {
 
-    <h3>Cadastrar Loja</h3>
+  const fileInput = document.getElementById("csvFile");
 
-    <input id="numeroLoja" placeholder="Número">
-    <input id="nomeLoja" placeholder="Nome">
+  const file = fileInput.files[0];
 
-    <button onclick="salvarLoja()">Salvar Loja</button>
+  if (!file) {
+    alert("Selecione um arquivo CSV.");
+    return;
+  }
 
-  </div>
+  const reader = new FileReader();
 
-  <!-- ================= EDITORAS ================= -->
-  <div id="aba-editoras" class="aba" style="display:none">
+  reader.onload = async function (e) {
 
-    <h3>Cadastrar Editora</h3>
+    const text = e.target.result;
 
-    <input id="cnpjEditora" placeholder="CNPJ">
-    <input id="nomeEditora" placeholder="Nome">
+    const linhas = text.split("\n");
 
-    <button onclick="salvarEditora()">Salvar Editora</button>
+    let criados = 0;
 
-  </div>
+    for (let linha of linhas) {
 
-  <!-- ================= CONTATOS CSV ================= -->
-  <div id="aba-contatos" class="aba" style="display:none">
+      const [loja, editora, emails, nome] = linha.split(",");
 
-    <h3>Importação de Contatos (CSV)</h3>
+      if (!loja || !editora || !emails)
+        continue;
 
-    <div class="csv-info">
-      <strong>Padrão do arquivo CSV</strong>
+      const listaEmails = emails.split("|");
 
-      <ul>
-        <li><strong>Coluna A:</strong> Número da Loja *</li>
-        <li><strong>Coluna B:</strong> CNPJ da Editora *</li>
-        <li><strong>Coluna C:</strong> E-mails separados por | *</li>
-        <li><strong>Coluna D:</strong> Nome do representante (opcional)</li>
-      </ul>
+      for (let email of listaEmails) {
 
-    </div>
+        email = email.trim();
 
-    <input type="file" id="csvFile" accept=".csv">
+        if (!email) continue;
 
-    <button onclick="importarCSV()">Importar CSV</button>
+        const existe = await getDocs(
+          query(
+            collection(db, "contatos"),
+            where("email", "==", email),
+            where("loja", "==", loja),
+            where("editora", "==", editora)
+          )
+        );
 
-    <div id="importProgress"></div>
+        if (!existe.empty) continue;
 
-  </div>
+        await addDoc(collection(db, "contatos"), {
+          loja: loja.trim(),
+          editora: editora.trim(),
+          email,
+          nome: nome?.trim() || null
+        });
 
-</div>
+        criados++;
 
-</div>
+      }
 
-<!-- ================= SCRIPTS ================= -->
-<script type="module" src="admin.js"></script>
+    }
 
-</body>
-</html>
+    alert(`${criados} contatos importados com sucesso!`);
+
+  };
+
+  reader.readAsText(file);
+
+};
