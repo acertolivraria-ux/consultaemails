@@ -1,4 +1,4 @@
-import { db, auth } from "./firebase-config.js";
+import { db } from "./firebase-config.js";
 
 import {
   collection,
@@ -8,56 +8,15 @@ import {
   where
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
-import {
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+/* =====================================
+   ESTADO
+===================================== */
 
-/* =========================
-   ESTADO GLOBAL
-========================= */
+let usuarioLogado = null;
 
-let usuario = null;
-
-/* =========================
-   LOGIN / LOGOUT
-========================= */
-
-window.login = function () {
-
-  const email = document.getElementById("email").value;
-  const senha = document.getElementById("senha").value;
-
-  signInWithEmailAndPassword(auth, email, senha)
-    .catch(err => alert(err.message));
-};
-
-window.logout = async function () {
-  await signOut(auth);
-};
-
-/* =========================
-   AUTH STATE
-========================= */
-
-onAuthStateChanged(auth, (user) => {
-
-  usuario = user;
-
-  if (!user) {
-    document.getElementById("loginBox").style.display = "block";
-    document.getElementById("painel").style.display = "none";
-    return;
-  }
-
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("painel").style.display = "block";
-});
-
-/* =========================
+/* =====================================
    ABAS
-========================= */
+===================================== */
 
 window.mostrarAba = function (aba) {
 
@@ -65,12 +24,17 @@ window.mostrarAba = function (aba) {
     el.style.display = "none";
   });
 
-  document.getElementById("aba-" + aba).style.display = "block";
+  const target = document.getElementById("aba-" + aba);
+
+  if (target) {
+    target.style.display = "block";
+  }
+
 };
 
-/* =========================
+/* =====================================
    LOJAS
-========================= */
+===================================== */
 
 window.salvarLoja = async function () {
 
@@ -82,28 +46,20 @@ window.salvarLoja = async function () {
     return;
   }
 
-  // Número já existe?
-  const numeroExiste = await getDocs(
-    query(
-      collection(db, "lojas"),
-      where("numero", "==", numero)
-    )
+  const existeNumero = await getDocs(
+    query(collection(db, "lojas"), where("numero", "==", numero))
   );
 
-  if (!numeroExiste.empty) {
+  if (!existeNumero.empty) {
     alert("Já existe uma loja com esse número.");
     return;
   }
 
-  // Nome já existe?
-  const nomeExiste = await getDocs(
-    query(
-      collection(db, "lojas"),
-      where("nome", "==", nome)
-    )
+  const existeNome = await getDocs(
+    query(collection(db, "lojas"), where("nome", "==", nome))
   );
 
-  if (!nomeExiste.empty) {
+  if (!existeNome.empty) {
     alert("Já existe uma loja com esse nome.");
     return;
   }
@@ -117,10 +73,12 @@ window.salvarLoja = async function () {
 
   document.getElementById("numeroLoja").value = "";
   document.getElementById("nomeLoja").value = "";
+
 };
-/* =========================
+
+/* =====================================
    EDITORAS
-========================= */
+===================================== */
 
 window.salvarEditora = async function () {
 
@@ -132,12 +90,8 @@ window.salvarEditora = async function () {
     return;
   }
 
-  // CNPJ já existe?
   const existe = await getDocs(
-    query(
-      collection(db, "editoras"),
-      where("cnpj", "==", cnpj)
-    )
+    query(collection(db, "editoras"), where("cnpj", "==", cnpj))
   );
 
   if (!existe.empty) {
@@ -154,71 +108,77 @@ window.salvarEditora = async function () {
 
   document.getElementById("cnpjEditora").value = "";
   document.getElementById("nomeEditora").value = "";
+
 };
 
-/* =========================
-   MENU DE PERFIL
-========================= */
-
-const profileToggle = document.getElementById("profileToggle");
-const profileDropdown = document.getElementById("profileDropdown");
-
-if (profileToggle && profileDropdown) {
-
-  profileToggle.addEventListener("click", (e) => {
-    e.stopPropagation();
-    profileDropdown.classList.toggle("show");
-  });
-
-  document.addEventListener("click", () => {
-    profileDropdown.classList.remove("show");
-  });
-
-  profileDropdown.addEventListener("click", (e) => {
-    e.stopPropagation();
-  });
-}
-/* =========================
+/* =====================================
    IMPORTAÇÃO CSV
-========================= */
+===================================== */
 
-import "./importacao.js";
+window.importarCSV = function () {
 
-function abrirAba(hash) {
+  const fileInput = document.getElementById("csvFile");
 
-  document.querySelectorAll(".aba").forEach(a => {
-    a.style.display = "none";
-  });
+  const file = fileInput.files[0];
 
-  if (hash === "#alteracao") {
-    document.getElementById("aba-alteracao").style.display = "block";
-  } else {
-    document.getElementById("aba-cadastro").style.display = "block";
+  if (!file) {
+    alert("Selecione um arquivo CSV.");
+    return;
   }
-}
 
-/* =========================
-   CONTROLE POR URL (#hash)
-========================= */
+  const reader = new FileReader();
 
-window.addEventListener("load", () => {
-  abrirAba(window.location.hash || "#cadastro");
-});
+  reader.onload = async function (e) {
 
-window.addEventListener("hashchange", () => {
-  abrirAba(window.location.hash);
-});
-const adminToggle = document.getElementById("adminToggle");
-const adminDropdown = document.getElementById("adminDropdown");
+    const text = e.target.result;
 
-if (adminToggle && adminMenu) {
+    const linhas = text.split("\n");
 
-adminToggle.addEventListener("click", (e) => {
-    e.stopPropagation();
-    adminDropdown.classList.toggle("show");
-  });
+    let criados = 0;
 
-  document.addEventListener("click", () => {
-    adminDropdown.classList.remove("show");
-  });
-}
+    for (let linha of linhas) {
+
+      const [loja, editora, emails, nome] = linha.split(",");
+
+      if (!loja || !editora || !emails)
+        continue;
+
+      const listaEmails = emails.split("|");
+
+      for (let email of listaEmails) {
+
+        email = email.trim();
+
+        if (!email) continue;
+
+        const existe = await getDocs(
+          query(
+            collection(db, "contatos"),
+            where("email", "==", email),
+            where("loja", "==", loja),
+            where("editora", "==", editora)
+          )
+        );
+
+        if (!existe.empty) continue;
+
+        await addDoc(collection(db, "contatos"), {
+          loja: loja.trim(),
+          editora: editora.trim(),
+          email,
+          nome: nome?.trim() || null
+        });
+
+        criados++;
+
+      }
+
+    }
+
+    alert(`${criados} contatos importados com sucesso!`);
+
+  };
+
+  reader.readAsText(file);
+
+};
