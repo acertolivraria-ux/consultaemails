@@ -99,7 +99,7 @@ if (loginBtn) {
         senha
       );
 
-      profileDropdown.classList.remove("show");
+      profileDropdown?.classList.remove("show");
 
     } catch (err) {
 
