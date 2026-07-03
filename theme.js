@@ -1,26 +1,56 @@
-// theme.js
+/* =====================================
+   THEME (DARK / LIGHT)
+===================================== */
 
-export function applySavedTheme() {
-  const theme = localStorage.getItem("theme") || "light";
+function applyTheme(theme) {
+
   document.documentElement.setAttribute("data-theme", theme);
+
+  localStorage.setItem("theme", theme);
+
+  const btn = document.getElementById("themeToggle");
+
+  if (btn) {
+    btn.textContent = theme === "dark" ? "☀️" : "🌙";
+  }
+
+}
+
+function toggleTheme() {
+
+  const atual =
+    document.documentElement.getAttribute("data-theme") || "light";
+
+  const novo =
+    atual === "dark"
+      ? "light"
+      : "dark";
+
+  applyTheme(novo);
+
 }
 
 export function initThemeToggle(buttonId = "themeToggle") {
+
   const btn = document.getElementById(buttonId);
 
   if (!btn) return;
 
-  const current = localStorage.getItem("theme") || "light";
-  document.documentElement.setAttribute("data-theme", current);
-  btn.textContent = current === "dark" ? "☀️" : "🌙";
+  const salvo =
+    localStorage.getItem("theme") || "light";
 
-  btn.addEventListener("click", () => {
-    const actual = document.documentElement.getAttribute("data-theme");
-    const next = actual === "dark" ? "light" : "dark";
+  applyTheme(salvo);
 
-    document.documentElement.setAttribute("data-theme", next);
-    localStorage.setItem("theme", next);
+  btn.addEventListener("click", toggleTheme);
 
-    btn.textContent = next === "dark" ? "☀️" : "🌙";
-  });
 }
+
+/* =====================================
+   INICIALIZA AUTOMATICAMENTE
+===================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  initThemeToggle();
+
+});
