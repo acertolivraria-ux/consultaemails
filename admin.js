@@ -284,6 +284,50 @@ window.excluirContato = async function (id, email, editora) {
     }
   }
 };
+window.salvarLoja = async function () {
+
+  const numero = document.getElementById("numeroLoja").value.trim();
+  const nome = document.getElementById("nomeLoja").value.trim();
+
+  if (!numero || !nome) {
+    alert("Preencha todos os campos.");
+    return;
+  }
+
+  await addDoc(collection(db, "lojas"), {
+    numero,
+    nome
+  });
+
+  alert("Loja salva!");
+
+  document.getElementById("numeroLoja").value = "";
+  document.getElementById("nomeLoja").value = "";
+
+  carregarLojas();
+};
+window.salvarEditora = async function () {
+
+  const cnpj = document.getElementById("cnpjEditora").value.trim();
+  const nome = document.getElementById("nomeEditora").value.trim();
+
+  if (!cnpj || !nome) {
+    alert("Preencha todos os campos.");
+    return;
+  }
+
+  await addDoc(collection(db, "editoras"), {
+    cnpj,
+    nome
+  });
+
+  alert("Editora salva!");
+
+  document.getElementById("cnpjEditora").value = "";
+  document.getElementById("nomeEditora").value = "";
+
+  carregarEditoras();
+};
 const profileToggle = document.getElementById("profileToggle");
 const profileDropdown = document.getElementById("profileDropdown");
 
