@@ -208,3 +208,17 @@ window.addEventListener("load", () => {
 window.addEventListener("hashchange", () => {
   abrirAba(window.location.hash);
 });
+const adminToggle = document.getElementById("adminToggle");
+const adminMenu = document.querySelector(".admin-menu");
+
+if (adminToggle && adminMenu) {
+
+  adminToggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    adminMenu.classList.toggle("show");
+  });
+
+  document.addEventListener("click", () => {
+    adminMenu.classList.remove("show");
+  });
+}
