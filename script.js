@@ -133,17 +133,17 @@ if (themeBtn) {
 ========================= */
 
 const adminToggle = document.getElementById("adminToggle");
-const adminMenu = document.querySelector(".admin-menu");
+const adminDropdown = document.querySelector(".admin-menu");
 
-if (adminToggle && adminMenu) {
+if (adminToggle && adminDropdown) {
 
   adminToggle.addEventListener("click", (e) => {
     e.stopPropagation();
-    adminMenu.classList.toggle("show");
+    adminDropdown.classList.toggle("show");
   });
 
   document.addEventListener("click", () => {
-    adminMenu.classList.remove("show");
+    adminDropdown.classList.remove("show");
   });
 }
 
