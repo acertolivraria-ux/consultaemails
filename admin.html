@@ -25,18 +25,44 @@
 
   <div class="menu-left">
     <a href="index.html">🔎 Consulta</a>
-    <a href="admin.html">🔐 Admin</a>
+
+    <div class="dropdown-admin">
+      <button id="adminToggle" class="menu-btn">
+        🔐 Admin ▾
+      </button>
+
+      <div id="adminDropdown" class="menu-dropdown">
+        <a href="admin.html#cadastro">📝 Cadastro</a>
+        <a href="admin.html#alteracao">🔍 Alteração / Consulta</a>
+      </div>
+    </div>
+
   </div>
 
   <div class="menu-right">
 
     <button id="themeToggle" class="theme-toggle">🌙</button>
 
+    <!-- LOGIN/LOGOUT UNIFICADO -->
     <div class="profile-menu">
+
       <button id="profileToggle" class="theme-toggle">👤</button>
 
       <div id="profileDropdown" class="profile-dropdown">
-        <button onclick="logout()">🚪 Sair</button>
+
+        <!-- CONTEÚDO CONTROLADO PELO JS -->
+
+        <div id="loginForm" style="display:none;">
+          <input id="loginEmail" placeholder="Email">
+          <input id="loginSenha" type="password" placeholder="Senha">
+          <button id="loginBtn">Entrar</button>
+        </div>
+
+        <div id="logoutBox" style="display:none;">
+          <p>Logado</p>
+          <button onclick="logout()">🚪 Sair</button>
+        </div>
+
       </div>
     </div>
 
