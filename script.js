@@ -1,19 +1,22 @@
-import { db } from "./firebase-config.js";
+import { db, auth } from "./firebase-config.js";
 
 import {
   collection,
-  addDoc,
   getDocs
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
-/* =========================
-   ESTADO GLOBAL DA BUSCA
-========================= */
-let emailsAtuais = [];
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
 /* =========================
-   FUNÇÃO PRINCIPAL DE BUSCA
+   BUSCA DE CONTATOS
 ========================= */
+
+let emailsAtuais = [];
+
 window.pesquisar = async function () {
 
   const loja = document.getElementById("loja").value.trim();
@@ -29,55 +32,39 @@ window.pesquisar = async function () {
   const contatosSnap = await getDocs(collection(db, "contatos"));
   const editorasSnap = await getDocs(collection(db, "editoras"));
 
-let editorasValidas = [];
+  let editorasValidas = [];
 
-editorasSnap.forEach(doc => {
+  editorasSnap.forEach(doc => {
+    const d = doc.data();
 
-  const d = doc.data();
+    if (
+      d.nome?.toLowerCase() === editoraInput ||
+      d.cnpj === editoraInput
+    ) {
+      editorasValidas.push(d.cnpj);
+    }
+  });
 
-  if (
-    d.nome?.toLowerCase() === editoraInput ||
-    d.cnpj === editoraInput
-  ) {
-    editorasValidas.push(d.cnpj);
-  }
-
-});
-
-if (editorasValidas.length === 0) {
-  document.getElementById("resultado").innerHTML =
-    "<p>❌ Editora não encontrada</p>";
-  return;
-}
-
-  if (!editorasValidas) {
+  if (editorasValidas.length === 0) {
     document.getElementById("resultado").innerHTML =
       "<p>❌ Editora não encontrada</p>";
     return;
   }
 
-  /* =========================
-     FILTRAR CONTATOS (CORRETO)
-  ========================= */
-
   contatosSnap.forEach(doc => {
-
     const c = doc.data();
 
-if (
-  c.loja === loja &&
-  editorasValidas.includes(c.editora)
-) {
-  emailsAtuais.push(c.email);
-}
-
+    if (
+      c.loja === loja &&
+      editorasValidas.includes(c.editora)
+    ) {
+      emailsAtuais.push(c.email);
+    }
   });
 
   renderResultado();
 };
-/* =========================
-   RENDERIZAÇÃO NA TELA
-========================= */
+
 function renderResultado() {
 
   const div = document.getElementById("resultado");
@@ -88,164 +75,62 @@ function renderResultado() {
   }
 
   let html = `
-    <button onclick="copiarTodos()">
-      📋 Copiar todos
-    </button>
+    <button onclick="copiarTodos()">📋 Copiar todos</button>
     <br><br>
   `;
 
   emailsAtuais.forEach(email => {
-
     html += `
       <div class="email">
         <span>${email}</span>
-        <button onclick="copiar('${email}')">
-          📋
-        </button>
+        <button onclick="copiar('${email}')">📋</button>
       </div>
     `;
-
   });
 
   div.innerHTML = html;
 }
 
-/* =========================
-   COPIAR UM EMAIL
-========================= */
 window.copiar = function (email) {
   navigator.clipboard.writeText(email);
   alert("E-mail copiado!");
 };
 
-/* =========================
-   COPIAR TODOS
-========================= */
 window.copiarTodos = function () {
-
-  if (!emailsAtuais.length) return;
-
-  const texto = emailsAtuais.join(";");
-
-  navigator.clipboard.writeText(texto);
-
+  navigator.clipboard.writeText(emailsAtuais.join(";"));
   alert("Todos os e-mails foram copiados!");
 };
-const root = document.body;
 
-// botão do toggle
-const toggleBtn = document.getElementById("themeToggle");
+/* =========================
+   THEME (CORRIGIDO)
+========================= */
 
-// pega tema salvo
-const savedTheme = localStorage.getItem("theme");
+const themeBtn = document.getElementById("themeToggle");
 
-// aplica tema inicial
-if (savedTheme) {
-  root.setAttribute("data-theme", savedTheme);
-  if (toggleBtn) {
-    toggleBtn.textContent = savedTheme === "dark" ? "☀️" : "🌙";
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+
+  if (themeBtn) {
+    themeBtn.textContent = theme === "dark" ? "☀️" : "🌙";
   }
-} else {
-  root.setAttribute("data-theme", "light");
 }
 
-// evento do botão
-if (toggleBtn) {
-  toggleBtn.addEventListener("click", () => {
-    const current = root.getAttribute("data-theme");
-    const next = current === "dark" ? "light" : "dark";
+(function initTheme() {
+  const saved = localStorage.getItem("theme") || "light";
+  applyTheme(saved);
+})();
 
-    root.setAttribute("data-theme", next);
-    localStorage.setItem("theme", next);
-
-    toggleBtn.textContent = next === "dark" ? "☀️" : "🌙";
-  });
-}
-import { auth } from "./firebase-config.js";
-
-import {
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-
-/* =========================
-   ELEMENTOS DO MENU
-========================= */
-
-const profileToggle = document.getElementById("profileToggle");
-const profileDropdown = document.getElementById("profileDropdown");
-
-const loginForm = document.getElementById("loginForm");
-const logoutBox = document.getElementById("logoutBox");
-
-const loginBtn = document.getElementById("loginBtn");
-
-/* =========================
-   ABRIR / FECHAR MENU 👤
-========================= */
-
-if (profileToggle && profileDropdown) {
-
-  profileToggle.addEventListener("click", (e) => {
-    e.stopPropagation();
-    profileDropdown.classList.toggle("show");
-  });
-
-  document.addEventListener("click", () => {
-    profileDropdown.classList.remove("show");
-  });
-
-  profileDropdown.addEventListener("click", (e) => {
-    e.stopPropagation();
+if (themeBtn) {
+  themeBtn.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme");
+    applyTheme(current === "dark" ? "light" : "dark");
   });
 }
 
 /* =========================
-   LOGIN
+   ADMIN DROPDOWN (CORRIGIDO)
 ========================= */
-
-if (loginBtn) {
-  loginBtn.addEventListener("click", async () => {
-
-    const email = document.getElementById("loginEmail").value;
-    const senha = document.getElementById("loginSenha").value;
-
-    try {
-      await signInWithEmailAndPassword(auth, email, senha);
-    } catch (err) {
-      alert("Erro: " + err.message);
-    }
-  });
-}
-
-/* =========================
-   LOGOUT
-========================= */
-
-window.logout = async function () {
-  await signOut(auth);
-};
-
-/* =========================
-   ESTADO LOGIN (AUTOMÁTICO)
-========================= */
-
-onAuthStateChanged(auth, (user) => {
-
-  if (user) {
-
-    // LOGADO
-    loginForm.style.display = "none";
-    logoutBox.style.display = "block";
-
-  } else {
-
-    // DESLOGADO
-    loginForm.style.display = "block";
-    logoutBox.style.display = "none";
-  }
-});
 
 const adminToggle = document.getElementById("adminToggle");
 const adminMenu = document.querySelector(".admin-menu");
@@ -261,3 +146,57 @@ if (adminToggle && adminMenu) {
     adminMenu.classList.remove("show");
   });
 }
+
+/* =========================
+   LOGIN / LOGOUT (INDEX)
+========================= */
+
+const profileToggle = document.getElementById("profileToggle");
+const profileDropdown = document.getElementById("profileDropdown");
+
+const loginForm = document.getElementById("loginForm");
+const logoutBox = document.getElementById("logoutBox");
+const loginBtn = document.getElementById("loginBtn");
+
+if (profileToggle && profileDropdown) {
+
+  profileToggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    profileDropdown.classList.toggle("show");
+  });
+
+  document.addEventListener("click", () => {
+    profileDropdown.classList.remove("show");
+  });
+}
+
+if (loginBtn) {
+  loginBtn.addEventListener("click", async () => {
+
+    const email = document.getElementById("loginEmail").value;
+    const senha = document.getElementById("loginSenha").value;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, senha);
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+}
+
+window.logout = async function () {
+  await signOut(auth);
+};
+
+onAuthStateChanged(auth, (user) => {
+
+  if (!loginForm || !logoutBox) return;
+
+  if (user) {
+    loginForm.style.display = "none";
+    logoutBox.style.display = "block";
+  } else {
+    loginForm.style.display = "block";
+    logoutBox.style.display = "none";
+  }
+});
