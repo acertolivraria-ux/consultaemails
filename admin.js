@@ -183,3 +183,28 @@ if (profileToggle && profileDropdown) {
 ========================= */
 
 import "./importacao.js";
+
+function abrirAba(hash) {
+
+  document.querySelectorAll(".aba").forEach(a => {
+    a.style.display = "none";
+  });
+
+  if (hash === "#alteracao") {
+    document.getElementById("aba-alteracao").style.display = "block";
+  } else {
+    document.getElementById("aba-cadastro").style.display = "block";
+  }
+}
+
+/* =========================
+   CONTROLE POR URL (#hash)
+========================= */
+
+window.addEventListener("load", () => {
+  abrirAba(window.location.hash || "#cadastro");
+});
+
+window.addEventListener("hashchange", () => {
+  abrirAba(window.location.hash);
+});
