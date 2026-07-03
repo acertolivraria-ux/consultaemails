@@ -22,7 +22,7 @@ if (adminToggle && adminDropdown) {
 
     profileDropdown?.classList.remove("show");
 
-    adminDropdown.classList.toggle("show");
+    document.getElementById("adminMenu").classList.toggle("show");
 
   });
 
