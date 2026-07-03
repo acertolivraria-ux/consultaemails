@@ -101,32 +101,6 @@ window.copiarTodos = function () {
   alert("Todos os e-mails foram copiados!");
 };
 
-/* =========================
-   THEME (CORRIGIDO)
-========================= */
-
-const themeBtn = document.getElementById("themeToggle");
-
-function applyTheme(theme) {
-  document.documentElement.setAttribute("data-theme", theme);
-  localStorage.setItem("theme", theme);
-
-  if (themeBtn) {
-    themeBtn.textContent = theme === "dark" ? "☀️" : "🌙";
-  }
-}
-
-(function initTheme() {
-  const saved = localStorage.getItem("theme") || "light";
-  applyTheme(saved);
-})();
-
-if (themeBtn) {
-  themeBtn.addEventListener("click", () => {
-    const current = document.documentElement.getAttribute("data-theme");
-    applyTheme(current === "dark" ? "light" : "dark");
-  });
-}
 
 /* =========================
    ADMIN DROPDOWN (CORRIGIDO)
