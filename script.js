@@ -1,21 +1,19 @@
-import { db, auth } from "./firebase-config.js";
+import { db } from "./firebase-config.js";
 
 import {
   collection,
   getDocs
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
-import {
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-
 /* =========================
-   BUSCA DE CONTATOS
+   ESTADO GLOBAL
 ========================= */
 
 let emailsAtuais = [];
+
+/* =========================
+   PESQUISA
+========================= */
 
 window.pesquisar = async function () {
 
@@ -23,154 +21,154 @@ window.pesquisar = async function () {
   const editoraInput = document.getElementById("editora").value.trim().toLowerCase();
 
   if (!loja || !editoraInput) {
-    alert("Preencha loja e editora");
+    alert("Preencha a loja e a editora.");
     return;
   }
 
   emailsAtuais = [];
 
-  const contatosSnap = await getDocs(collection(db, "contatos"));
-  const editorasSnap = await getDocs(collection(db, "editoras"));
+  try {
 
-  let editorasValidas = [];
+    const [contatosSnap, editorasSnap] = await Promise.all([
+      getDocs(collection(db, "contatos")),
+      getDocs(collection(db, "editoras"))
+    ]);
 
-  editorasSnap.forEach(doc => {
-    const d = doc.data();
+    const editorasValidas = [];
 
-    if (
-      d.nome?.toLowerCase() === editoraInput ||
-      d.cnpj === editoraInput
-    ) {
-      editorasValidas.push(d.cnpj);
+    editorasSnap.forEach(doc => {
+
+      const d = doc.data();
+
+      if (
+        d.nome?.toLowerCase() === editoraInput ||
+        d.cnpj === editoraInput
+      ) {
+        editorasValidas.push(d.cnpj);
+      }
+
+    });
+
+    if (editorasValidas.length === 0) {
+
+      document.getElementById("resultado").innerHTML =
+        "<p>❌ Editora não encontrada.</p>";
+
+      return;
+
     }
-  });
 
-  if (editorasValidas.length === 0) {
-    document.getElementById("resultado").innerHTML =
-      "<p>❌ Editora não encontrada</p>";
-    return;
+    contatosSnap.forEach(doc => {
+
+      const contato = doc.data();
+
+      if (
+        contato.loja === loja &&
+        editorasValidas.includes(contato.editora)
+      ) {
+        emailsAtuais.push(contato.email);
+      }
+
+    });
+
+    renderResultado();
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert("Erro ao consultar o banco de dados.");
+
   }
 
-  contatosSnap.forEach(doc => {
-    const c = doc.data();
-
-    if (
-      c.loja === loja &&
-      editorasValidas.includes(c.editora)
-    ) {
-      emailsAtuais.push(c.email);
-    }
-  });
-
-  renderResultado();
 };
+
+/* =========================
+   RENDERIZAÇÃO
+========================= */
 
 function renderResultado() {
 
   const div = document.getElementById("resultado");
 
   if (emailsAtuais.length === 0) {
-    div.innerHTML = "<p>⚠️ Nenhum contato encontrado</p>";
+
+    div.innerHTML =
+      "<p>⚠️ Nenhum contato encontrado.</p>";
+
     return;
+
   }
 
   let html = `
-    <button onclick="copiarTodos()">📋 Copiar todos</button>
+    <button onclick="copiarTodos()">
+      📋 Copiar todos
+    </button>
+
     <br><br>
   `;
 
   emailsAtuais.forEach(email => {
+
     html += `
       <div class="email">
+
         <span>${email}</span>
-        <button onclick="copiar('${email}')">📋</button>
+
+        <button onclick="copiar('${email}')">
+          📋
+        </button>
+
       </div>
     `;
+
   });
 
   div.innerHTML = html;
-}
 
-window.copiar = function (email) {
-  navigator.clipboard.writeText(email);
-  alert("E-mail copiado!");
-};
-
-window.copiarTodos = function () {
-  navigator.clipboard.writeText(emailsAtuais.join(";"));
-  alert("Todos os e-mails foram copiados!");
-};
-
-
-/* =========================
-   ADMIN DROPDOWN (CORRIGIDO)
-========================= */
-
-const adminToggle = document.getElementById("adminToggle");
-const adminDropdown = document.querySelector(".admin-menu");
-
-if (adminToggle && adminDropdown) {
-
-  adminToggle.addEventListener("click", (e) => {
-    e.stopPropagation();
-    adminDropdown.classList.toggle("show");
-  });
-
-  document.addEventListener("click", () => {
-    adminDropdown.classList.remove("show");
-  });
 }
 
 /* =========================
-   LOGIN / LOGOUT (INDEX)
+   COPIAR
 ========================= */
 
-const profileToggle = document.getElementById("profileToggle");
-const profileDropdown = document.getElementById("profileDropdown");
+window.copiar = async function (email) {
 
-const loginForm = document.getElementById("loginForm");
-const logoutBox = document.getElementById("logoutBox");
-const loginBtn = document.getElementById("loginBtn");
+  try {
 
-if (profileToggle && profileDropdown) {
+    await navigator.clipboard.writeText(email);
 
-  profileToggle.addEventListener("click", (e) => {
-    e.stopPropagation();
-    profileDropdown.classList.toggle("show");
-  });
+    alert("E-mail copiado!");
 
-  document.addEventListener("click", () => {
-    profileDropdown.classList.remove("show");
-  });
-}
+  } catch {
 
-if (loginBtn) {
-  loginBtn.addEventListener("click", async () => {
+    alert("Não foi possível copiar.");
 
-    const email = document.getElementById("loginEmail").value;
-    const senha = document.getElementById("loginSenha").value;
-
-    try {
-      await signInWithEmailAndPassword(auth, email, senha);
-    } catch (err) {
-      alert(err.message);
-    }
-  });
-}
-
-window.logout = async function () {
-  await signOut(auth);
-};
-
-onAuthStateChanged(auth, (user) => {
-
-  if (!loginForm || !logoutBox) return;
-
-  if (user) {
-    loginForm.style.display = "none";
-    logoutBox.style.display = "block";
-  } else {
-    loginForm.style.display = "block";
-    logoutBox.style.display = "none";
   }
-});
+
+};
+
+/* =========================
+   COPIAR TODOS
+========================= */
+
+window.copiarTodos = async function () {
+
+  if (emailsAtuais.length === 0)
+    return;
+
+  try {
+
+    await navigator.clipboard.writeText(
+      emailsAtuais.join(";")
+    );
+
+    alert("Todos os e-mails foram copiados!");
+
+  } catch {
+
+    alert("Não foi possível copiar.");
+
+  }
+
+};
