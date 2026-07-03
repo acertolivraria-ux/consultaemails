@@ -100,56 +100,22 @@
   </div>
 
   <!-- ================= CONTATOS ================= -->
-  <div id="aba-contatos" class="aba" style="display:none">
 
-    <h3>Cadastrar Contato</h3>
+<div id="aba-contatos" class="aba" style="display:none">
 
-    <label>Email *</label>
-    <input id="emailContato" type="email" placeholder="email@empresa.com">
+  <h3>Importação de Contatos (CSV)</h3>
 
-    <label>Nome (opcional)</label>
-    <input id="nomeContato" placeholder="Nome do responsável">
+  <p>
+    Selecione um arquivo CSV para importar os contatos.
+  </p>
 
-    <br><br>
+  <input type="file" id="csvFile" accept=".csv">
 
-    <label>Editora *</label>
-    <select id="cnpjContato">
-      <option value="">Selecione a editora</option>
-    </select>
+  <br><br>
 
-    <br><br>
+  <button onclick="importarCSV()">Importar CSV</button>
 
-    <label>Lojas *</label>
-
-    <div class="dropdown-multi">
-
-      <button type="button" onclick="toggleLojasDropdown()">
-        Selecionar lojas ▼
-      </button>
-
-      <div id="lojasDropdownList" class="dropdown-content" style="display:none;"></div>
-
-    </div>
-
-    <br><br>
-
-    <button onclick="salvarContato()">Salvar Contato</button>
-
-    <hr>
-
-    <h3>Importação CSV</h3>
-
-    <input type="file" id="csvFile" accept=".csv">
-
-    <br><br>
-
-    <button onclick="importarCSV()">Importar CSV</button>
-
-    <div id="importProgress" style="margin-top:10px;"></div>
-
-  </div>
-
-</div>
+  <div id="importProgress" style="margin-top:10px;"></div>
 
 </div>
 
