@@ -5,7 +5,8 @@ import {
   addDoc,
   getDocs,
   query,
-  where
+  where,
+  limit
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 /* =====================================
@@ -13,13 +14,11 @@ import {
 ===================================== */
 
 let usuarioLogado = null;
-
 /* =====================================
    ABAS
 ===================================== */
 
 window.mostrarAba = function (aba) {
-
   document.querySelectorAll(".aba").forEach(el => {
     el.style.display = "none";
   });
@@ -29,15 +28,12 @@ window.mostrarAba = function (aba) {
   if (target) {
     target.style.display = "block";
   }
-
 };
-
 /* =====================================
    LOJAS
 ===================================== */
 
 window.salvarLoja = async function () {
-
   const numero = document.getElementById("numeroLoja").value.trim();
   const nome = document.getElementById("nomeLoja").value.trim();
 
@@ -46,42 +42,52 @@ window.salvarLoja = async function () {
     return;
   }
 
-  const existeNumero = await getDocs(
-    query(collection(db, "lojas"), where("numero", "==", numero))
-  );
+  try {
+    const existeNumero = await getDocs(
+      query(
+        collection(db, "lojas"),
+        where("numero", "==", numero),
+        limit(1)
+      )
+    );
 
-  if (!existeNumero.empty) {
-    alert("Já existe uma loja com esse número.");
-    return;
+    if (!existeNumero.empty) {
+      alert("Já existe uma loja com esse número.");
+      return;
+    }
+
+    const existeNome = await getDocs(
+      query(
+        collection(db, "lojas"),
+        where("nome", "==", nome),
+        limit(1)
+      )
+    );
+
+    if (!existeNome.empty) {
+      alert("Já existe uma loja com esse nome.");
+      return;
+    }
+
+    await addDoc(collection(db, "lojas"), {
+      numero,
+      nome
+    });
+
+    alert("Loja cadastrada com sucesso!");
+
+    document.getElementById("numeroLoja").value = "";
+    document.getElementById("nomeLoja").value = "";
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao salvar loja.");
   }
-
-  const existeNome = await getDocs(
-    query(collection(db, "lojas"), where("nome", "==", nome))
-  );
-
-  if (!existeNome.empty) {
-    alert("Já existe uma loja com esse nome.");
-    return;
-  }
-
-  await addDoc(collection(db, "lojas"), {
-    numero,
-    nome
-  });
-
-  alert("Loja cadastrada com sucesso!");
-
-  document.getElementById("numeroLoja").value = "";
-  document.getElementById("nomeLoja").value = "";
-
 };
-
 /* =====================================
    EDITORAS
 ===================================== */
 
 window.salvarEditora = async function () {
-
   const cnpj = document.getElementById("cnpjEditora").value.trim();
   const nome = document.getElementById("nomeEditora").value.trim();
 
@@ -90,35 +96,40 @@ window.salvarEditora = async function () {
     return;
   }
 
-  const existe = await getDocs(
-    query(collection(db, "editoras"), where("cnpj", "==", cnpj))
-  );
+  try {
+    const existe = await getDocs(
+      query(
+        collection(db, "editoras"),
+        where("cnpj", "==", cnpj),
+        limit(1)
+      )
+    );
 
-  if (!existe.empty) {
-    alert("Já existe uma editora com esse CNPJ.");
-    return;
+    if (!existe.empty) {
+      alert("Já existe uma editora com esse CNPJ.");
+      return;
+    }
+
+    await addDoc(collection(db, "editoras"), {
+      cnpj,
+      nome
+    });
+
+    alert("Editora cadastrada com sucesso!");
+
+    document.getElementById("cnpjEditora").value = "";
+    document.getElementById("nomeEditora").value = "";
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao salvar editora.");
   }
-
-  await addDoc(collection(db, "editoras"), {
-    cnpj,
-    nome
-  });
-
-  alert("Editora cadastrada com sucesso!");
-
-  document.getElementById("cnpjEditora").value = "";
-  document.getElementById("nomeEditora").value = "";
-
 };
-
 /* =====================================
    IMPORTAÇÃO CSV
 ===================================== */
 
 window.importarCSV = function () {
-
   const fileInput = document.getElementById("csvFile");
-
   const file = fileInput.files[0];
 
   if (!file) {
@@ -129,56 +140,61 @@ window.importarCSV = function () {
   const reader = new FileReader();
 
   reader.onload = async function (e) {
+    try {
+      const text = e.target.result;
 
-    const text = e.target.result;
+      const linhas = text
+        .split("\n")
+        .map(l => l.trim())
+        .filter(l => l.length > 0);
 
-    const linhas = text.split("\n");
+      let criados = 0;
 
-    let criados = 0;
+      for (const linha of linhas) {
+        const cols = linha.split(",");
 
-    for (let linha of linhas) {
+        const loja = cols[0]?.trim();
+        const editora = cols[1]?.trim();
+        const emails = cols[2]?.trim();
+        const nome = cols[3]?.trim() || null;
 
-      const [loja, editora, emails, nome] = linha.split(",");
+        if (!loja || !editora || !emails) continue;
 
-      if (!loja || !editora || !emails)
-        continue;
+        const listaEmails = emails
+          .split("|")
+          .map(e => e.trim())
+          .filter(Boolean);
 
-      const listaEmails = emails.split("|");
+        for (const email of listaEmails) {
+          const existe = await getDocs(
+            query(
+              collection(db, "contatos"),
+              where("email", "==", email),
+              where("loja", "==", loja),
+              where("editora", "==", editora),
+              limit(1)
+            )
+          );
 
-      for (let email of listaEmails) {
+          if (!existe.empty) continue;
 
-        email = email.trim();
+          await addDoc(collection(db, "contatos"), {
+            loja,
+            editora,
+            email,
+            nome
+          });
 
-        if (!email) continue;
-
-        const existe = await getDocs(
-          query(
-            collection(db, "contatos"),
-            where("email", "==", email),
-            where("loja", "==", loja),
-            where("editora", "==", editora)
-          )
-        );
-
-        if (!existe.empty) continue;
-
-        await addDoc(collection(db, "contatos"), {
-          loja: loja.trim(),
-          editora: editora.trim(),
-          email,
-          nome: nome?.trim() || null
-        });
-
-        criados++;
-
+          criados++;
+        }
       }
 
+      alert(`${criados} contatos importados com sucesso!`);
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao importar CSV.");
     }
-
-    alert(`${criados} contatos importados com sucesso!`);
-
   };
 
   reader.readAsText(file);
-
 };
