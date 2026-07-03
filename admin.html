@@ -99,18 +99,28 @@
 
   </div>
 
-  <!-- ================= CONTATOS ================= -->
-
+<!-- ================= CONTATOS ================= -->
 <div id="aba-contatos" class="aba" style="display:none">
 
   <h3>Importação de Contatos (CSV)</h3>
 
-  <p>
-    Selecione um arquivo CSV para importar os contatos.
-  </p>
-<p>
-    Padrão por colunas: (A) NÚMERO DA LOJA* // (B) CNPJ DA EDITORA* // (C) E-MAILS SEPARADOS COM "|", SEM ESPAÇO E SEM QUEBRA DE LINHA* // (D) NOME REPRESENTANTE (opcional)
-  </p>
+  <div class="csv-info">
+    <strong>Padrão do arquivo CSV</strong>
+
+    <ul>
+      <li><strong>Coluna A:</strong> Número da Loja <span style="color:red">*</span></li>
+      <li><strong>Coluna B:</strong> CNPJ da Editora <span style="color:red">*</span></li>
+      <li><strong>Coluna C:</strong> E-mails separados por <code>|</code>, sem espaços e sem quebra de linha <span style="color:red">*</span></li>
+      <li><strong>Coluna D:</strong> Nome do representante (opcional)</li>
+    </ul>
+
+    <small>
+      <span style="color:red">*</span> Campos obrigatórios.
+    </small>
+  </div>
+
+  <br>
+
   <input type="file" id="csvFile" accept=".csv">
 
   <br><br>
