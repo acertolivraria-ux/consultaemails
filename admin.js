@@ -294,17 +294,43 @@ window.salvarLoja = async function () {
     return;
   }
 
+  // Verifica número
+  const numeroExiste = await getDocs(
+    query(
+      collection(db, "lojas"),
+      where("numero", "==", numero)
+    )
+  );
+
+  if (!numeroExiste.empty) {
+    alert("Já existe uma loja com esse número.");
+    return;
+  }
+
+  // Verifica nome
+  const nomeExiste = await getDocs(
+    query(
+      collection(db, "lojas"),
+      where("nome", "==", nome)
+    )
+  );
+
+  if (!nomeExiste.empty) {
+    alert("Já existe uma loja com esse nome.");
+    return;
+  }
+
   await addDoc(collection(db, "lojas"), {
     numero,
     nome
   });
 
-  alert("Loja salva!");
+  alert("Loja cadastrada com sucesso!");
 
   document.getElementById("numeroLoja").value = "";
   document.getElementById("nomeLoja").value = "";
 
-  carregarLojas();
+  await carregarLojas();
 };
 window.salvarEditora = async function () {
 
@@ -316,17 +342,29 @@ window.salvarEditora = async function () {
     return;
   }
 
+  const existe = await getDocs(
+    query(
+      collection(db, "editoras"),
+      where("cnpj", "==", cnpj)
+    )
+  );
+
+  if (!existe.empty) {
+    alert("Já existe uma editora com esse CNPJ.");
+    return;
+  }
+
   await addDoc(collection(db, "editoras"), {
     cnpj,
     nome
   });
 
-  alert("Editora salva!");
+  alert("Editora cadastrada com sucesso!");
 
   document.getElementById("cnpjEditora").value = "";
   document.getElementById("nomeEditora").value = "";
 
-  carregarEditoras();
+  await carregarEditoras();
 };
 const profileToggle = document.getElementById("profileToggle");
 const profileDropdown = document.getElementById("profileDropdown");
