@@ -2,49 +2,60 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Consulta</title>
+
 <link rel="stylesheet" href="style.css">
-  <script>
-  (function () {
-    const theme = localStorage.getItem("theme") || "light";
-    document.documentElement.setAttribute("data-theme", theme);
-  })();
+
+<!-- tema inicial antes do JS -->
+<script>
+(function () {
+  const theme = localStorage.getItem("theme") || "light";
+  document.documentElement.setAttribute("data-theme", theme);
+})();
 </script>
+
 </head>
 
 <body>
- <div class="menu">
+
+<!-- ================= MENU ================= -->
+<div class="menu">
 
   <div class="menu-left">
+
     <a href="index.html">🔎 Consulta</a>
 
-    <div class="dropdown-admin">
-      <button id="adminToggle" class="menu-btn">
-        🔐 Admin ▾
+    <!-- ADMIN DROPDOWN -->
+    <div class="admin-menu" id="adminMenu">
+
+      <button id="adminToggle" class="theme-toggle">
+        ⚙️ Admin ▾
       </button>
 
-      <div id="adminDropdown" class="menu-dropdown">
+      <div class="profile-dropdown">
         <a href="admin.html#cadastro">📝 Cadastro</a>
         <a href="admin.html#alteracao">🔍 Alteração / Consulta</a>
       </div>
+
     </div>
 
   </div>
 
   <div class="menu-right">
 
+    <!-- THEME -->
     <button id="themeToggle" class="theme-toggle">🌙</button>
 
-    <!-- LOGIN/LOGOUT UNIFICADO -->
+    <!-- LOGIN/LOGOUT -->
     <div class="profile-menu">
 
       <button id="profileToggle" class="theme-toggle">👤</button>
 
       <div id="profileDropdown" class="profile-dropdown">
 
-        <!-- CONTEÚDO CONTROLADO PELO JS -->
-
-        <div id="loginForm" style="display:none;">
+        <div id="loginForm">
           <input id="loginEmail" placeholder="Email">
           <input id="loginSenha" type="password" placeholder="Senha">
           <button id="loginBtn">Entrar</button>
@@ -56,30 +67,29 @@
         </div>
 
       </div>
+
     </div>
 
   </div>
 
 </div>
 
+<!-- ================= CONTAINER ================= -->
 <div class="container">
 
-<h2>Consulta de Contatos</h2>
+  <h2>Consulta de Contatos</h2>
 
-<input id="loja" placeholder="Loja">
-<input id="editora" placeholder="Editora ou CNPJ">
+  <input id="loja" placeholder="Loja">
+  <input id="editora" placeholder="Editora ou CNPJ">
 
-<button onclick="pesquisar()">Pesquisar</button>
+  <button onclick="pesquisar()">Pesquisar</button>
 
-<div id="resultado"></div>
+  <div id="resultado"></div>
 
 </div>
 
+<!-- ================= SCRIPTS ================= -->
 <script type="module" src="script.js"></script>
-  <script type="module">
-  import { initThemeToggle } from "./theme.js";
-  initThemeToggle("themeToggle");
-</script>
 
 </body>
 </html>
