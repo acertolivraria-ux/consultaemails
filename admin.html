@@ -4,12 +4,9 @@
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
 <title>Admin</title>
-
 
 <link rel="stylesheet" href="style.css">
 
@@ -23,11 +20,10 @@
     || "light";
 
 
-  document.documentElement
-    .setAttribute(
-      "data-theme",
-      theme
-    );
+  document.documentElement.setAttribute(
+    "data-theme",
+    theme
+  );
 
 
 })();
@@ -38,9 +34,7 @@
 </head>
 
 
-
 <body>
-
 
 
 <!-- ================= MENU ================= -->
@@ -48,173 +42,154 @@
 <div class="menu">
 
 
-<div class="menu-left">
+  <div class="menu-left">
 
 
-<a href="index.html">
-
-🔎 Consulta
-
-</a>
-
-
-
-<div
-  class="admin-menu"
-  id="adminMenu"
->
-
-
-<button
-  id="adminToggle"
-  class="theme-toggle"
->
-
-⚙️ Admin ▾
-
-</button>
+    <a href="index.html">
+      🔎 Consulta
+    </a>
 
 
 
-<div
-  id="adminDropdown"
-  class="profile-dropdown"
->
+    <div
+      class="admin-menu"
+      id="adminMenu"
+    >
 
 
-<a href="admin.html#cadastro">
+      <button
+        id="adminToggle"
+        class="theme-toggle"
+      >
 
-📝 Cadastro
+        🔐 Admin ▾
 
-</a>
+      </button>
 
 
-<a href="admin.html#alteracao">
 
-🔍 Alteração / Consulta
+      <div
+        id="adminDropdown"
+        class="profile-dropdown"
+      >
 
-</a>
+
+        <a href="admin.html">
+          📝 Cadastro
+        </a>
+
+
+        <a href="alteracao.html">
+          🔍 Alteração / Consulta
+        </a>
+
+
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+
+
+
+  <div class="menu-right">
+
+
+
+    <button
+      id="themeToggle"
+      class="theme-toggle"
+    >
+      🌙
+    </button>
+
+
+
+
+
+    <div class="profile-menu">
+
+
+      <button
+        id="profileToggle"
+        class="theme-toggle"
+      >
+        👤
+      </button>
+
+
+
+
+
+      <div
+        id="profileDropdown"
+        class="profile-dropdown"
+      >
+
+
+
+        <div id="loginForm">
+
+
+          <input
+            id="loginEmail"
+            placeholder="Email"
+          >
+
+
+          <input
+            id="loginSenha"
+            type="password"
+            placeholder="Senha"
+          >
+
+
+          <button id="loginBtn">
+            Entrar
+          </button>
+
+
+        </div>
+
+
+
+
+
+        <div
+          id="logoutBox"
+          style="display:none;"
+        >
+
+
+          <p id="loginStatus">
+            Logado
+          </p>
+
+
+          <button onclick="logout()">
+            🚪 Sair
+          </button>
+
+
+        </div>
+
+
+
+      </div>
+
+
+    </div>
+
+
+
+  </div>
 
 
 </div>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="menu-right">
-
-
-
-<button
-  id="themeToggle"
-  class="theme-toggle"
->
-
-🌙
-
-</button>
-
-
-
-
-
-<div class="profile-menu">
-
-
-
-<button
-  id="profileToggle"
-  class="theme-toggle"
->
-
-👤
-
-</button>
-
-
-
-
-<div
-  id="profileDropdown"
-  class="profile-dropdown"
->
-
-
-
-
-<div id="loginForm">
-
-
-<input
-id="loginEmail"
-placeholder="Email"
->
-
-
-<input
-id="loginSenha"
-type="password"
-placeholder="Senha"
->
-
-
-<button id="loginBtn">
-
-Entrar
-
-</button>
-
-
-</div>
-
-
-
-
-
-<div
-id="logoutBox"
-style="display:none;"
->
-
-
-<p id="loginStatus">
-
-Logado
-
-</p>
-
-
-<button onclick="logout()">
-
-🚪 Sair
-
-</button>
-
-
-</div>
-
-
-
-</div>
-
-
-</div>
-
-
-
-</div>
-
-
-</div>
-
-
 
 
 
@@ -225,49 +200,35 @@ Logado
 <div class="container">
 
 
-<div id="painel" style="display:none;">
-
+<div id="painel">
 
 
 <h2>
-
-Painel Administrativo
-
+  Painel Administrativo
 </h2>
 
 
-
+<!-- ================= ABAS ================= -->
 
 <div class="tabs">
 
 
 <button onclick="mostrarAba('lojas')">
-
 🏬 Lojas
-
 </button>
-
 
 
 <button onclick="mostrarAba('editoras')">
-
 🏢 Editoras
-
 </button>
-
 
 
 <button onclick="mostrarAba('contatos')">
-
 📧 Contatos
-
 </button>
 
 
-
 </div>
-
-
 
 
 <hr>
@@ -276,8 +237,8 @@ Painel Administrativo
 
 
 
+<!-- ================= LOJAS ================= -->
 
-<!-- LOJAS -->
 
 <div
 id="aba-lojas"
@@ -286,22 +247,25 @@ class="aba"
 
 
 <h3>
-
 Cadastrar Loja
-
 </h3>
-
 
 
 <input
 id="numeroLoja"
-placeholder="Número"
+placeholder="Número da loja"
 >
 
 
 <input
 id="nomeLoja"
-placeholder="Nome"
+placeholder="Nome da loja"
+>
+
+
+<input
+id="cnpjLoja"
+placeholder="CNPJ da loja"
 >
 
 
@@ -320,35 +284,31 @@ Salvar Loja
 
 
 
+<!-- ================= EDITORAS ================= -->
 
-<!-- EDITORAS -->
 
 <div
 id="aba-editoras"
 class="aba"
-style="display:none;"
+style="display:none"
 >
 
 
 <h3>
-
 Cadastrar Editora
-
 </h3>
-
 
 
 <input
 id="cnpjEditora"
-placeholder="CNPJ"
+placeholder="CNPJ da editora"
 >
 
 
 <input
 id="nomeEditora"
-placeholder="Nome"
+placeholder="Nome da editora"
 >
-
 
 
 <button onclick="salvarEditora()">
@@ -356,7 +316,6 @@ placeholder="Nome"
 Salvar Editora
 
 </button>
-
 
 
 </div>
@@ -367,23 +326,19 @@ Salvar Editora
 
 
 
+<!-- ================= CONTATOS ================= -->
 
-<!-- CONTATOS -->
 
 <div
 id="aba-contatos"
 class="aba"
-style="display:none;"
+style="display:none"
 >
 
 
-
 <h3>
-
 Importação de Contatos (CSV)
-
 </h3>
-
 
 
 
@@ -391,50 +346,30 @@ Importação de Contatos (CSV)
 
 
 <strong>
-
 Padrão do arquivo CSV
-
 </strong>
-
 
 
 <ul>
 
-
 <li>
-
-<strong>Coluna A:</strong>
-Número da Loja
-
+Coluna A: Número da Loja *
 </li>
 
-
 <li>
-
-<strong>Coluna B:</strong>
-CNPJ da Editora
-
+Coluna B: CNPJ da Editora *
 </li>
 
-
 <li>
-
-<strong>Coluna C:</strong>
-E-mails separados por |
-
+Coluna C: E-mails separados por |
 </li>
 
-
 <li>
-
-<strong>Coluna D:</strong>
-Nome do representante (opcional)
-
+Coluna D: Nome do representante
 </li>
 
 
 </ul>
-
 
 
 </div>
@@ -445,7 +380,6 @@ Nome do representante (opcional)
 <br>
 
 
-
 <input
 type="file"
 id="csvFile"
@@ -453,9 +387,7 @@ accept=".csv"
 >
 
 
-
 <br><br>
-
 
 
 <button onclick="importarCSV()">
@@ -465,19 +397,14 @@ Importar CSV
 </button>
 
 
-
-
 <div
 id="importProgress"
-style="margin-top:10px;"
+style="margin-top:10px"
 ></div>
 
 
 
 </div>
-
-
-
 
 
 
@@ -500,7 +427,6 @@ style="margin-top:10px;"
 <script type="module" src="menu.js"></script>
 
 <script type="module" src="admin.js"></script>
-
 
 
 </body>
