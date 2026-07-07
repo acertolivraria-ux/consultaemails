@@ -1,56 +1,118 @@
 /* =====================================
-   THEME (DARK / LIGHT)
+   THEME MANAGER
 ===================================== */
 
-function applyTheme(theme) {
+function aplicarTema(theme) {
 
-  document.documentElement.setAttribute("data-theme", theme);
+  document.documentElement.setAttribute(
+    "data-theme",
+    theme
+  );
 
-  localStorage.setItem("theme", theme);
+  localStorage.setItem(
+    "theme",
+    theme
+  );
 
-  const btn = document.getElementById("themeToggle");
 
-  if (btn) {
-    btn.textContent = theme === "dark" ? "☀️" : "🌙";
+  const botao =
+    document.getElementById("themeToggle");
+
+
+  if (botao) {
+
+    botao.textContent =
+      theme === "dark"
+        ? "☀️"
+        : "🌙";
+
   }
 
 }
 
-function toggleTheme() {
+
+/* =====================================
+   ALTERAR TEMA
+===================================== */
+
+function alternarTema() {
+
 
   const atual =
-    document.documentElement.getAttribute("data-theme") || "light";
+    document.documentElement.getAttribute(
+      "data-theme"
+    ) || "light";
+
 
   const novo =
     atual === "dark"
       ? "light"
       : "dark";
 
-  applyTheme(novo);
+
+  aplicarTema(novo);
 
 }
 
-export function initThemeToggle(buttonId = "themeToggle") {
-
-  const btn = document.getElementById(buttonId);
-
-  if (!btn) return;
-
-  const salvo =
-    localStorage.getItem("theme") || "light";
-
-  applyTheme(salvo);
-
-  btn.addEventListener("click", toggleTheme);
-
-}
 
 /* =====================================
-   INICIALIZA AUTOMATICAMENTE
+   INICIALIZAÇÃO
 ===================================== */
 
-document.addEventListener("DOMContentLoaded", () => {
+export function initThemeToggle() {
 
-  initThemeToggle();
 
-});
+  const botao =
+    document.getElementById(
+      "themeToggle"
+    );
+
+
+  const salvo =
+    localStorage.getItem(
+      "theme"
+    ) || "light";
+
+
+  aplicarTema(salvo);
+
+
+  if (!botao)
+    return;
+
+
+  /*
+    Evita adicionar o evento duas vezes
+    caso a função seja chamada novamente.
+  */
+
+  if (
+    botao.dataset.themeReady === "true"
+  ) {
+    return;
+  }
+
+
+  botao.dataset.themeReady = "true";
+
+
+  botao.addEventListener(
+    "click",
+    alternarTema
+  );
+
+}
+
+
+/* =====================================
+   AUTO START
+===================================== */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    initThemeToggle();
+
+  }
+);
