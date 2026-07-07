@@ -1,9 +1,4 @@
-/* =====================================
-   CONSULTA DE CONTATOS
-===================================== */
-
 import { db } from "./firebase-config.js";
-
 
 import {
   collection,
@@ -16,7 +11,10 @@ import {
    ESTADO
 ===================================== */
 
+
 let emailsAtuais = [];
+
+
 
 
 
@@ -24,25 +22,26 @@ let emailsAtuais = [];
    PESQUISA
 ===================================== */
 
-window.pesquisar = async function(){
+
+window.pesquisar =
+async function(){
 
 
   const loja =
-    document.getElementById(
-      "loja"
-    )
-    .value
-    .trim();
+    document
+      .getElementById("loja")
+      .value
+      .trim();
 
 
 
   const editoraInput =
-    document.getElementById(
-      "editora"
-    )
-    .value
-    .trim()
-    .toLowerCase();
+    document
+      .getElementById("editora")
+      .value
+      .trim()
+      .toLowerCase();
+
 
 
 
@@ -61,11 +60,15 @@ window.pesquisar = async function(){
 
 
 
+
+
   emailsAtuais = [];
 
 
 
+
   try{
+
 
 
     const [
@@ -83,6 +86,7 @@ window.pesquisar = async function(){
       ),
 
 
+
       getDocs(
         collection(
           db,
@@ -91,7 +95,10 @@ window.pesquisar = async function(){
       )
 
 
+
     ]);
+
+
 
 
 
@@ -100,33 +107,44 @@ window.pesquisar = async function(){
 
 
 
+
     editorasSnap.forEach(
-      doc=>{
+      documento=>{
 
 
         const dados =
-          doc.data();
+          documento.data();
+
 
 
 
         if(
+
           dados.nome
-          ?.toLowerCase()
-          === editoraInput
+            ?.toLowerCase()
+            === editoraInput
+
           ||
+
           dados.cnpj
-          === editoraInput
+            === editoraInput
+
         ){
+
 
           editorasValidas.push(
             dados.cnpj
           );
 
+
         }
+
 
 
       }
     );
+
+
 
 
 
@@ -135,42 +153,56 @@ window.pesquisar = async function(){
     ){
 
 
-      document.getElementById(
-        "resultado"
-      )
-      .innerHTML =
+      document
+        .getElementById("resultado")
+        .innerHTML =
         "<p>❌ Editora não encontrada.</p>";
 
 
+
       return;
+
 
     }
 
 
 
 
+
+
+
     contatosSnap.forEach(
-      doc=>{
+      documento=>{
 
 
         const contato =
-          doc.data();
+          documento.data();
+
 
 
 
         if(
-          contato.loja === loja
+
+          contato.loja
+            === loja
+
           &&
+
           editorasValidas.includes(
             contato.editora
           )
+
         ){
+
 
           emailsAtuais.push(
             contato.email
           );
 
+
         }
+
+
 
 
       }
@@ -178,11 +210,17 @@ window.pesquisar = async function(){
 
 
 
+
+
+
     renderResultado();
 
 
 
+
+
   }
+
 
   catch(err){
 
@@ -195,7 +233,9 @@ window.pesquisar = async function(){
     );
 
 
+
   }
+
 
 
 };
@@ -203,9 +243,13 @@ window.pesquisar = async function(){
 
 
 
+
+
+
 /* =====================================
    RESULTADO
 ===================================== */
+
 
 function renderResultado(){
 
@@ -216,29 +260,46 @@ function renderResultado(){
     );
 
 
+
   if(
     emailsAtuais.length === 0
   ){
 
+
     div.innerHTML =
       "<p>⚠️ Nenhum contato encontrado.</p>";
 
+
+
     return;
+
 
   }
 
 
 
 
+
+
+
   let html = `
 
+
     <button onclick="copiarTodos()">
+
       📋 Copiar todos
+
     </button>
+
 
     <br><br>
 
+
   `;
+
+
+
+
 
 
 
@@ -248,19 +309,30 @@ function renderResultado(){
 
       html += `
 
-      <div class="email">
 
-        <span>${email}</span>
-
-
-        <button onclick="copiar('${email}')">
-          📋
-        </button>
+        <div class="email">
 
 
-      </div>
+          <span>
+            ${email}
+          </span>
+
+
+
+          <button onclick="copiar('${email}')">
+
+            📋
+
+          </button>
+
+
+
+        </div>
+
+
 
       `;
+
 
 
     }
@@ -268,17 +340,27 @@ function renderResultado(){
 
 
 
+
+
+
+
   div.innerHTML =
     html;
+
 
 
 }
 
 
 
+
+
+
+
 /* =====================================
-   COPIAR UM
+   COPIAR
 ===================================== */
+
 
 window.copiar =
 async function(email){
@@ -292,12 +374,15 @@ async function(email){
     );
 
 
+
     alert(
       "E-mail copiado!"
     );
 
 
+
   }
+
 
   catch{
 
@@ -310,7 +395,11 @@ async function(email){
   }
 
 
+
 };
+
+
+
 
 
 
@@ -319,8 +408,10 @@ async function(email){
    COPIAR TODOS
 ===================================== */
 
+
 window.copiarTodos =
 async function(){
+
 
 
   if(
@@ -330,12 +421,18 @@ async function(){
 
 
 
+
+
   try{
 
 
+
     await navigator.clipboard.writeText(
+
       emailsAtuais.join(";")
+
     );
+
 
 
     alert(
@@ -343,7 +440,9 @@ async function(){
     );
 
 
+
   }
+
 
   catch{
 
@@ -353,7 +452,9 @@ async function(){
     );
 
 
+
   }
+
 
 
 };
