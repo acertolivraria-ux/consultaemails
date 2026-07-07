@@ -771,21 +771,15 @@ function renderEditoras() {
 
 
 /* =====================================
-   RENDER CONTATOS
-===================================== */
-
-/* =====================================
-   RENDER CONTATOS AGRUPADOS
+   RENDER CONTATOS RESUMIDO
 ===================================== */
 
 function renderContatos() {
-
 
   const div =
     document.getElementById(
       "listaContatos"
     );
-
 
 
   if (!div)
@@ -795,10 +789,8 @@ function renderContatos() {
 
   if (contatos.length === 0) {
 
-
     div.innerHTML =
       "<p>Nenhum contato encontrado.</p>";
-
 
     return;
 
@@ -806,63 +798,44 @@ function renderContatos() {
 
 
 
+  const resumo = {};
 
 
 
-
-  const agrupados = {};
-
+  contatos.forEach(contato => {
 
 
+    if (!resumo[contato.email]) {
 
+      resumo[contato.email] = {
 
+        nome:
+          contato.nome || "",
 
-  contatos.forEach(
-    contato => {
+        ids: [],
 
+        editoras:
+          new Set()
 
-
-      if(
-        !agrupados[contato.email]
-      ){
-
-        agrupados[contato.email] =
-          {};
-
-      }
-
-
-
-
-
-
-      if(
-        !agrupados[contato.email]
-          [contato.editora]
-      ){
-
-        agrupados[contato.email]
-          [contato.editora] =
-          [];
-
-      }
-
-
-
-
-
-
-      agrupados[contato.email]
-        [contato.editora]
-        .push(contato);
-
-
+      };
 
     }
-  );
 
 
 
+    resumo[contato.email]
+      .ids
+      .push(contato.id);
+
+
+
+    resumo[contato.email]
+      .editoras
+      .add(contato.editora);
+
+
+
+  });
 
 
 
@@ -872,172 +845,103 @@ function renderContatos() {
 
 
 
+  Object.keys(resumo)
+  .forEach(email => {
+
+
+    const contato =
+      resumo[email];
 
 
 
+    html += `
+
+    <div class="email">
 
 
-  Object.keys(agrupados)
-  .forEach(
-    email => {
+      <div>
 
 
-
-      html += `
-
-
-      <div class="email"
-      style="display:block;">
-
-
-
-        <h3>
+        <strong>
           📧 ${email}
-        </h3>
+        </strong>
 
 
+        <br>
 
 
-      `;
-
-
-
-
-
-
-
-
-
-      Object.keys(
-        agrupados[email]
-      )
-      .forEach(
-        editora => {
-
-
-
-          html += `
-
-
-          <div
-          style="
-          margin-left:20px;
-          margin-bottom:10px;
-          "
-          >
-
-
-
-          <strong>
-          🏢 Editora:
-          ${editora}
-          </strong>
-
-
-
-          <ul>
-
-          `;
-
-
-
-
-
-
-
-          agrupados[email]
-          [editora]
-          .forEach(
-            contato => {
-
-
-
-              html += `
-
-
-              <li>
-
-
-              🏬 Loja:
-              ${contato.loja}
-
-
-
-              <button
-              onclick="editarContato('${contato.id}')"
-              title="Editar"
-              >
-
-              ✏️
-
-              </button>
-
-
-
-              <button
-              onclick="excluirContato('${contato.id}')"
-              title="Excluir"
-              >
-
-              🗑️
-
-              </button>
-
-
-
-              </li>
-
-
-              `;
-
-
-
-            }
-          );
-
-
-
-
-
-
-
-
-          html += `
-
-
-          </ul>
-
-          </div>
-
-
-          `;
-
-
-
+        ${
+          contato.nome
+          ?
+          "Nome: " + contato.nome
+          :
+          ""
         }
-      );
 
 
+        <br>
 
 
+        Vínculos:
+        ${contato.ids.length}
 
 
+        <br>
 
-      html += `
+
+        Editoras:
+        ${contato.editoras.size}
 
 
       </div>
 
 
-      `;
+
+      <div>
+
+
+        <button
+          onclick="verDetalhesContato('${email}')"
+          title="Ver detalhes"
+        >
+
+          🔎
+
+        </button>
 
 
 
-    }
-  );
+        <button
+          onclick="editarContato('${contato.ids[0]}')"
+          title="Editar"
+        >
+
+          ✏️
+
+        </button>
 
 
 
+        <button
+          onclick="excluirContato('${contato.ids[0]}')"
+          title="Excluir"
+        >
+
+          🗑️
+
+        </button>
+
+
+      </div>
+
+
+    </div>
+
+
+    `;
+
+
+  });
 
 
 
@@ -1047,11 +951,153 @@ function renderContatos() {
     html;
 
 
-
 }
 
+/* =====================================
+   DETALHES DO CONTATO
+===================================== */
+
+window.verDetalhesContato =
+function(email) {
 
 
+  const registros =
+    contatos.filter(
+      contato =>
+      contato.email === email
+    );
+
+
+
+  if (registros.length === 0)
+    return;
+
+
+
+
+  let html = `
+
+  <h3>
+    📧 ${email}
+  </h3>
+
+  `;
+
+
+
+  const agrupado = {};
+
+
+
+  registros.forEach(contato => {
+
+
+    if (!agrupado[contato.editora]) {
+
+      agrupado[contato.editora] =
+        [];
+
+    }
+
+
+    agrupado[contato.editora]
+      .push(contato.loja);
+
+
+  });
+
+
+
+
+
+  Object.keys(agrupado)
+  .forEach(editora => {
+
+
+    html += `
+
+
+    <div style="
+      margin-bottom:15px;
+      padding:10px;
+      border:1px solid var(--border);
+      border-radius:8px;
+    ">
+
+
+      <strong>
+        🏢 Editora:
+        ${editora}
+      </strong>
+
+
+      <ul>
+
+    `;
+
+
+
+    agrupado[editora]
+    .forEach(loja => {
+
+
+      html += `
+
+      <li>
+        🏬 Loja:
+        ${loja}
+      </li>
+
+      `;
+
+
+    });
+
+
+
+    html += `
+
+      </ul>
+
+    </div>
+
+    `;
+
+
+  });
+
+
+
+
+
+  const janela =
+    document.getElementById(
+      "detalhesContato"
+    );
+
+
+
+  if (janela) {
+
+    janela.innerHTML =
+      html;
+
+    janela.style.display =
+      "block";
+
+
+  } else {
+
+
+    alert(
+      "Área de detalhes não encontrada."
+    );
+
+
+  }
+
+
+};
 
 
 
