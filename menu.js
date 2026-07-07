@@ -33,7 +33,7 @@ const loginBtn = document.getElementById("loginBtn");
    DROPDOWNS
 ===================================== */
 
-if (adminToggle) {
+if (adminToggle && adminDropdown) {
 
   adminToggle.addEventListener("click", (e) => {
 
@@ -41,13 +41,13 @@ if (adminToggle) {
 
     profileDropdown?.classList.remove("show");
 
-    adminDropdown?.classList.toggle("show");
+    adminDropdown.classList.toggle("show");
 
   });
 
 }
 
-if (profileToggle) {
+if (profileToggle && profileDropdown) {
 
   profileToggle.addEventListener("click", (e) => {
 
@@ -55,7 +55,7 @@ if (profileToggle) {
 
     adminDropdown?.classList.remove("show");
 
-    profileDropdown?.classList.toggle("show");
+    profileDropdown.classList.toggle("show");
 
   });
 
@@ -68,8 +68,13 @@ document.addEventListener("click", () => {
 
 });
 
-adminDropdown?.addEventListener("click", e => e.stopPropagation());
-profileDropdown?.addEventListener("click", e => e.stopPropagation());
+adminDropdown?.addEventListener("click", (e) => {
+  e.stopPropagation();
+});
+
+profileDropdown?.addEventListener("click", (e) => {
+  e.stopPropagation();
+});
 
 /* =====================================
    LOGIN
@@ -79,8 +84,11 @@ if (loginBtn) {
 
   loginBtn.addEventListener("click", async () => {
 
-    const email = document.getElementById("loginEmail").value.trim();
-    const senha = document.getElementById("loginSenha").value;
+    const email =
+      document.getElementById("loginEmail").value.trim();
+
+    const senha =
+      document.getElementById("loginSenha").value;
 
     if (!email || !senha) {
 
@@ -91,7 +99,11 @@ if (loginBtn) {
 
     try {
 
-      await signInWithEmailAndPassword(auth, email, senha);
+      await signInWithEmailAndPassword(
+        auth,
+        email,
+        senha
+      );
 
       profileDropdown?.classList.remove("show");
 
@@ -113,92 +125,195 @@ window.logout = async function () {
 
   await signOut(auth);
 
-};
+  profileDropdown?.classList.remove("show");
 
+};
 /* =====================================
-   CONTROLE DE ACESSO
+   CONTROLE DE PERMISSÃO
 ===================================== */
 
-function bloquearAdmin() {
+function isAdmin(user) {
 
-  if (!adminToggle) return;
+  if (!user || !user.email)
+    return false;
 
-  adminToggle.disabled = true;
-  adminToggle.style.opacity = ".5";
-  adminToggle.title = "Apenas administradores";
 
-}
-
-function liberarAdmin() {
-
-  if (!adminToggle) return;
-
-  adminToggle.disabled = false;
-  adminToggle.style.opacity = "1";
-  adminToggle.title = "";
+  return (
+    user.email.toLowerCase() ===
+    ADMIN_EMAIL.toLowerCase()
+  );
 
 }
 
-function verificarPaginaAdmin(isAdmin) {
 
-  const pagina = window.location.pathname.toLowerCase();
+/* =====================================
+   CONTROLE DE PÁGINAS ADMIN
+===================================== */
 
-  const estaNoAdmin =
-    pagina.endsWith("/admin.html") ||
-    pagina.endsWith("admin.html") ||
-    pagina.endsWith("/alteracao.html") ||
-    pagina.endsWith("alteracao.html");
+function verificarAcessoPagina(user) {
 
-  if (estaNoAdmin && !isAdmin) {
 
-    alert("Você não possui permissão para acessar esta página.");
+  const pagina =
+    window.location.pathname
+      .split("/")
+      .pop()
+      .toLowerCase();
 
-    window.location.href = "index.html";
+
+
+  const paginasRestritas = [
+
+    "admin.html",
+    "alteracao.html"
+
+  ];
+
+
+
+  if (
+    paginasRestritas.includes(pagina)
+    &&
+    !isAdmin(user)
+  ) {
+
+    alert(
+      "Você não possui permissão para acessar esta página."
+    );
+
+
+    window.location.href =
+      "index.html";
 
   }
 
+
 }
 
+
+
 /* =====================================
-   FIREBASE AUTH
+   CONTROLE DO MENU ADMIN
 ===================================== */
 
-onAuthStateChanged(auth, (user) => {
+function atualizarMenuAdmin(admin) {
 
-  if (user) {
 
-    loginForm.style.display = "none";
-    logoutBox.style.display = "block";
+  if (!adminDropdown)
+    return;
 
-    if (loginStatus) {
 
-      loginStatus.textContent = user.email;
 
-    }
+  const links =
+    adminDropdown.querySelectorAll("a");
 
-    const admin = user.email.toLowerCase() === ADMIN_EMAIL;
+
+
+  links.forEach(link => {
 
     if (admin) {
 
-      liberarAdmin();
+      link.style.display =
+        "block";
 
     } else {
 
-      bloquearAdmin();
+      link.style.display =
+        "none";
 
     }
 
-    verificarPaginaAdmin(admin);
+  });
 
-  } else {
 
-    loginForm.style.display = "block";
-    logoutBox.style.display = "none";
 
-    bloquearAdmin();
+}
 
-    verificarPaginaAdmin(false);
+
+
+/* =====================================
+   ESTADO DE LOGIN
+===================================== */
+
+onAuthStateChanged(
+  auth,
+  (user) => {
+
+
+
+    const admin =
+      isAdmin(user);
+
+
+
+    atualizarMenuAdmin(admin);
+
+
+
+    verificarAcessoPagina(user);
+
+
+
+    if (!loginForm || !logoutBox)
+      return;
+
+
+
+    if (user) {
+
+
+
+      loginForm.style.display =
+        "none";
+
+
+
+      logoutBox.style.display =
+        "block";
+
+
+
+      if (loginStatus) {
+
+        loginStatus.textContent =
+          user.email;
+
+      }
+
+
+
+    } else {
+
+
+
+      loginForm.style.display =
+        "block";
+
+
+
+      logoutBox.style.display =
+        "none";
+
+
+
+    }
+
+
 
   }
+);
 
-});
+
+
+/* =====================================
+   EXPORTA PARA OUTROS ARQUIVOS
+===================================== */
+
+export function usuarioEhAdmin() {
+
+  const user =
+    auth.currentUser;
+
+
+  return isAdmin(user);
+
+}
