@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Alteração / Consulta</title>
+
+<link rel="stylesheet" href="style.css">
+
+
+<script>
+
+(function(){
+
+  const theme =
+    localStorage.getItem("theme")
+    || "light";
+
+
+  document.documentElement.setAttribute(
+    "data-theme",
+    theme
+  );
+
+
+})();
+
+</script>
+
+
+</head>
+
+
+<body>
+
+
+
+<!-- ================= MENU ================= -->
+
+
+<div class="menu">
+
+
+
+<div class="menu-left">
+
+
+<a href="index.html">
+🔎 Consulta
+</a>
+
+
+
+<div
+class="admin-menu"
+id="adminMenu"
+>
+
+
+<button
+id="adminToggle"
+class="theme-toggle"
+>
+
+🔐 Admin ▾
+
+</button>
+
+
+
+<div
+id="adminDropdown"
+class="profile-dropdown"
+>
+
+
+<a href="admin.html">
+📝 Cadastro
+</a>
+
+
+<a href="alteracao.html">
+🔍 Alteração / Consulta
+</a>
+
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="menu-right">
+
+
+
+<button
+id="themeToggle"
+class="theme-toggle"
+>
+🌙
+</button>
+
+
+
+
+
+
+<div class="profile-menu">
+
+
+
+<button
+id="profileToggle"
+class="theme-toggle"
+>
+👤
+</button>
+
+
+
+
+
+
+<div
+id="profileDropdown"
+class="profile-dropdown"
+>
+
+
+
+<div id="loginForm">
+
+
+<input
+id="loginEmail"
+placeholder="Email"
+>
+
+
+<input
+id="loginSenha"
+type="password"
+placeholder="Senha"
+>
+
+
+<button id="loginBtn">
+
+Entrar
+
+</button>
+
+
+</div>
+
+
+
+
+
+<div
+id="logoutBox"
+style="display:none;"
+>
+
+
+<p id="loginStatus">
+Logado
+</p>
+
+
+<button onclick="logout()">
+
+🚪 Sair
+
+</button>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ================= CONTEÚDO ================= -->
+
+
+<div class="container">
+
+
+<h2>
+Alteração / Consulta
+</h2>
+
+
+
+
+
+<!-- ================= PESQUISA ================= -->
+
+
+<input
+id="busca"
+placeholder="Pesquisar..."
+>
+
+
+
+<button onclick="buscarDados()">
+
+🔍 Pesquisar
+
+</button>
+
+
+
+
+
+
+
+<!-- ================= ABAS ================= -->
+
+
+<div class="tabs">
+
+
+<button onclick="mostrarAbaAlteracao('lojas')">
+
+🏬 Lojas
+
+</button>
+
+
+
+<button onclick="mostrarAbaAlteracao('editoras')">
+
+🏢 Editoras
+
+</button>
+
+
+
+
+<button onclick="mostrarAbaAlteracao('contatos')">
+
+📧 Contatos
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+<hr>
+
+
+
+
+
+
+
+<!-- ================= LOJAS ================= -->
+
+
+<div
+id="aba-lojas"
+class="aba"
+>
+
+
+<h3>
+Lojas cadastradas
+</h3>
+
+
+
+<div id="listaLojas">
+
+
+<p>
+Nenhuma consulta realizada.
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- ================= EDITORAS ================= -->
+
+
+<div
+id="aba-editoras"
+class="aba"
+style="display:none"
+>
+
+
+<h3>
+Editoras cadastradas
+</h3>
+
+
+
+<div id="listaEditoras">
+
+
+<p>
+Nenhuma consulta realizada.
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+<!-- ================= CONTATOS ================= -->
+
+
+<div
+id="aba-contatos"
+class="aba"
+style="display:none"
+>
+
+
+<h3>
+Contatos cadastrados
+</h3>
+
+
+
+<div id="listaContatos">
+
+
+<p>
+Nenhuma consulta realizada.
+</p>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ================= SCRIPTS ================= -->
+
+
+<script
+type="module"
+src="theme.js"
+></script>
+
+
+<script
+type="module"
+src="menu.js"
+></script>
+
+
+<script
+type="module"
+src="alteracao.js"
+></script>
+
+
+
+</body>
+
+
+</html>
