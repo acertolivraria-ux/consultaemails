@@ -312,53 +312,41 @@ async function() {
 
 
 
-    contatosSnap.forEach(
-      item => {
+contatosSnap.forEach(
+  item => {
+
+    const dado =
+      item.data();
+
+    dado.id =
+      item.id;
 
 
-        const dado =
-          item.data();
+    const buscaContato = (
+
+      dado.email
+      + " "
+      + (dado.nome || "")
+      + " "
+      + dado.loja
+      + " "
+      + dado.editora
+
+    )
+    .toLowerCase();
 
 
+    if(
+      !texto ||
+      buscaContato.includes(texto)
+    ){
 
-        dado.id =
-          item.id;
+      contatos.push(dado);
 
+    }
 
-
-
-
-
-        const buscaContato = (
-
-          dado.email
-          + " "
-          + (dado.nome || "")
-          + " "
-          + dado.loja
-          + " "
-          + dado.editora
-
-        )
-        .toLowerCase();
-
-
-
-
-
-
-
-        if(
-          !texto ||
-          buscaContato.includes(texto)
-        ){
-
-          contatos.push(dado);
-
-        }
-
-
-      )};
+  }
+);
 
 
 
