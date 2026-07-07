@@ -693,6 +693,10 @@ function renderEditoras() {
    RENDER CONTATOS
 ===================================== */
 
+/* =====================================
+   RENDER CONTATOS AGRUPADOS
+===================================== */
+
 function renderContatos() {
 
 
@@ -723,87 +727,247 @@ function renderContatos() {
 
 
 
-  div.innerHTML =
-    contatos.map(
-
-      contato => `
 
 
-      <div class="email">
+  const agrupados = {};
 
 
-        <div>
+
+
+
+
+  contatos.forEach(
+    contato => {
+
+
+
+      if(
+        !agrupados[contato.email]
+      ){
+
+        agrupados[contato.email] =
+          {};
+
+      }
+
+
+
+
+
+
+      if(
+        !agrupados[contato.email]
+          [contato.editora]
+      ){
+
+        agrupados[contato.email]
+          [contato.editora] =
+          [];
+
+      }
+
+
+
+
+
+
+      agrupados[contato.email]
+        [contato.editora]
+        .push(contato);
+
+
+
+    }
+  );
+
+
+
+
+
+
+
+
+  let html = "";
+
+
+
+
+
+
+
+
+  Object.keys(agrupados)
+  .forEach(
+    email => {
+
+
+
+      html += `
+
+
+      <div class="email"
+      style="display:block;">
+
+
+
+        <h3>
+          📧 ${email}
+        </h3>
+
+
+
+
+      `;
+
+
+
+
+
+
+
+
+
+      Object.keys(
+        agrupados[email]
+      )
+      .forEach(
+        editora => {
+
+
+
+          html += `
+
+
+          <div
+          style="
+          margin-left:20px;
+          margin-bottom:10px;
+          "
+          >
+
 
 
           <strong>
-            ${contato.email}
+          🏢 Editora:
+          ${editora}
           </strong>
 
 
-          <br>
 
+          <ul>
 
-          Loja:
-          ${contato.loja}
-
-
-          <br>
-
-
-          Editora:
-          ${contato.editora}
-
-
-          <br>
-
-
-          Nome:
-          ${contato.nome || "-"}
-
-
-        </div>
+          `;
 
 
 
 
-        <div>
-
-
-          <button
-            onclick="editarContato('${contato.id}')"
-            title="Editar"
-          >
-
-            ✏️
-
-          </button>
 
 
 
-          <button
-            onclick="excluirContato('${contato.id}')"
-            title="Excluir"
-          >
-
-            🗑️
-
-          </button>
+          agrupados[email]
+          [editora]
+          .forEach(
+            contato => {
 
 
-        </div>
+
+              html += `
+
+
+              <li>
+
+
+              🏬 Loja:
+              ${contato.loja}
+
+
+
+              <button
+              onclick="editarContato('${contato.id}')"
+              title="Editar"
+              >
+
+              ✏️
+
+              </button>
+
+
+
+              <button
+              onclick="excluirContato('${contato.id}')"
+              title="Excluir"
+              >
+
+              🗑️
+
+              </button>
+
+
+
+              </li>
+
+
+              `;
+
+
+
+            }
+          );
+
+
+
+
+
+
+
+
+          html += `
+
+
+          </ul>
+
+          </div>
+
+
+          `;
+
+
+
+        }
+      );
+
+
+
+
+
+
+
+      html += `
 
 
       </div>
 
 
-      `
+      `;
 
-    ).join("");
+
+
+    }
+  );
+
+
+
+
+
+
+
+
+  div.innerHTML =
+    html;
 
 
 
 }
-
 
 
 
@@ -1009,7 +1173,7 @@ async function(id) {
 ===================================== */
 
 window.editarContato =
-function(id) {
+async function(id) {
 
 
   const contato =
@@ -1025,7 +1189,10 @@ function(id) {
 
 
 
-  const email =
+
+
+
+  const novoEmail =
     prompt(
       "Novo e-mail do contato:",
       contato.email
@@ -1033,13 +1200,16 @@ function(id) {
 
 
 
-  if (email === null)
+  if (novoEmail === null)
     return;
 
 
 
 
-  const nome =
+
+
+
+  const novoNome =
     prompt(
       "Nome do contato:",
       contato.nome || ""
@@ -1047,19 +1217,235 @@ function(id) {
 
 
 
-  if (nome === null)
+  if (novoNome === null)
     return;
 
 
 
 
-  alert(
-    "A edição individual de contatos será concluída na próxima etapa, com a opção de alterar somente este registro ou todas as ocorrências."
-  );
+
+
+
+
+  const opcao =
+    prompt(
+
+`Como deseja aplicar a alteração?
+
+1 - Somente este registro
+
+2 - Todos os registros deste e-mail
+
+3 - Todos os registros deste e-mail nesta editora
+
+Digite 1, 2 ou 3:`,
+
+"1"
+
+    );
+
+
+
+
+
+
+  if(
+    opcao !== "1" &&
+    opcao !== "2" &&
+    opcao !== "3"
+  ){
+
+    alert(
+      "Opção inválida."
+    );
+
+    return;
+
+  }
+
+
+
+
+
+
+
+  try {
+
+
+
+    let registrosAlterar =
+      [];
+
+
+
+
+
+
+
+    if(opcao === "1"){
+
+
+      registrosAlterar.push(
+        contato
+      );
+
+
+    }
+
+
+
+
+
+
+
+    if(opcao === "2"){
+
+
+      registrosAlterar =
+        contatos.filter(
+
+          item =>
+          item.email === contato.email
+
+        );
+
+
+    }
+
+
+
+
+
+
+
+
+    if(opcao === "3"){
+
+
+      registrosAlterar =
+        contatos.filter(
+
+          item =>
+
+          item.email === contato.email
+          &&
+          item.editora === contato.editora
+
+
+        );
+
+
+    }
+
+
+
+
+
+
+
+    const confirmar =
+      confirm(
+
+`Serão alterados:
+${registrosAlterar.length} registro(s).
+
+Confirma?`
+
+      );
+
+
+
+
+
+    if(!confirmar)
+      return;
+
+
+
+
+
+
+
+
+    const atualizacoes =
+      registrosAlterar.map(
+
+        item =>
+
+
+        updateDoc(
+
+          doc(
+            db,
+            "contatos",
+            item.id
+          ),
+
+          {
+
+            email:
+              novoEmail,
+
+
+            nome:
+              novoNome
+
+
+          }
+
+        )
+
+
+      );
+
+
+
+
+
+
+
+    await Promise.all(
+      atualizacoes
+    );
+
+
+
+
+
+
+
+    alert(
+      "Contatos atualizados com sucesso!"
+    );
+
+
+
+    buscarDados();
+
+
+
+
+
+
+  }
+
+
+  catch(error){
+
+
+    console.error(error);
+
+
+    alert(
+      "Erro ao atualizar contatos."
+    );
+
+
+  }
+
 
 
 };
-
 
 
 
@@ -1074,22 +1460,231 @@ window.excluirContato =
 async function(id) {
 
 
-  const confirmar =
-    confirm(
-      "Deseja excluir este contato?"
+  const contato =
+    contatos.find(
+      item =>
+      item.id === id
     );
 
 
 
-  if (!confirmar)
+  if (!contato)
     return;
 
 
 
 
-  alert(
-    "A exclusão individual de contatos será concluída junto com a regra de exclusão em massa."
-  );
+
+
+  const opcao =
+    prompt(
+
+`Como deseja excluir?
+
+1 - Somente este registro
+
+2 - Todos os registros deste e-mail
+
+3 - Todos os registros deste e-mail nesta editora
+
+Digite 1, 2 ou 3:`,
+
+"1"
+
+    );
+
+
+
+
+
+
+  if(
+    opcao !== "1" &&
+    opcao !== "2" &&
+    opcao !== "3"
+  ){
+
+    alert(
+      "Opção inválida."
+    );
+
+    return;
+
+  }
+
+
+
+
+
+
+
+  let registrosExcluir =
+    [];
+
+
+
+
+
+
+
+
+  if(opcao === "1"){
+
+
+    registrosExcluir.push(
+      contato
+    );
+
+
+  }
+
+
+
+
+
+
+
+
+  if(opcao === "2"){
+
+
+    registrosExcluir =
+      contatos.filter(
+
+        item =>
+        item.email === contato.email
+
+      );
+
+
+  }
+
+
+
+
+
+
+
+
+  if(opcao === "3"){
+
+
+    registrosExcluir =
+      contatos.filter(
+
+        item =>
+
+        item.email === contato.email
+
+        &&
+
+        item.editora === contato.editora
+
+
+      );
+
+
+  }
+
+
+
+
+
+
+
+
+  const confirmar =
+    confirm(
+
+`Confirma a exclusão?
+
+Serão removidos:
+${registrosExcluir.length} registro(s).`
+
+    );
+
+
+
+
+
+  if(!confirmar)
+    return;
+
+
+
+
+
+
+
+  try {
+
+
+
+    const exclusoes =
+      registrosExcluir.map(
+
+        item =>
+
+
+        deleteDoc(
+
+          doc(
+            db,
+            "contatos",
+            item.id
+          )
+
+        )
+
+
+      );
+
+
+
+
+
+
+
+    await Promise.all(
+      exclusoes
+    );
+
+
+
+
+
+
+
+    alert(
+      "Contatos excluídos com sucesso!"
+    );
+
+
+
+    buscarDados();
+
+
+
+
+
+
+
+  }
+
+
+  catch(error){
+
+
+    console.error(error);
+
+
+    alert(
+      "Erro ao excluir contatos."
+    );
+
+
+  }
+
 
 
 };
