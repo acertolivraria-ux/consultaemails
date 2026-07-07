@@ -1,5 +1,6 @@
-import { db, auth } from "./firebase-config.js";
+import { db } from "./firebase-config.js";
 
+import { auth } from "./firebase-config.js";
 
 import {
   onAuthStateChanged
@@ -18,8 +19,12 @@ import {
 
 
 /* =====================================
-   CONTROLE DE ACESSO ADMIN
+   CONTROLE DE ADMIN
 ===================================== */
+
+
+const ADMIN_EMAIL =
+  "acertoscentralizados@gmail.com";
 
 
 const painel =
@@ -37,7 +42,11 @@ onAuthStateChanged(
 
 
 
-    if(user){
+    if(
+      user &&
+      user.email.toLowerCase()
+      === ADMIN_EMAIL.toLowerCase()
+    ){
 
       painel.style.display =
         "block";
@@ -61,7 +70,6 @@ onAuthStateChanged(
 
 
 
-
 /* =====================================
    ABAS
 ===================================== */
@@ -71,34 +79,30 @@ window.mostrarAba =
 function(aba){
 
 
-
   document
     .querySelectorAll(".aba")
     .forEach(
-      el=>{
+      elemento=>{
 
-        el.style.display =
+        elemento.style.display =
           "none";
 
       }
     );
 
 
-
-  const destino =
+  const alvo =
     document.getElementById(
       "aba-" + aba
     );
 
 
+  if(alvo){
 
-  if(destino){
-
-    destino.style.display =
+    alvo.style.display =
       "block";
 
   }
-
 
 
 };
@@ -116,33 +120,37 @@ window.salvarLoja =
 async function(){
 
 
-
   const numero =
-    document.getElementById(
-      "numeroLoja"
-    )
-    .value
-    .trim();
-
+    document
+      .getElementById("numeroLoja")
+      .value
+      .trim();
 
 
   const nome =
-    document.getElementById(
-      "nomeLoja"
-    )
-    .value
-    .trim();
+    document
+      .getElementById("nomeLoja")
+      .value
+      .trim();
+
+
+  const cnpj =
+    document
+      .getElementById("cnpjLoja")
+      .value
+      .trim();
 
 
 
 
   if(
     !numero ||
-    !nome
+    !nome ||
+    !cnpj
   ){
 
     alert(
-      "Preencha todos os campos."
+      "Preencha número, nome e CNPJ da loja."
     );
 
     return;
@@ -179,7 +187,6 @@ async function(){
 
 
 
-
     if(!existeNumero.empty){
 
       alert(
@@ -193,7 +200,7 @@ async function(){
 
 
 
-    const existeNome =
+    const existeCnpj =
       await getDocs(
 
         query(
@@ -204,9 +211,9 @@ async function(){
           ),
 
           where(
-            "nome",
+            "cnpj",
             "==",
-            nome
+            cnpj
           ),
 
           limit(1)
@@ -217,11 +224,10 @@ async function(){
 
 
 
-
-    if(!existeNome.empty){
+    if(!existeCnpj.empty){
 
       alert(
-        "Já existe uma loja com esse nome."
+        "Já existe uma loja com esse CNPJ."
       );
 
       return;
@@ -239,8 +245,11 @@ async function(){
       ),
 
       {
+
         numero,
-        nome
+        nome,
+        cnpj
+
       }
 
     );
@@ -261,6 +270,12 @@ async function(){
 
     document.getElementById(
       "nomeLoja"
+    ).value = "";
+
+
+
+    document.getElementById(
+      "cnpjLoja"
     ).value = "";
 
 
@@ -298,21 +313,19 @@ window.salvarEditora =
 async function(){
 
 
-  const cnpj =
-    document.getElementById(
-      "cnpjEditora"
-    )
-    .value
-    .trim();
 
+  const cnpj =
+    document
+      .getElementById("cnpjEditora")
+      .value
+      .trim();
 
 
   const nome =
-    document.getElementById(
-      "nomeEditora"
-    )
-    .value
-    .trim();
+    document
+      .getElementById("nomeEditora")
+      .value
+      .trim();
 
 
 
@@ -360,7 +373,6 @@ async function(){
 
 
 
-
     if(!existe.empty){
 
       alert(
@@ -382,12 +394,13 @@ async function(){
       ),
 
       {
+
         cnpj,
         nome
+
       }
 
     );
-
 
 
 
@@ -432,6 +445,7 @@ async function(){
 
 
 
+
 /* =====================================
    IMPORTAÇÃO CSV
 ===================================== */
@@ -441,20 +455,15 @@ window.importarCSV =
 function(){
 
 
-
-  const fileInput =
+  const arquivo =
     document.getElementById(
       "csvFile"
-    );
+    )
+    .files[0];
 
 
 
-  const file =
-    fileInput.files[0];
-
-
-
-  if(!file){
+  if(!arquivo){
 
     alert(
       "Selecione um arquivo CSV."
@@ -466,16 +475,12 @@ function(){
 
 
 
-
-
-  const reader =
+  const leitor =
     new FileReader();
 
 
 
-
-
-  reader.onload =
+  leitor.onload =
   async function(e){
 
 
@@ -486,7 +491,8 @@ function(){
         e.target.result
         .split("\n")
         .map(
-          l=>l.trim()
+          linha =>
+          linha.trim()
         )
         .filter(
           Boolean
@@ -498,34 +504,30 @@ function(){
 
 
 
-
       for(
         const linha of linhas
       ){
 
 
-        const cols =
+        const colunas =
           linha.split(",");
 
 
 
         const loja =
-          cols[0]?.trim();
-
+          colunas[0]?.trim();
 
 
         const editora =
-          cols[1]?.trim();
-
+          colunas[1]?.trim();
 
 
         const emails =
-          cols[2]?.trim();
-
+          colunas[2]?.trim();
 
 
         const nome =
-          cols[3]?.trim()
+          colunas[3]?.trim()
           || null;
 
 
@@ -540,12 +542,12 @@ function(){
 
 
 
-
-        const listaEmails =
+        const lista =
           emails
           .split("|")
           .map(
-            e=>e.trim()
+            email =>
+            email.trim()
           )
           .filter(
             Boolean
@@ -555,7 +557,7 @@ function(){
 
 
         for(
-          const email of listaEmails
+          const email of lista
         ){
 
 
@@ -595,10 +597,8 @@ function(){
 
 
 
-
           if(!existe.empty)
             continue;
-
 
 
 
@@ -610,14 +610,15 @@ function(){
             ),
 
             {
+
               loja,
               editora,
               email,
               nome
+
             }
 
           );
-
 
 
           criados++;
@@ -633,6 +634,7 @@ function(){
       alert(
         `${criados} contatos importados com sucesso!`
       );
+
 
 
     }
@@ -657,9 +659,7 @@ function(){
 
 
 
-
-  reader.readAsText(file);
-
+  leitor.readAsText(arquivo);
 
 
 };
