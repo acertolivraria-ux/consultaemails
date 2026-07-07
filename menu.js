@@ -1,7 +1,3 @@
-/* =====================================
-   MENU + LOGIN FIREBASE
-===================================== */
-
 import { auth } from "./firebase-config.js";
 
 import {
@@ -10,304 +6,199 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
+/* =====================================
+   CONFIGURAÇÃO
+===================================== */
+
+const ADMIN_EMAIL = "acertoscentralizados@gmail.com";
 
 /* =====================================
    ELEMENTOS
 ===================================== */
 
-const adminMenu =
-  document.getElementById("adminMenu");
+const adminMenu = document.getElementById("adminMenu");
+const adminToggle = document.getElementById("adminToggle");
+const adminDropdown = document.getElementById("adminDropdown");
 
-const adminToggle =
-  document.getElementById("adminToggle");
+const profileToggle = document.getElementById("profileToggle");
+const profileDropdown = document.getElementById("profileDropdown");
 
-const adminDropdown =
-  document.getElementById("adminDropdown");
+const loginForm = document.getElementById("loginForm");
+const logoutBox = document.getElementById("logoutBox");
+const loginStatus = document.getElementById("loginStatus");
 
-
-const profileMenu =
-  document.querySelector(".profile-menu");
-
-const profileToggle =
-  document.getElementById("profileToggle");
-
-const profileDropdown =
-  document.getElementById("profileDropdown");
-
+const loginBtn = document.getElementById("loginBtn");
 
 /* =====================================
-   DROPDOWN ADMIN
+   DROPDOWNS
 ===================================== */
 
-if (
-  adminToggle &&
-  adminMenu
-) {
+if (adminToggle) {
 
+  adminToggle.addEventListener("click", (e) => {
 
-  adminToggle.addEventListener(
-    "click",
-    (e)=>{
+    e.stopPropagation();
 
-      e.stopPropagation();
+    profileDropdown?.classList.remove("show");
 
+    adminDropdown?.classList.toggle("show");
 
-      profileDropdown
-        ?.classList.remove("show");
-
-
-      adminMenu
-        .classList.toggle("show");
-
-
-      adminDropdown
-        ?.classList.toggle("show");
-
-    }
-  );
+  });
 
 }
 
+if (profileToggle) {
 
-/* =====================================
-   DROPDOWN PERFIL
-===================================== */
+  profileToggle.addEventListener("click", (e) => {
 
-if (
-  profileToggle &&
-  profileDropdown
-) {
+    e.stopPropagation();
 
+    adminDropdown?.classList.remove("show");
 
-  profileToggle.addEventListener(
-    "click",
-    (e)=>{
+    profileDropdown?.classList.toggle("show");
 
-      e.stopPropagation();
-
-
-      adminMenu
-        ?.classList.remove("show");
-
-
-      adminDropdown
-        ?.classList.remove("show");
-
-
-      profileDropdown
-        .classList.toggle("show");
-
-    }
-  );
+  });
 
 }
 
+document.addEventListener("click", () => {
 
-/* =====================================
-   FECHAR MENUS
-===================================== */
+  adminDropdown?.classList.remove("show");
+  profileDropdown?.classList.remove("show");
 
-document.addEventListener(
-  "click",
-  ()=>{
+});
 
-    adminMenu
-      ?.classList.remove("show");
-
-
-    adminDropdown
-      ?.classList.remove("show");
-
-
-    profileDropdown
-      ?.classList.remove("show");
-
-  }
-);
-
-
-profileDropdown
-?.addEventListener(
-  "click",
-  e=>e.stopPropagation()
-);
-
-
-adminDropdown
-?.addEventListener(
-  "click",
-  e=>e.stopPropagation()
-);
-
-
+adminDropdown?.addEventListener("click", e => e.stopPropagation());
+profileDropdown?.addEventListener("click", e => e.stopPropagation());
 
 /* =====================================
    LOGIN
 ===================================== */
 
-const loginBtn =
-  document.getElementById("loginBtn");
+if (loginBtn) {
 
+  loginBtn.addEventListener("click", async () => {
 
-if(loginBtn){
+    const email = document.getElementById("loginEmail").value.trim();
+    const senha = document.getElementById("loginSenha").value;
 
+    if (!email || !senha) {
 
-  loginBtn.addEventListener(
-    "click",
-    async()=>{
-
-
-      const email =
-        document.getElementById(
-          "loginEmail"
-        ).value.trim();
-
-
-      const senha =
-        document.getElementById(
-          "loginSenha"
-        ).value;
-
-
-
-      if(
-        !email ||
-        !senha
-      ){
-
-        alert(
-          "Informe e-mail e senha."
-        );
-
-        return;
-
-      }
-
-
-
-      try{
-
-
-        await signInWithEmailAndPassword(
-          auth,
-          email,
-          senha
-        );
-
-
-        profileDropdown
-          ?.classList.remove("show");
-
-
-      }
-
-      catch(err){
-
-        alert(
-          err.message
-        );
-
-      }
-
+      alert("Informe e-mail e senha.");
+      return;
 
     }
-  );
 
+    try {
+
+      await signInWithEmailAndPassword(auth, email, senha);
+
+      profileDropdown?.classList.remove("show");
+
+    } catch (err) {
+
+      alert(err.message);
+
+    }
+
+  });
 
 }
-
-
 
 /* =====================================
    LOGOUT
 ===================================== */
 
-window.logout =
-async function(){
-
+window.logout = async function () {
 
   await signOut(auth);
 
-
-  profileDropdown
-    ?.classList.remove("show");
-
-
 };
 
-
-
 /* =====================================
-   ESTADO DO USUÁRIO
+   CONTROLE DE ACESSO
 ===================================== */
 
-const loginForm =
-  document.getElementById(
-    "loginForm"
-  );
+function bloquearAdmin() {
 
+  if (!adminToggle) return;
 
-const logoutBox =
-  document.getElementById(
-    "logoutBox"
-  );
+  adminToggle.disabled = true;
+  adminToggle.style.opacity = ".5";
+  adminToggle.title = "Apenas administradores";
 
+}
 
-const loginStatus =
-  document.getElementById(
-    "loginStatus"
-  );
+function liberarAdmin() {
 
+  if (!adminToggle) return;
 
+  adminToggle.disabled = false;
+  adminToggle.style.opacity = "1";
+  adminToggle.title = "";
 
-onAuthStateChanged(
-  auth,
-  (user)=>{
+}
 
+function verificarPaginaAdmin(isAdmin) {
 
-    if(
-      !loginForm ||
-      !logoutBox
-    )
-      return;
+  const pagina = window.location.pathname.toLowerCase();
 
+  const estaNoAdmin =
+    pagina.endsWith("/admin.html") ||
+    pagina.endsWith("admin.html") ||
+    pagina.endsWith("/alteracao.html") ||
+    pagina.endsWith("alteracao.html");
 
+  if (estaNoAdmin && !isAdmin) {
 
-    if(user){
+    alert("Você não possui permissão para acessar esta página.");
 
-
-      loginForm.style.display =
-        "none";
-
-
-      logoutBox.style.display =
-        "block";
-
-
-
-      if(loginStatus){
-
-        loginStatus.textContent =
-          user.email;
-
-      }
-
-
-    }
-
-    else{
-
-
-      loginForm.style.display =
-        "block";
-
-
-      logoutBox.style.display =
-        "none";
-
-
-    }
-
+    window.location.href = "index.html";
 
   }
-);
+
+}
+
+/* =====================================
+   FIREBASE AUTH
+===================================== */
+
+onAuthStateChanged(auth, (user) => {
+
+  if (user) {
+
+    loginForm.style.display = "none";
+    logoutBox.style.display = "block";
+
+    if (loginStatus) {
+
+      loginStatus.textContent = user.email;
+
+    }
+
+    const admin = user.email.toLowerCase() === ADMIN_EMAIL;
+
+    if (admin) {
+
+      liberarAdmin();
+
+    } else {
+
+      bloquearAdmin();
+
+    }
+
+    verificarPaginaAdmin(admin);
+
+  } else {
+
+    loginForm.style.display = "block";
+    logoutBox.style.display = "none";
+
+    bloquearAdmin();
+
+    verificarPaginaAdmin(false);
+
+  }
+
+});
