@@ -2,173 +2,507 @@
 <html lang="pt-BR">
 
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 
 <title>Admin</title>
 
+
 <link rel="stylesheet" href="style.css">
 
+
 <script>
-(function () {
-  const theme = localStorage.getItem("theme") || "light";
-  document.documentElement.setAttribute("data-theme", theme);
+
+(function(){
+
+  const theme =
+    localStorage.getItem("theme")
+    || "light";
+
+
+  document.documentElement
+    .setAttribute(
+      "data-theme",
+      theme
+    );
+
+
 })();
+
 </script>
+
 
 </head>
 
+
+
 <body>
 
+
+
 <!-- ================= MENU ================= -->
+
 <div class="menu">
 
-  <div class="menu-left">
-    <a href="index.html">🔎 Consulta</a>
 
-<div class="admin-menu">
+<div class="menu-left">
 
-  <button id="adminToggle" class="theme-toggle">
-    🔐 Admin ▾
-  </button>
 
-  <div id="adminDropdown" class="profile-dropdown">
+<a href="index.html">
 
-    <a href="admin.html#cadastro">📝 Cadastro</a>
-    <a href="admin.html#alteracao">🔍 Alteração / Consulta</a>
+🔎 Consulta
 
-  </div>
+</a>
+
+
+
+<div
+  class="admin-menu"
+  id="adminMenu"
+>
+
+
+<button
+  id="adminToggle"
+  class="theme-toggle"
+>
+
+🔐 Admin ▾
+
+</button>
+
+
+
+<div
+  id="adminDropdown"
+  class="profile-dropdown"
+>
+
+
+<a href="admin.html#cadastro">
+
+📝 Cadastro
+
+</a>
+
+
+<a href="admin.html#alteracao">
+
+🔍 Alteração / Consulta
+
+</a>
+
 
 </div>
 
-  </div>
-
-  <div class="menu-right">
-
-    <button id="themeToggle" class="theme-toggle">🌙</button>
-
-    <!-- LOGIN/LOGOUT UNIFICADO -->
-    <div class="profile-menu">
-
-      <button id="profileToggle" class="theme-toggle">👤</button>
-
-      <div id="profileDropdown" class="profile-dropdown">
-
-        <!-- CONTEÚDO CONTROLADO PELO JS -->
-
-        <div id="loginForm" style="display:none;">
-          <input id="loginEmail" placeholder="Email">
-          <input id="loginSenha" type="password" placeholder="Senha">
-          <button id="loginBtn">Entrar</button>
-        </div>
-
-        <div id="logoutBox" style="display:none;">
-          <p>Logado</p>
-          <button onclick="logout()">🚪 Sair</button>
-        </div>
-
-      </div>
-    </div>
-
-  </div>
 
 </div>
 
-<!-- ================= CONTAINER ================= -->
+
+</div>
+
+
+
+
+
+<div class="menu-right">
+
+
+
+<button
+  id="themeToggle"
+  class="theme-toggle"
+>
+
+🌙
+
+</button>
+
+
+
+
+
+<div class="profile-menu">
+
+
+
+<button
+  id="profileToggle"
+  class="theme-toggle"
+>
+
+👤
+
+</button>
+
+
+
+
+<div
+  id="profileDropdown"
+  class="profile-dropdown"
+>
+
+
+
+
+<div id="loginForm">
+
+
+<input
+id="loginEmail"
+placeholder="Email"
+>
+
+
+<input
+id="loginSenha"
+type="password"
+placeholder="Senha"
+>
+
+
+<button id="loginBtn">
+
+Entrar
+
+</button>
+
+
+</div>
+
+
+
+
+
+<div
+id="logoutBox"
+style="display:none;"
+>
+
+
+<p id="loginStatus">
+
+Logado
+
+</p>
+
+
+<button onclick="logout()">
+
+🚪 Sair
+
+</button>
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- ================= CONTEÚDO ================= -->
+
 <div class="container">
 
-<!-- ================= LOGIN ================= -->
-<div id="loginBox">
 
-  <h2>Login</h2>
+<div id="painel" style="display:none;">
 
-  <input id="email" type="email" placeholder="Email">
-  <input id="senha" type="password" placeholder="Senha">
 
-  <button onclick="login()">Entrar</button>
+
+<h2>
+
+Painel Administrativo
+
+</h2>
+
+
+
+
+<div class="tabs">
+
+
+<button onclick="mostrarAba('lojas')">
+
+🏬 Lojas
+
+</button>
+
+
+
+<button onclick="mostrarAba('editoras')">
+
+🏢 Editoras
+
+</button>
+
+
+
+<button onclick="mostrarAba('contatos')">
+
+📧 Contatos
+
+</button>
+
+
+
+</div>
+
+
+
+
+<hr>
+
+
+
+
+
+
+<!-- LOJAS -->
+
+<div
+id="aba-lojas"
+class="aba"
+>
+
+
+<h3>
+
+Cadastrar Loja
+
+</h3>
+
+
+
+<input
+id="numeroLoja"
+placeholder="Número"
+>
+
+
+<input
+id="nomeLoja"
+placeholder="Nome"
+>
+
+
+<button onclick="salvarLoja()">
+
+Salvar Loja
+
+</button>
+
 
 </div>
 
-<!-- ================= PAINEL ================= -->
-<div id="painel" style="display:none">
 
-  <h2>Painel Administrativo</h2>
 
-  <!-- ================= ABAS ================= -->
-  <div class="tabs">
 
-    <button onclick="mostrarAba('lojas')">🏬 Lojas</button>
-    <button onclick="mostrarAba('editoras')">🏢 Editoras</button>
-    <button onclick="mostrarAba('contatos')">📧 Contatos</button>
 
-  </div>
 
-  <hr>
 
-  <!-- ================= LOJAS ================= -->
-  <div id="aba-lojas" class="aba">
 
-    <h3>Cadastrar Loja</h3>
+<!-- EDITORAS -->
 
-    <input id="numeroLoja" placeholder="Número">
-    <input id="nomeLoja" placeholder="Nome">
+<div
+id="aba-editoras"
+class="aba"
+style="display:none;"
+>
 
-    <button onclick="salvarLoja()">Salvar Loja</button>
 
-  </div>
+<h3>
 
-  <!-- ================= EDITORAS ================= -->
-  <div id="aba-editoras" class="aba" style="display:none">
+Cadastrar Editora
 
-    <h3>Cadastrar Editora</h3>
+</h3>
 
-    <input id="cnpjEditora" placeholder="CNPJ">
-    <input id="nomeEditora" placeholder="Nome">
 
-    <button onclick="salvarEditora()">Salvar Editora</button>
 
-  </div>
+<input
+id="cnpjEditora"
+placeholder="CNPJ"
+>
 
-<!-- ================= CONTATOS ================= -->
-<div id="aba-contatos" class="aba" style="display:none">
 
-  <h3>Importação de Contatos (CSV)</h3>
+<input
+id="nomeEditora"
+placeholder="Nome"
+>
 
-  <div class="csv-info">
-    <strong>Padrão do arquivo CSV</strong>
 
-    <ul>
-      <li><strong>Coluna A:</strong> Número da Loja <span style="color:red">*</span></li>
-      <li><strong>Coluna B:</strong> CNPJ da Editora <span style="color:red">*</span></li>
-      <li><strong>Coluna C:</strong> E-mails separados por <code>|</code>, sem espaços e sem quebra de linha <span style="color:red">*</span></li>
-      <li><strong>Coluna D:</strong> Nome do representante (opcional)</li>
-    </ul>
 
-    <small>
-      <span style="color:red">*</span> Campos obrigatórios.
-    </small>
-  </div>
+<button onclick="salvarEditora()">
 
-  <br>
+Salvar Editora
 
-  <input type="file" id="csvFile" accept=".csv">
+</button>
 
-  <br><br>
 
-  <button onclick="importarCSV()">Importar CSV</button>
-
-  <div id="importProgress" style="margin-top:10px;"></div>
 
 </div>
+
+
+
+
+
+
+
+
+<!-- CONTATOS -->
+
+<div
+id="aba-contatos"
+class="aba"
+style="display:none;"
+>
+
+
+
+<h3>
+
+Importação de Contatos (CSV)
+
+</h3>
+
+
+
+
+<div class="csv-info">
+
+
+<strong>
+
+Padrão do arquivo CSV
+
+</strong>
+
+
+
+<ul>
+
+
+<li>
+
+<strong>Coluna A:</strong>
+Número da Loja
+
+</li>
+
+
+<li>
+
+<strong>Coluna B:</strong>
+CNPJ da Editora
+
+</li>
+
+
+<li>
+
+<strong>Coluna C:</strong>
+E-mails separados por |
+
+</li>
+
+
+<li>
+
+<strong>Coluna D:</strong>
+Nome do representante (opcional)
+
+</li>
+
+
+</ul>
+
+
+
+</div>
+
+
+
+
+<br>
+
+
+
+<input
+type="file"
+id="csvFile"
+accept=".csv"
+>
+
+
+
+<br><br>
+
+
+
+<button onclick="importarCSV()">
+
+Importar CSV
+
+</button>
+
+
+
+
+<div
+id="importProgress"
+style="margin-top:10px;"
+></div>
+
+
+
+</div>
+
+
+
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
 
 <!-- ================= SCRIPTS ================= -->
-<script type="module" src="admin.js"></script>
+
+
+<script type="module" src="theme.js"></script>
+
 <script type="module" src="menu.js"></script>
 
-<script type="module">
-  import { initThemeToggle } from "./theme.js";
-  initThemeToggle("themeToggle");
-</script>
+<script type="module" src="admin.js"></script>
+
+
 
 </body>
+
 </html>
