@@ -1,4 +1,10 @@
-import { db } from "./firebase-config.js";
+import { db, auth } from "./firebase-config.js";
+
+
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
 
 import {
   collection,
@@ -9,192 +15,651 @@ import {
   limit
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
+
+
 /* =====================================
-   ESTADO
+   CONTROLE DE ACESSO ADMIN
 ===================================== */
 
-let usuarioLogado = null;
+
+const painel =
+  document.getElementById("painel");
+
+
+
+onAuthStateChanged(
+  auth,
+  (user)=>{
+
+
+    if(!painel)
+      return;
+
+
+
+    if(user){
+
+      painel.style.display =
+        "block";
+
+
+    }
+
+    else{
+
+
+      painel.style.display =
+        "none";
+
+
+    }
+
+
+  }
+);
+
+
+
+
+
 /* =====================================
    ABAS
 ===================================== */
 
-window.mostrarAba = function (aba) {
-  document.querySelectorAll(".aba").forEach(el => {
-    el.style.display = "none";
-  });
 
-  const target = document.getElementById("aba-" + aba);
+window.mostrarAba =
+function(aba){
 
-  if (target) {
-    target.style.display = "block";
+
+
+  document
+    .querySelectorAll(".aba")
+    .forEach(
+      el=>{
+
+        el.style.display =
+          "none";
+
+      }
+    );
+
+
+
+  const destino =
+    document.getElementById(
+      "aba-" + aba
+    );
+
+
+
+  if(destino){
+
+    destino.style.display =
+      "block";
+
   }
+
+
+
 };
+
+
+
+
+
 /* =====================================
    LOJAS
 ===================================== */
 
-window.salvarLoja = async function () {
-  const numero = document.getElementById("numeroLoja").value.trim();
-  const nome = document.getElementById("nomeLoja").value.trim();
 
-  if (!numero || !nome) {
-    alert("Preencha todos os campos.");
+window.salvarLoja =
+async function(){
+
+
+
+  const numero =
+    document.getElementById(
+      "numeroLoja"
+    )
+    .value
+    .trim();
+
+
+
+  const nome =
+    document.getElementById(
+      "nomeLoja"
+    )
+    .value
+    .trim();
+
+
+
+
+  if(
+    !numero ||
+    !nome
+  ){
+
+    alert(
+      "Preencha todos os campos."
+    );
+
     return;
+
   }
 
-  try {
-    const existeNumero = await getDocs(
-      query(
-        collection(db, "lojas"),
-        where("numero", "==", numero),
-        limit(1)
-      )
-    );
 
-    if (!existeNumero.empty) {
-      alert("Já existe uma loja com esse número.");
+
+
+  try{
+
+
+    const existeNumero =
+      await getDocs(
+
+        query(
+
+          collection(
+            db,
+            "lojas"
+          ),
+
+          where(
+            "numero",
+            "==",
+            numero
+          ),
+
+          limit(1)
+
+        )
+
+      );
+
+
+
+
+    if(!existeNumero.empty){
+
+      alert(
+        "Já existe uma loja com esse número."
+      );
+
       return;
+
     }
 
-    const existeNome = await getDocs(
-      query(
-        collection(db, "lojas"),
-        where("nome", "==", nome),
-        limit(1)
-      )
-    );
 
-    if (!existeNome.empty) {
-      alert("Já existe uma loja com esse nome.");
+
+
+    const existeNome =
+      await getDocs(
+
+        query(
+
+          collection(
+            db,
+            "lojas"
+          ),
+
+          where(
+            "nome",
+            "==",
+            nome
+          ),
+
+          limit(1)
+
+        )
+
+      );
+
+
+
+
+    if(!existeNome.empty){
+
+      alert(
+        "Já existe uma loja com esse nome."
+      );
+
       return;
+
     }
 
-    await addDoc(collection(db, "lojas"), {
-      numero,
-      nome
-    });
 
-    alert("Loja cadastrada com sucesso!");
 
-    document.getElementById("numeroLoja").value = "";
-    document.getElementById("nomeLoja").value = "";
-  } catch (err) {
+
+    await addDoc(
+
+      collection(
+        db,
+        "lojas"
+      ),
+
+      {
+        numero,
+        nome
+      }
+
+    );
+
+
+
+    alert(
+      "Loja cadastrada com sucesso!"
+    );
+
+
+
+    document.getElementById(
+      "numeroLoja"
+    ).value = "";
+
+
+
+    document.getElementById(
+      "nomeLoja"
+    ).value = "";
+
+
+
+  }
+
+
+  catch(err){
+
+
     console.error(err);
-    alert("Erro ao salvar loja.");
+
+
+    alert(
+      "Erro ao salvar loja."
+    );
+
+
   }
+
+
 };
+
+
+
+
+
+
 /* =====================================
    EDITORAS
 ===================================== */
 
-window.salvarEditora = async function () {
-  const cnpj = document.getElementById("cnpjEditora").value.trim();
-  const nome = document.getElementById("nomeEditora").value.trim();
 
-  if (!cnpj || !nome) {
-    alert("Preencha todos os campos.");
-    return;
-  }
+window.salvarEditora =
+async function(){
 
-  try {
-    const existe = await getDocs(
-      query(
-        collection(db, "editoras"),
-        where("cnpj", "==", cnpj),
-        limit(1)
-      )
+
+  const cnpj =
+    document.getElementById(
+      "cnpjEditora"
+    )
+    .value
+    .trim();
+
+
+
+  const nome =
+    document.getElementById(
+      "nomeEditora"
+    )
+    .value
+    .trim();
+
+
+
+
+  if(
+    !cnpj ||
+    !nome
+  ){
+
+    alert(
+      "Preencha todos os campos."
     );
 
-    if (!existe.empty) {
-      alert("Já existe uma editora com esse CNPJ.");
+    return;
+
+  }
+
+
+
+
+  try{
+
+
+    const existe =
+      await getDocs(
+
+        query(
+
+          collection(
+            db,
+            "editoras"
+          ),
+
+          where(
+            "cnpj",
+            "==",
+            cnpj
+          ),
+
+          limit(1)
+
+        )
+
+      );
+
+
+
+
+    if(!existe.empty){
+
+      alert(
+        "Já existe uma editora com esse CNPJ."
+      );
+
       return;
+
     }
 
-    await addDoc(collection(db, "editoras"), {
-      cnpj,
-      nome
-    });
 
-    alert("Editora cadastrada com sucesso!");
 
-    document.getElementById("cnpjEditora").value = "";
-    document.getElementById("nomeEditora").value = "";
-  } catch (err) {
-    console.error(err);
-    alert("Erro ao salvar editora.");
+
+    await addDoc(
+
+      collection(
+        db,
+        "editoras"
+      ),
+
+      {
+        cnpj,
+        nome
+      }
+
+    );
+
+
+
+
+    alert(
+      "Editora cadastrada com sucesso!"
+    );
+
+
+
+    document.getElementById(
+      "cnpjEditora"
+    ).value = "";
+
+
+
+    document.getElementById(
+      "nomeEditora"
+    ).value = "";
+
+
+
   }
+
+
+  catch(err){
+
+
+    console.error(err);
+
+
+    alert(
+      "Erro ao salvar editora."
+    );
+
+
+  }
+
+
 };
+
+
+
+
+
 /* =====================================
    IMPORTAÇÃO CSV
 ===================================== */
 
-window.importarCSV = function () {
-  const fileInput = document.getElementById("csvFile");
-  const file = fileInput.files[0];
 
-  if (!file) {
-    alert("Selecione um arquivo CSV.");
+window.importarCSV =
+function(){
+
+
+
+  const fileInput =
+    document.getElementById(
+      "csvFile"
+    );
+
+
+
+  const file =
+    fileInput.files[0];
+
+
+
+  if(!file){
+
+    alert(
+      "Selecione um arquivo CSV."
+    );
+
     return;
+
   }
 
-  const reader = new FileReader();
 
-  reader.onload = async function (e) {
-    try {
-      const text = e.target.result;
 
-      const linhas = text
+
+
+  const reader =
+    new FileReader();
+
+
+
+
+
+  reader.onload =
+  async function(e){
+
+
+    try{
+
+
+      const linhas =
+        e.target.result
         .split("\n")
-        .map(l => l.trim())
-        .filter(l => l.length > 0);
+        .map(
+          l=>l.trim()
+        )
+        .filter(
+          Boolean
+        );
+
+
 
       let criados = 0;
 
-      for (const linha of linhas) {
-        const cols = linha.split(",");
 
-        const loja = cols[0]?.trim();
-        const editora = cols[1]?.trim();
-        const emails = cols[2]?.trim();
-        const nome = cols[3]?.trim() || null;
 
-        if (!loja || !editora || !emails) continue;
 
-        const listaEmails = emails
+      for(
+        const linha of linhas
+      ){
+
+
+        const cols =
+          linha.split(",");
+
+
+
+        const loja =
+          cols[0]?.trim();
+
+
+
+        const editora =
+          cols[1]?.trim();
+
+
+
+        const emails =
+          cols[2]?.trim();
+
+
+
+        const nome =
+          cols[3]?.trim()
+          || null;
+
+
+
+
+        if(
+          !loja ||
+          !editora ||
+          !emails
+        )
+          continue;
+
+
+
+
+        const listaEmails =
+          emails
           .split("|")
-          .map(e => e.trim())
-          .filter(Boolean);
-
-        for (const email of listaEmails) {
-          const existe = await getDocs(
-            query(
-              collection(db, "contatos"),
-              where("email", "==", email),
-              where("loja", "==", loja),
-              where("editora", "==", editora),
-              limit(1)
-            )
+          .map(
+            e=>e.trim()
+          )
+          .filter(
+            Boolean
           );
 
-          if (!existe.empty) continue;
 
-          await addDoc(collection(db, "contatos"), {
-            loja,
-            editora,
-            email,
-            nome
-          });
+
+
+        for(
+          const email of listaEmails
+        ){
+
+
+          const existe =
+            await getDocs(
+
+              query(
+
+                collection(
+                  db,
+                  "contatos"
+                ),
+
+                where(
+                  "email",
+                  "==",
+                  email
+                ),
+
+                where(
+                  "loja",
+                  "==",
+                  loja
+                ),
+
+                where(
+                  "editora",
+                  "==",
+                  editora
+                ),
+
+                limit(1)
+
+              )
+
+            );
+
+
+
+
+          if(!existe.empty)
+            continue;
+
+
+
+
+          await addDoc(
+
+            collection(
+              db,
+              "contatos"
+            ),
+
+            {
+              loja,
+              editora,
+              email,
+              nome
+            }
+
+          );
+
+
 
           criados++;
+
+
         }
+
+
       }
 
-      alert(`${criados} contatos importados com sucesso!`);
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao importar CSV.");
+
+
+      alert(
+        `${criados} contatos importados com sucesso!`
+      );
+
+
     }
+
+
+    catch(err){
+
+
+      console.error(err);
+
+
+      alert(
+        "Erro ao importar CSV."
+      );
+
+
+    }
+
+
+
   };
 
+
+
+
   reader.readAsText(file);
+
+
+
 };
