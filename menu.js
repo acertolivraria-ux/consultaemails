@@ -1,3 +1,7 @@
+/* =====================================
+   MENU + LOGIN FIREBASE
+===================================== */
+
 import { auth } from "./firebase-config.js";
 
 import {
@@ -6,158 +10,304 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
+
+/* =====================================
+   ELEMENTOS
+===================================== */
+
+const adminMenu =
+  document.getElementById("adminMenu");
+
+const adminToggle =
+  document.getElementById("adminToggle");
+
+const adminDropdown =
+  document.getElementById("adminDropdown");
+
+
+const profileMenu =
+  document.querySelector(".profile-menu");
+
+const profileToggle =
+  document.getElementById("profileToggle");
+
+const profileDropdown =
+  document.getElementById("profileDropdown");
+
+
 /* =====================================
    DROPDOWN ADMIN
 ===================================== */
 
-const profileDropdown = document.getElementById("profileDropdown");
-const adminToggle = document.getElementById("adminToggle");
-const adminDropdown = document.getElementById("adminDropdown");
+if (
+  adminToggle &&
+  adminMenu
+) {
 
-if (adminToggle && adminDropdown) {
 
-  adminToggle.addEventListener("click", (e) => {
+  adminToggle.addEventListener(
+    "click",
+    (e)=>{
 
-    e.stopPropagation();
+      e.stopPropagation();
 
-    profileDropdown?.classList.remove("show");
 
-    document.getElementById("adminMenu").classList.toggle("show");
+      profileDropdown
+        ?.classList.remove("show");
 
-  });
+
+      adminMenu
+        .classList.toggle("show");
+
+
+      adminDropdown
+        ?.classList.toggle("show");
+
+    }
+  );
 
 }
+
 
 /* =====================================
    DROPDOWN PERFIL
 ===================================== */
 
-const profileToggle = document.getElementById("profileToggle");
+if (
+  profileToggle &&
+  profileDropdown
+) {
 
-if (profileToggle && profileDropdown) {
 
-  profileToggle.addEventListener("click", (e) => {
+  profileToggle.addEventListener(
+    "click",
+    (e)=>{
 
-    e.stopPropagation();
+      e.stopPropagation();
 
-    adminDropdown?.classList.remove("show");
 
-    profileDropdown.classList.toggle("show");
+      adminMenu
+        ?.classList.remove("show");
 
-  });
+
+      adminDropdown
+        ?.classList.remove("show");
+
+
+      profileDropdown
+        .classList.toggle("show");
+
+    }
+  );
 
 }
 
+
 /* =====================================
-   FECHAR AO CLICAR FORA
+   FECHAR MENUS
 ===================================== */
 
-document.addEventListener("click", () => {
+document.addEventListener(
+  "click",
+  ()=>{
 
-  adminDropdown?.classList.remove("show");
-  profileDropdown?.classList.remove("show");
+    adminMenu
+      ?.classList.remove("show");
 
-});
 
-adminDropdown?.addEventListener("click", (e) => {
-  e.stopPropagation();
-});
+    adminDropdown
+      ?.classList.remove("show");
 
-profileDropdown?.addEventListener("click", (e) => {
-  e.stopPropagation();
-});
+
+    profileDropdown
+      ?.classList.remove("show");
+
+  }
+);
+
+
+profileDropdown
+?.addEventListener(
+  "click",
+  e=>e.stopPropagation()
+);
+
+
+adminDropdown
+?.addEventListener(
+  "click",
+  e=>e.stopPropagation()
+);
+
+
 
 /* =====================================
    LOGIN
 ===================================== */
 
-const loginBtn = document.getElementById("loginBtn");
+const loginBtn =
+  document.getElementById("loginBtn");
 
-if (loginBtn) {
 
-  loginBtn.addEventListener("click", async () => {
+if(loginBtn){
 
-    const email =
-      document.getElementById("loginEmail").value.trim();
 
-    const senha =
-      document.getElementById("loginSenha").value;
+  loginBtn.addEventListener(
+    "click",
+    async()=>{
 
-    if (!email || !senha) {
 
-      alert("Informe e-mail e senha.");
+      const email =
+        document.getElementById(
+          "loginEmail"
+        ).value.trim();
 
-      return;
+
+      const senha =
+        document.getElementById(
+          "loginSenha"
+        ).value;
+
+
+
+      if(
+        !email ||
+        !senha
+      ){
+
+        alert(
+          "Informe e-mail e senha."
+        );
+
+        return;
+
+      }
+
+
+
+      try{
+
+
+        await signInWithEmailAndPassword(
+          auth,
+          email,
+          senha
+        );
+
+
+        profileDropdown
+          ?.classList.remove("show");
+
+
+      }
+
+      catch(err){
+
+        alert(
+          err.message
+        );
+
+      }
+
 
     }
+  );
 
-    try {
-
-      await signInWithEmailAndPassword(
-        auth,
-        email,
-        senha
-      );
-
-      profileDropdown?.classList.remove("show");
-
-    } catch (err) {
-
-      alert(err.message);
-
-    }
-
-  });
 
 }
+
+
 
 /* =====================================
    LOGOUT
 ===================================== */
 
-window.logout = async function () {
+window.logout =
+async function(){
+
 
   await signOut(auth);
 
-  profileDropdown?.classList.remove("show");
+
+  profileDropdown
+    ?.classList.remove("show");
+
 
 };
 
+
+
 /* =====================================
-   ESTADO DO LOGIN
+   ESTADO DO USUÁRIO
 ===================================== */
 
 const loginForm =
-  document.getElementById("loginForm");
+  document.getElementById(
+    "loginForm"
+  );
+
 
 const logoutBox =
-  document.getElementById("logoutBox");
+  document.getElementById(
+    "logoutBox"
+  );
+
 
 const loginStatus =
-  document.getElementById("loginStatus");
+  document.getElementById(
+    "loginStatus"
+  );
 
-onAuthStateChanged(auth, (user) => {
 
-  if (!loginForm || !logoutBox)
-    return;
 
-  if (user) {
+onAuthStateChanged(
+  auth,
+  (user)=>{
 
-    loginForm.style.display = "none";
-    logoutBox.style.display = "block";
 
-    if (loginStatus) {
+    if(
+      !loginForm ||
+      !logoutBox
+    )
+      return;
 
-      loginStatus.textContent =
-        user.email;
+
+
+    if(user){
+
+
+      loginForm.style.display =
+        "none";
+
+
+      logoutBox.style.display =
+        "block";
+
+
+
+      if(loginStatus){
+
+        loginStatus.textContent =
+          user.email;
+
+      }
+
 
     }
 
-  } else {
+    else{
 
-    loginForm.style.display = "block";
-    logoutBox.style.display = "none";
+
+      loginForm.style.display =
+        "block";
+
+
+      logoutBox.style.display =
+        "none";
+
+
+    }
+
 
   }
-
-});
+);
