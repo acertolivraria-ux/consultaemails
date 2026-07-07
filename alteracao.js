@@ -26,30 +26,6 @@ let editoras = [];
 let contatos = [];
 
 let lojaEditando = null;
-
-/* =====================================
-   SEGURANÇA
-===================================== */
-
-onAuthStateChanged(
-  auth,
-  (user) => {
-
-    if (
-      !user ||
-      user.email.toLowerCase() !==
-      ADMIN_EMAIL.toLowerCase()
-    ) {
-
-      window.location.href =
-        "index.html";
-
-    }
-
-  }
-);
-
-
 /* =====================================
    ABAS
 ===================================== */
@@ -84,6 +60,31 @@ function(aba) {
   }
 
 };
+
+/* =====================================
+   SEGURANÇA
+===================================== */
+
+onAuthStateChanged(
+  auth,
+  (user) => {
+
+    if (
+      !user ||
+      user.email.toLowerCase() !==
+      ADMIN_EMAIL.toLowerCase()
+    ) {
+
+      window.location.href =
+        "index.html";
+
+    }
+
+  }
+);
+
+
+
 
 
 
@@ -343,7 +344,6 @@ contatosSnap.forEach(
   }
 
 
-};
 };
 /* =====================================
    RENDER LOJAS
