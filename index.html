@@ -4,17 +4,13 @@
 <head>
 
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
 <title>Consulta</title>
-
 
 <link rel="stylesheet" href="style.css">
 
 
-<!-- Aplica tema antes da página carregar -->
 <script>
 
 (function(){
@@ -24,11 +20,10 @@
     || "light";
 
 
-  document.documentElement
-    .setAttribute(
-      "data-theme",
-      theme
-    );
+  document.documentElement.setAttribute(
+    "data-theme",
+    theme
+  );
 
 
 })();
@@ -42,12 +37,16 @@
 <body>
 
 
+
 <!-- ================= MENU ================= -->
+
 
 <div class="menu">
 
 
+
   <div class="menu-left">
+
 
 
     <a href="index.html">
@@ -56,12 +55,12 @@
 
 
 
-    <!-- ADMIN -->
 
     <div
       class="admin-menu"
       id="adminMenu"
     >
+
 
 
       <button
@@ -75,27 +74,25 @@
 
 
 
+
       <div
         id="adminDropdown"
         class="profile-dropdown"
       >
 
 
-        <a href="admin.html#cadastro">
-
+        <a href="admin.html">
           📝 Cadastro
-
         </a>
 
 
-        <a href="admin.html#alteracao">
-
+        <a href="alteracao.html">
           🔍 Alteração / Consulta
-
         </a>
 
 
       </div>
+
 
 
     </div>
@@ -107,37 +104,36 @@
 
 
 
+
+
+
   <div class="menu-right">
 
 
-
-    <!-- TEMA -->
 
     <button
       id="themeToggle"
       class="theme-toggle"
     >
-
       🌙
-
     </button>
 
 
 
 
-    <!-- PERFIL -->
 
     <div class="profile-menu">
+
 
 
       <button
         id="profileToggle"
         class="theme-toggle"
       >
-
         👤
-
       </button>
+
+
 
 
 
@@ -151,10 +147,12 @@
         <div id="loginForm">
 
 
+
           <input
             id="loginEmail"
             placeholder="Email"
           >
+
 
 
           <input
@@ -164,11 +162,13 @@
           >
 
 
+
           <button id="loginBtn">
 
             Entrar
 
           </button>
+
 
 
         </div>
@@ -184,9 +184,7 @@
 
 
           <p id="loginStatus">
-
             Logado
-
           </p>
 
 
@@ -197,7 +195,9 @@
           </button>
 
 
+
         </div>
+
 
 
 
@@ -205,12 +205,13 @@
       </div>
 
 
+
     </div>
 
 
 
-
   </div>
+
 
 
 </div>
@@ -219,27 +220,35 @@
 
 
 
-<!-- ================= CONTEÚDO ================= -->
+
+
+<!-- ================= CONSULTA ================= -->
+
 
 <div class="container">
 
 
+
 <h2>
-  Consulta de Contatos
+Consulta de Contatos
 </h2>
 
 
 
+
 <input
-  id="loja"
-  placeholder="Loja"
+id="loja"
+placeholder="Loja"
 >
 
 
+
+
 <input
-  id="editora"
-  placeholder="Editora ou CNPJ"
+id="editora"
+placeholder="Editora ou CNPJ"
 >
+
 
 
 
@@ -248,6 +257,7 @@
 Pesquisar
 
 </button>
+
 
 
 
@@ -261,17 +271,33 @@ Pesquisar
 
 
 
+
+
 <!-- ================= SCRIPTS ================= -->
 
 
-<script type="module" src="theme.js"></script>
+<script
+type="module"
+src="script.js"
+></script>
 
-<script type="module" src="menu.js"></script>
 
-<script type="module" src="script.js"></script>
+
+<script
+type="module"
+src="theme.js"
+></script>
+
+
+
+<script
+type="module"
+src="menu.js"
+></script>
 
 
 
 </body>
+
 
 </html>
