@@ -92,6 +92,10 @@ function(aba) {
    BUSCA
 ===================================== */
 
+/* =====================================
+   BUSCA INTELIGENTE
+===================================== */
+
 window.buscarDados =
 async function() {
 
@@ -102,6 +106,8 @@ async function() {
       .value
       .trim()
       .toLowerCase();
+
+
 
 
 
@@ -116,12 +122,14 @@ async function() {
     ] = await Promise.all([
 
 
+
       getDocs(
         collection(
           db,
           "lojas"
         )
       ),
+
 
 
       getDocs(
@@ -132,6 +140,7 @@ async function() {
       ),
 
 
+
       getDocs(
         collection(
           db,
@@ -140,7 +149,10 @@ async function() {
       )
 
 
+
     ]);
+
+
 
 
 
@@ -152,6 +164,9 @@ async function() {
 
 
 
+
+
+
     lojasSnap.forEach(
       item => {
 
@@ -160,25 +175,49 @@ async function() {
           item.data();
 
 
+
         dado.id =
           item.id;
 
 
 
-        if (
+
+
+        const buscaLoja = (
+
+          dado.nome
+          + " "
+          + dado.numero
+          + " "
+          + (dado.cnpj || "")
+
+        )
+        .toLowerCase();
+
+
+
+
+
+
+        if(
           !texto ||
-          JSON.stringify(dado)
-          .toLowerCase()
-          .includes(texto)
-        ) {
+          buscaLoja.includes(texto)
+        ){
 
           lojas.push(dado);
 
         }
 
 
+
       }
     );
+
+
+
+
+
+
 
 
 
@@ -190,25 +229,49 @@ async function() {
           item.data();
 
 
+
         dado.id =
           item.id;
 
 
 
-        if (
+
+
+
+        const buscaEditora = (
+
+          dado.nome
+          + " "
+          + dado.cnpj
+
+        )
+        .toLowerCase();
+
+
+
+
+
+
+
+        if(
           !texto ||
-          JSON.stringify(dado)
-          .toLowerCase()
-          .includes(texto)
-        ) {
+          buscaEditora.includes(texto)
+        ){
 
           editoras.push(dado);
 
         }
 
 
+
       }
     );
+
+
+
+
+
+
 
 
 
@@ -220,25 +283,51 @@ async function() {
           item.data();
 
 
+
         dado.id =
           item.id;
 
 
 
-        if (
+
+
+
+        const buscaContato = (
+
+          dado.email
+          + " "
+          + (dado.nome || "")
+          + " "
+          + dado.loja
+          + " "
+          + dado.editora
+
+        )
+        .toLowerCase();
+
+
+
+
+
+
+
+        if(
           !texto ||
-          JSON.stringify(dado)
-          .toLowerCase()
-          .includes(texto)
-        ) {
+          buscaContato.includes(texto)
+        ){
 
           contatos.push(dado);
 
         }
 
 
+
       }
     );
+
+
+
+
 
 
 
@@ -249,20 +338,27 @@ async function() {
     renderContatos();
 
 
+
+
+
   }
 
 
-  catch(error) {
+  catch(error){
+
 
     console.error(error);
+
 
     alert(
       "Erro ao buscar dados."
     );
 
+
   }
 
 
+};
 };
 /* =====================================
    RENDER LOJAS
