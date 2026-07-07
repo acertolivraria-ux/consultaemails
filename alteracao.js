@@ -26,6 +26,43 @@ let editoras = [];
 let contatos = [];
 
 let lojaEditando = null;
+/* =====================================
+   ABAS
+===================================== */
+
+window.mostrarAbaAlteracao =
+function(aba) {
+
+
+  document
+    .querySelectorAll(".aba")
+    .forEach(
+      elemento => {
+
+        elemento.style.display =
+          "none";
+
+      }
+    );
+
+
+
+  const alvo =
+    document.getElementById(
+      "aba-" + aba
+    );
+
+
+
+  if (alvo) {
+
+    alvo.style.display =
+      "block";
+
+  }
+
+
+};
 
 
 /* =====================================
