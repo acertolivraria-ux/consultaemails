@@ -168,8 +168,24 @@ function limparResultados() {
   });
 
 
-}
 
+  const detalhes =
+    document.getElementById(
+      "detalhesContato"
+    );
+
+
+  if (detalhes) {
+
+    detalhes.innerHTML = "";
+
+    detalhes.style.display =
+      "none";
+
+  }
+
+
+}
 
 
 /* =====================================
@@ -1007,8 +1023,26 @@ function mostrarDetalhes(html) {
 
 
 
-  janela.innerHTML =
-    html;
+  janela.innerHTML = `
+
+    <button
+      onclick="fecharDetalhes()"
+      style="
+        float:right;
+        margin-bottom:10px;
+      "
+    >
+      ❌ Fechar
+    </button>
+
+
+    <div style="clear:both;"></div>
+
+
+    ${html}
+
+  `;
+
 
 
   janela.style.display =
@@ -1016,6 +1050,27 @@ function mostrarDetalhes(html) {
 
 
 }
+window.fecharDetalhes =
+function() {
+
+
+  const janela =
+    document.getElementById(
+      "detalhesContato"
+    );
+
+
+  if(janela){
+
+    janela.innerHTML = "";
+
+    janela.style.display =
+      "none";
+
+  }
+
+
+};
 /* =====================================
    RENDER CONTATOS
 ===================================== */
