@@ -25,13 +25,54 @@ let lojas = [];
 let editoras = [];
 let contatos = [];
 
-let lojaEditando = null;
+let abaAtual = "lojas";
+
+
+
 /* =====================================
-   ABAS
+   SEGURANÇA
+===================================== */
+
+onAuthStateChanged(
+  auth,
+  (user) => {
+
+    if (
+      !user ||
+      user.email.toLowerCase() !==
+      ADMIN_EMAIL.toLowerCase()
+    ) {
+
+      window.location.href =
+        "index.html";
+
+    }
+
+  }
+);
+
+
+
+
+/* =====================================
+   CONTROLE DE ABAS
 ===================================== */
 
 window.mostrarAbaAlteracao =
 function(aba) {
+
+  abaAtual = aba;
+
+
+  const campoBusca =
+    document.getElementById("busca");
+
+
+  if (campoBusca) {
+
+    campoBusca.value = "";
+
+  }
 
 
   document
@@ -59,32 +100,44 @@ function(aba) {
 
   }
 
+
+  limparResultados();
+
 };
 
-/* =====================================
-   SEGURANÇA
-===================================== */
 
-onAuthStateChanged(
-  auth,
-  (user) => {
 
-    if (
-      !user ||
-      user.email.toLowerCase() !==
-      ADMIN_EMAIL.toLowerCase()
-    ) {
+function limparResultados() {
 
-      window.location.href =
-        "index.html";
+
+  const listas = [
+
+    "listaLojas",
+    "listaEditoras",
+    "listaContatos"
+
+  ];
+
+
+  listas.forEach(id => {
+
+
+    const elemento =
+      document.getElementById(id);
+
+
+    if (elemento) {
+
+      elemento.innerHTML =
+        "<p>Nenhuma consulta realizada.</p>";
 
     }
 
-  }
-);
+
+  });
 
 
-
+}
 
 
 
@@ -92,9 +145,6 @@ onAuthStateChanged(
    BUSCA
 ===================================== */
 
-/* =====================================
-   BUSCA INTELIGENTE
-===================================== */
 
 window.buscarDados =
 async function() {
@@ -109,8 +159,6 @@ async function() {
 
 
 
-
-
   try {
 
 
@@ -122,14 +170,12 @@ async function() {
     ] = await Promise.all([
 
 
-
       getDocs(
         collection(
           db,
           "lojas"
         )
       ),
-
 
 
       getDocs(
@@ -140,7 +186,6 @@ async function() {
       ),
 
 
-
       getDocs(
         collection(
           db,
@@ -149,20 +194,14 @@ async function() {
       )
 
 
-
     ]);
 
 
 
 
-
     lojas = [];
-
     editoras = [];
-
     contatos = [];
-
-
 
 
 
@@ -175,47 +214,41 @@ async function() {
           item.data();
 
 
-
         dado.id =
           item.id;
 
 
 
+        const busca =
+          (
 
+            dado.nome
+            + " "
+            + dado.numero
+            + " "
+            + (dado.cnpj || "")
 
-        const buscaLoja = (
-
-          dado.nome
-          + " "
-          + dado.numero
-          + " "
-          + (dado.cnpj || "")
-
-        )
-        .toLowerCase();
-
-
+          )
+          .toLowerCase();
 
 
 
-
-        if(
-          !texto ||
-          buscaLoja.includes(texto)
-        ){
+        if (
+          abaAtual === "lojas"
+          &&
+          (
+            !texto ||
+            busca.includes(texto)
+          )
+        ) {
 
           lojas.push(dado);
 
         }
 
 
-
       }
     );
-
-
-
-
 
 
 
@@ -229,39 +262,35 @@ async function() {
           item.data();
 
 
-
         dado.id =
           item.id;
 
 
 
+        const busca =
+          (
+
+            dado.nome
+            + " "
+            + dado.cnpj
+
+          )
+          .toLowerCase();
 
 
 
-        const buscaEditora = (
-
-          dado.nome
-          + " "
-          + dado.cnpj
-
-        )
-        .toLowerCase();
-
-
-
-
-
-
-
-        if(
-          !texto ||
-          buscaEditora.includes(texto)
-        ){
+        if (
+          abaAtual === "editoras"
+          &&
+          (
+            !texto ||
+            busca.includes(texto)
+          )
+        ) {
 
           editoras.push(dado);
 
         }
-
 
 
       }
@@ -271,66 +300,81 @@ async function() {
 
 
 
+    contatosSnap.forEach(
+      item => {
+
+
+        const dado =
+          item.data();
+
+
+        dado.id =
+          item.id;
+
+
+
+        const busca =
+          (
+
+            dado.email
+            + " "
+            + (dado.nome || "")
+            + " "
+            + dado.loja
+            + " "
+            + dado.editora
+
+          )
+          .toLowerCase();
+
+
+
+        if (
+          abaAtual === "contatos"
+          &&
+          (
+            !texto ||
+            busca.includes(texto)
+          )
+        ) {
+
+          contatos.push(dado);
+
+        }
+
+
+      }
+    );
 
 
 
 
-contatosSnap.forEach(
-  item => {
+    if (abaAtual === "lojas") {
 
-    const dado =
-      item.data();
-
-    dado.id =
-      item.id;
-
-
-    const buscaContato = (
-
-      dado.email
-      + " "
-      + (dado.nome || "")
-      + " "
-      + dado.loja
-      + " "
-      + dado.editora
-
-    )
-    .toLowerCase();
-
-
-    if(
-      !texto ||
-      buscaContato.includes(texto)
-    ){
-
-      contatos.push(dado);
+      renderLojas();
 
     }
 
-  }
-);
+
+    if (abaAtual === "editoras") {
+
+      renderEditoras();
+
+    }
 
 
+    if (abaAtual === "contatos") {
 
+      renderContatos();
 
-
-
-
-    renderLojas();
-
-    renderEditoras();
-
-    renderContatos();
-
-
+    }
 
 
 
   }
 
 
-  catch(error){
+  catch(error) {
 
 
     console.error(error);
@@ -356,7 +400,6 @@ function renderLojas() {
     document.getElementById(
       "listaLojas"
     );
-
 
 
   if (!div)
@@ -389,21 +432,16 @@ function renderLojas() {
 
         <div>
 
-
           <strong>
             ${loja.nome}
           </strong>
 
-
           <br>
-
 
           Número:
           ${loja.numero}
 
-
           <br>
-
 
           CNPJ:
           ${loja.cnpj || "-"}
@@ -414,6 +452,17 @@ function renderLojas() {
 
 
         <div>
+
+
+          <button
+            onclick="verDetalhesLoja('${loja.id}')"
+            title="Ver detalhes"
+          >
+
+            🔎
+
+          </button>
+
 
 
           <button
@@ -455,12 +504,12 @@ function renderLojas() {
 
 
 
-
 /* =====================================
-   EDITAR LOJA
+   DETALHES DA LOJA
 ===================================== */
 
-window.editarLoja =
+
+window.verDetalhesLoja =
 function(id) {
 
 
@@ -471,69 +520,150 @@ function(id) {
     );
 
 
-
   if (!loja)
     return;
 
 
 
-  lojaEditando =
-    id;
 
+  const vinculados =
+    contatos.filter(
 
+      contato =>
+        contato.loja === loja.numero
 
-  const numero =
-    prompt(
-      "Número da loja:",
-      loja.numero
     );
 
 
 
-  if (numero === null)
-    return;
+
+  let html = `
+
+    <h3>
+      🏬 ${loja.nome}
+    </h3>
+
+  `;
 
 
 
+  if (vinculados.length === 0) {
 
-  const nome =
-    prompt(
-      "Nome da loja:",
-      loja.nome
+
+    html +=
+      "<p>Nenhum contato vinculado.</p>";
+
+
+  }
+
+  else {
+
+
+    const agrupado = {};
+
+
+
+    vinculados.forEach(
+      contato => {
+
+
+        if (
+          !agrupado[contato.editora]
+        ) {
+
+          agrupado[contato.editora] =
+            [];
+
+        }
+
+
+        agrupado[contato.editora]
+          .push(contato);
+
+
+      }
     );
 
 
 
-  if (nome === null)
-    return;
+
+    Object.keys(agrupado)
+    .forEach(editora => {
+
+
+      html += `
+
+
+      <div style="
+        margin-bottom:15px;
+        padding:10px;
+        border:1px solid var(--border);
+        border-radius:8px;
+      ">
+
+
+        <strong>
+          🏢 Editora:
+          ${editora}
+        </strong>
+
+
+        <ul>
+
+      `;
 
 
 
-
-  const cnpj =
-    prompt(
-      "CNPJ da loja:",
-      loja.cnpj || ""
-    );
+      agrupado[editora]
+      .forEach(contato => {
 
 
-
-  if (cnpj === null)
-    return;
+        html += `
 
 
+          <li>
 
-  salvarEdicaoLoja(
-    id,
-    {
-      numero,
-      nome,
-      cnpj
-    }
+            ${
+              contato.nome
+              ?
+              contato.nome + " - "
+              :
+              ""
+            }
+
+            ${contato.email}
+
+          </li>
+
+
+        `;
+
+
+      });
+
+
+
+      html += `
+
+        </ul>
+
+      </div>
+
+      `;
+
+
+    });
+
+
+  }
+
+
+
+  mostrarDetalhes(
+    html
   );
 
 
-
 };
 
 
@@ -541,134 +671,11 @@ function(id) {
 
 
 
-/* =====================================
-   SALVAR EDIÇÃO LOJA
-===================================== */
 
-async function salvarEdicaoLoja(
-  id,
-  dados
-) {
-
-
-  try {
-
-
-    await updateDoc(
-
-      doc(
-        db,
-        "lojas",
-        id
-      ),
-
-      dados
-
-    );
-
-
-
-    alert(
-      "Loja atualizada com sucesso!"
-    );
-
-
-
-    buscarDados();
-
-
-
-  }
-
-
-  catch(error) {
-
-
-    console.error(error);
-
-
-    alert(
-      "Erro ao atualizar loja."
-    );
-
-
-  }
-
-
-}
-
-
-
-
-
-
-/* =====================================
-   EXCLUIR LOJA
-===================================== */
-
-window.excluirLoja =
-async function(id) {
-
-
-
-  const confirmar =
-    confirm(
-      "Deseja realmente excluir esta loja?"
-    );
-
-
-
-  if (!confirmar)
-    return;
-
-
-
-  try {
-
-
-    await deleteDoc(
-
-      doc(
-        db,
-        "lojas",
-        id
-      )
-
-    );
-
-
-
-    alert(
-      "Loja excluída com sucesso!"
-    );
-
-
-
-    buscarDados();
-
-
-
-  }
-
-
-  catch(error) {
-
-
-    console.error(error);
-
-
-    alert(
-      "Erro ao excluir loja."
-    );
-
-
-  }
-
-
-};
 /* =====================================
    RENDER EDITORAS
 ===================================== */
+
 
 function renderEditoras() {
 
@@ -677,7 +684,6 @@ function renderEditoras() {
     document.getElementById(
       "listaEditoras"
     );
-
 
 
   if (!div)
@@ -695,6 +701,7 @@ function renderEditoras() {
     return;
 
   }
+
 
 
 
@@ -727,7 +734,19 @@ function renderEditoras() {
 
 
 
+
         <div>
+
+
+          <button
+            onclick="verDetalhesEditora('${editora.id}')"
+            title="Ver detalhes"
+          >
+
+            🔎
+
+          </button>
+
 
 
           <button
@@ -769,12 +788,209 @@ function renderEditoras() {
 
 
 
+/* =====================================
+   DETALHES DA EDITORA
+===================================== */
+
+
+window.verDetalhesEditora =
+function(id) {
+
+
+  const editora =
+    editoras.find(
+      item =>
+      item.id === id
+    );
+
+
+  if (!editora)
+    return;
+
+
+
+
+  const vinculados =
+    contatos.filter(
+
+      contato =>
+        contato.editora === editora.cnpj
+
+    );
+
+
+
+
+
+  let html = `
+
+    <h3>
+      🏢 ${editora.nome}
+    </h3>
+
+  `;
+
+
+
+  if (vinculados.length === 0) {
+
+
+    html +=
+      "<p>Nenhum contato vinculado.</p>";
+
+
+  }
+
+  else {
+
+
+    const agrupado = {};
+
+
+
+    vinculados.forEach(
+      contato => {
+
+
+        if (
+          !agrupado[contato.loja]
+        ) {
+
+          agrupado[contato.loja] =
+            [];
+
+        }
+
+
+        agrupado[contato.loja]
+          .push(contato);
+
+
+      }
+    );
+
+
+
+
+    Object.keys(agrupado)
+    .forEach(loja => {
+
+
+      html += `
+
+
+      <div style="
+        margin-bottom:15px;
+        padding:10px;
+        border:1px solid var(--border);
+        border-radius:8px;
+      ">
+
+
+        <strong>
+          🏬 Loja:
+          ${loja}
+        </strong>
+
+
+        <ul>
+
+      `;
+
+
+
+      agrupado[loja]
+      .forEach(contato => {
+
+
+        html += `
+
+
+          <li>
+
+            ${
+              contato.nome
+              ?
+              contato.nome + " - "
+              :
+              ""
+            }
+
+            ${contato.email}
+
+          </li>
+
+
+        `;
+
+
+      });
+
+
+
+      html += `
+
+        </ul>
+
+      </div>
+
+      `;
+
+
+    });
+
+
+  }
+
+
+
+
+  mostrarDetalhes(
+    html
+  );
+
+
+};
+
+
+
+
 
 /* =====================================
-   RENDER CONTATOS RESUMIDO
+   ÁREA DE DETALHES
+===================================== */
+
+
+function mostrarDetalhes(html) {
+
+
+  const janela =
+    document.getElementById(
+      "detalhesContato"
+    );
+
+
+
+  if (!janela)
+    return;
+
+
+
+  janela.innerHTML =
+    html;
+
+
+  janela.style.display =
+    "block";
+
+
+}
+/* =====================================
+   RENDER CONTATOS
 ===================================== */
 
 function renderContatos() {
+
 
   const div =
     document.getElementById(
@@ -789,8 +1005,10 @@ function renderContatos() {
 
   if (contatos.length === 0) {
 
+
     div.innerHTML =
       "<p>Nenhum contato encontrado.</p>";
+
 
     return;
 
@@ -798,44 +1016,51 @@ function renderContatos() {
 
 
 
+
   const resumo = {};
 
 
 
-  contatos.forEach(contato => {
+  contatos.forEach(
+    contato => {
 
 
-    if (!resumo[contato.email]) {
+      if (
+        !resumo[contato.email]
+      ) {
 
-      resumo[contato.email] = {
 
-        nome:
-          contato.nome || "",
+        resumo[contato.email] = {
 
-        ids: [],
+          nome:
+            contato.nome || "",
 
-        editoras:
-          new Set()
+          ids: [],
 
-      };
+          editoras:
+            new Set()
+
+        };
+
+
+      }
+
+
+
+      resumo[contato.email]
+        .ids
+        .push(contato.id);
+
+
+
+      resumo[contato.email]
+        .editoras
+        .add(contato.editora);
+
+
 
     }
-
-
-
-    resumo[contato.email]
-      .ids
-      .push(contato.id);
-
-
-
-    resumo[contato.email]
-      .editoras
-      .add(contato.editora);
-
-
-
-  });
+  );
 
 
 
@@ -855,6 +1080,7 @@ function renderContatos() {
 
 
     html += `
+
 
     <div class="email">
 
@@ -894,6 +1120,7 @@ function renderContatos() {
 
 
       </div>
+
 
 
 
@@ -946,16 +1173,21 @@ function renderContatos() {
 
 
 
-
   div.innerHTML =
     html;
 
 
+
 }
+
+
+
+
 
 /* =====================================
    DETALHES DO CONTATO
 ===================================== */
+
 
 window.verDetalhesContato =
 function(email) {
@@ -964,7 +1196,7 @@ function(email) {
   const registros =
     contatos.filter(
       contato =>
-      contato.email === email
+        contato.email === email
     );
 
 
@@ -975,13 +1207,15 @@ function(email) {
 
 
 
+
   let html = `
 
-  <h3>
-    📧 ${email}
-  </h3>
+    <h3>
+      📧 ${email}
+    </h3>
 
   `;
+
 
 
 
@@ -989,22 +1223,26 @@ function(email) {
 
 
 
-  registros.forEach(contato => {
+  registros.forEach(
+    contato => {
 
 
-    if (!agrupado[contato.editora]) {
+      if (
+        !agrupado[contato.editora]
+      ) {
 
-      agrupado[contato.editora] =
-        [];
+        agrupado[contato.editora] =
+          [];
+
+      }
+
+
+      agrupado[contato.editora]
+        .push(contato.loja);
+
 
     }
-
-
-    agrupado[contato.editora]
-      .push(contato.loja);
-
-
-  });
+  );
 
 
 
@@ -1012,6 +1250,7 @@ function(email) {
 
   Object.keys(agrupado)
   .forEach(editora => {
+
 
 
     html += `
@@ -1033,7 +1272,9 @@ function(email) {
 
       <ul>
 
+
     `;
+
 
 
 
@@ -1043,10 +1284,12 @@ function(email) {
 
       html += `
 
-      <li>
-        🏬 Loja:
-        ${loja}
-      </li>
+
+        <li>
+          🏬 Loja:
+          ${loja}
+        </li>
+
 
       `;
 
@@ -1055,13 +1298,18 @@ function(email) {
 
 
 
+
     html += `
+
 
       </ul>
 
+
     </div>
 
+
     `;
+
 
 
   });
@@ -1070,27 +1318,206 @@ function(email) {
 
 
 
-  const janela =
-    document.getElementById(
-      "detalhesContato"
+  mostrarDetalhes(
+    html
+  );
+
+};
+
+
+
+
+
+
+/* =====================================
+   EDITAR LOJA
+===================================== */
+
+
+window.editarLoja =
+function(id) {
+
+
+  const loja =
+    lojas.find(
+      item =>
+        item.id === id
     );
 
 
 
-  if (janela) {
-
-    janela.innerHTML =
-      html;
-
-    janela.style.display =
-      "block";
+  if (!loja)
+    return;
 
 
-  } else {
+
+  const numero =
+    prompt(
+      "Número da loja:",
+      loja.numero
+    );
+
+
+
+  if (numero === null)
+    return;
+
+
+
+  const nome =
+    prompt(
+      "Nome da loja:",
+      loja.nome
+    );
+
+
+
+  if (nome === null)
+    return;
+
+
+
+  const cnpj =
+    prompt(
+      "CNPJ da loja:",
+      loja.cnpj || ""
+    );
+
+
+
+  if (cnpj === null)
+    return;
+
+
+
+
+  salvarEdicaoLoja(
+    id,
+    {
+      numero,
+      nome,
+      cnpj
+    }
+  );
+
+
+};
+
+
+
+
+
+
+async function salvarEdicaoLoja(
+  id,
+  dados
+) {
+
+
+  try {
+
+
+    await updateDoc(
+
+      doc(
+        db,
+        "lojas",
+        id
+      ),
+
+      dados
+
+    );
+
 
 
     alert(
-      "Área de detalhes não encontrada."
+      "Loja atualizada com sucesso!"
+    );
+
+
+    buscarDados();
+
+
+
+  }
+
+
+  catch(error) {
+
+
+    console.error(error);
+
+
+    alert(
+      "Erro ao atualizar loja."
+    );
+
+
+  }
+
+
+}
+
+
+
+
+
+
+/* =====================================
+   EXCLUIR LOJA
+===================================== */
+
+
+window.excluirLoja =
+async function(id) {
+
+
+  if(
+    !confirm(
+      "Deseja realmente excluir esta loja?"
+    )
+  )
+    return;
+
+
+
+  try {
+
+
+    await deleteDoc(
+
+      doc(
+        db,
+        "lojas",
+        id
+      )
+
+    );
+
+
+
+    alert(
+      "Loja excluída com sucesso!"
+    );
+
+
+
+    buscarDados();
+
+
+
+  }
+
+
+  catch(error) {
+
+
+    console.error(error);
+
+
+    alert(
+      "Erro ao excluir loja."
     );
 
 
@@ -1101,9 +1528,13 @@ function(email) {
 
 
 
+
+
+
 /* =====================================
    EDITAR EDITORA
 ===================================== */
+
 
 window.editarEditora =
 function(id) {
@@ -1112,13 +1543,14 @@ function(id) {
   const editora =
     editoras.find(
       item =>
-      item.id === id
+        item.id === id
     );
 
 
 
   if (!editora)
     return;
+
 
 
 
@@ -1130,7 +1562,7 @@ function(id) {
 
 
 
-  if (nome === null)
+  if(nome === null)
     return;
 
 
@@ -1144,7 +1576,7 @@ function(id) {
 
 
 
-  if (cnpj === null)
+  if(cnpj === null)
     return;
 
 
@@ -1164,11 +1596,6 @@ function(id) {
 
 
 
-
-
-/* =====================================
-   SALVAR EDITORA
-===================================== */
 
 async function salvarEdicaoEditora(
   id,
@@ -1221,13 +1648,6 @@ async function salvarEdicaoEditora(
 
 
 }
-
-
-
-
-
-
-
 /* =====================================
    EXCLUIR EDITORA
 ===================================== */
@@ -1236,16 +1656,12 @@ window.excluirEditora =
 async function(id) {
 
 
-  const confirmar =
-    confirm(
+  if(
+    !confirm(
       "Deseja realmente excluir esta editora?"
-    );
-
-
-
-  if (!confirmar)
+    )
+  )
     return;
-
 
 
 
@@ -1295,9 +1711,111 @@ async function(id) {
 
 
 
+
+
+
+
+/* =====================================
+   ESCOLHER EDITORA DO CONTATO
+===================================== */
+
+
+function escolherEditoraContato(contato) {
+
+
+  const editorasContato = [
+
+    ...new Set(
+
+      contatos
+      .filter(
+        item =>
+          item.email === contato.email
+      )
+      .map(
+        item =>
+          item.editora
+      )
+
+    )
+
+  ];
+
+
+
+  if(
+    editorasContato.length === 0
+  )
+    return null;
+
+
+
+  if(
+    editorasContato.length === 1
+  )
+    return editorasContato[0];
+
+
+
+
+  let mensagem =
+`Selecione a editora:
+
+`;
+
+
+
+  editorasContato.forEach(
+    (editora, index) => {
+
+      mensagem +=
+        `${index + 1} - ${editora}\n`;
+
+    }
+  );
+
+
+
+  const escolha =
+    prompt(
+      mensagem
+    );
+
+
+
+  const indice =
+    Number(escolha) - 1;
+
+
+
+  if(
+    !editorasContato[indice]
+  ) {
+
+    alert(
+      "Opção inválida."
+    );
+
+    return null;
+
+  }
+
+
+
+  return editorasContato[indice];
+
+}
+
+
+
+
+
+
+
 /* =====================================
    EDITAR CONTATO
 ===================================== */
+
 
 window.editarContato =
 async function(id) {
@@ -1306,16 +1824,13 @@ async function(id) {
   const contato =
     contatos.find(
       item =>
-      item.id === id
+        item.id === id
     );
 
 
 
-  if (!contato)
+  if(!contato)
     return;
-
-
-
 
 
 
@@ -1327,11 +1842,8 @@ async function(id) {
 
 
 
-  if (novoEmail === null)
+  if(novoEmail === null)
     return;
-
-
-
 
 
 
@@ -1344,11 +1856,8 @@ async function(id) {
 
 
 
-  if (novoNome === null)
+  if(novoNome === null)
     return;
-
-
-
 
 
 
@@ -1363,7 +1872,7 @@ async function(id) {
 
 2 - Todos os registros deste e-mail
 
-3 - Todos os registros deste e-mail nesta editora
+3 - Todos os registros deste e-mail em uma editora específica
 
 Digite 1, 2 ou 3:`,
 
@@ -1375,16 +1884,77 @@ Digite 1, 2 ou 3:`,
 
 
 
+  let registrosAlterar = [];
 
-  if(
-    opcao !== "1" &&
-    opcao !== "2" &&
-    opcao !== "3"
-  ){
+
+
+
+  if(opcao === "1") {
+
+
+    registrosAlterar.push(
+      contato
+    );
+
+
+  }
+
+
+
+
+  else if(opcao === "2") {
+
+
+    registrosAlterar =
+      contatos.filter(
+
+        item =>
+          item.email === contato.email
+
+      );
+
+
+  }
+
+
+
+
+  else if(opcao === "3") {
+
+
+    const editora =
+      escolherEditoraContato(
+        contato
+      );
+
+
+    if(!editora)
+      return;
+
+
+
+    registrosAlterar =
+      contatos.filter(
+
+        item =>
+          item.email === contato.email
+          &&
+          item.editora === editora
+
+      );
+
+
+  }
+
+
+
+  else {
+
 
     alert(
       "Opção inválida."
     );
+
 
     return;
 
@@ -1395,110 +1965,29 @@ Digite 1, 2 ou 3:`,
 
 
 
-
-  try {
-
-
-
-    let registrosAlterar =
-      [];
-
-
-
-
-
-
-
-    if(opcao === "1"){
-
-
-      registrosAlterar.push(
-        contato
-      );
-
-
-    }
-
-
-
-
-
-
-
-    if(opcao === "2"){
-
-
-      registrosAlterar =
-        contatos.filter(
-
-          item =>
-          item.email === contato.email
-
-        );
-
-
-    }
-
-
-
-
-
-
-
-
-    if(opcao === "3"){
-
-
-      registrosAlterar =
-        contatos.filter(
-
-          item =>
-
-          item.email === contato.email
-          &&
-          item.editora === contato.editora
-
-
-        );
-
-
-    }
-
-
-
-
-
-
-
-    const confirmar =
-      confirm(
-
+  if(
+    !confirm(
 `Serão alterados:
 ${registrosAlterar.length} registro(s).
 
 Confirma?`
-
-      );
-
-
-
-
-
-    if(!confirmar)
-      return;
+    )
+  )
+    return;
 
 
 
 
 
 
+  try {
 
 
-    const atualizacoes =
+    await Promise.all(
+
       registrosAlterar.map(
 
         item =>
-
 
         updateDoc(
 
@@ -1513,31 +2002,16 @@ Confirma?`
             email:
               novoEmail,
 
-
             nome:
               novoNome
-
 
           }
 
         )
 
+      )
 
-      );
-
-
-
-
-
-
-
-    await Promise.all(
-      atualizacoes
     );
-
-
-
-
 
 
 
@@ -1551,13 +2025,10 @@ Confirma?`
 
 
 
-
-
-
   }
 
 
-  catch(error){
+  catch(error) {
 
 
     console.error(error);
@@ -1571,8 +2042,10 @@ Confirma?`
   }
 
 
-
 };
+
+
+
 
 
 
@@ -1583,6 +2056,7 @@ Confirma?`
    EXCLUIR CONTATO
 ===================================== */
 
+
 window.excluirContato =
 async function(id) {
 
@@ -1590,14 +2064,13 @@ async function(id) {
   const contato =
     contatos.find(
       item =>
-      item.id === id
+        item.id === id
     );
 
 
 
-  if (!contato)
+  if(!contato)
     return;
-
 
 
 
@@ -1612,7 +2085,7 @@ async function(id) {
 
 2 - Todos os registros deste e-mail
 
-3 - Todos os registros deste e-mail nesta editora
+3 - Todos os registros deste e-mail em uma editora específica
 
 Digite 1, 2 ou 3:`,
 
@@ -1625,37 +2098,13 @@ Digite 1, 2 ou 3:`,
 
 
 
-  if(
-    opcao !== "1" &&
-    opcao !== "2" &&
-    opcao !== "3"
-  ){
-
-    alert(
-      "Opção inválida."
-    );
-
-    return;
-
-  }
+  let registrosExcluir = [];
 
 
 
 
 
-
-
-  let registrosExcluir =
-    [];
-
-
-
-
-
-
-
-
-  if(opcao === "1"){
+  if(opcao === "1") {
 
 
     registrosExcluir.push(
@@ -1668,18 +2117,14 @@ Digite 1, 2 ou 3:`,
 
 
 
-
-
-
-
-  if(opcao === "2"){
+  else if(opcao === "2") {
 
 
     registrosExcluir =
       contatos.filter(
 
         item =>
-        item.email === contato.email
+          item.email === contato.email
 
       );
 
@@ -1689,24 +2134,27 @@ Digite 1, 2 ou 3:`,
 
 
 
+  else if(opcao === "3") {
 
 
+    const editora =
+      escolherEditoraContato(
+        contato
+      );
 
 
-  if(opcao === "3"){
+    if(!editora)
+      return;
+
 
 
     registrosExcluir =
       contatos.filter(
 
         item =>
-
-        item.email === contato.email
-
-        &&
-
-        item.editora === contato.editora
-
+          item.email === contato.email
+          &&
+          item.editora === editora
 
       );
 
@@ -1716,27 +2164,35 @@ Digite 1, 2 ou 3:`,
 
 
 
+  else {
+
+
+    alert(
+      "Opção inválida."
+    );
+
+
+    return;
+
+
+  }
 
 
 
 
-  const confirmar =
-    confirm(
+
+
+  if(
+    !confirm(
 
 `Confirma a exclusão?
 
 Serão removidos:
 ${registrosExcluir.length} registro(s).`
 
-    );
-
-
-
-
-
-  if(!confirmar)
+    )
+  )
     return;
-
 
 
 
@@ -1746,12 +2202,11 @@ ${registrosExcluir.length} registro(s).`
   try {
 
 
+    await Promise.all(
 
-    const exclusoes =
       registrosExcluir.map(
 
         item =>
-
 
         deleteDoc(
 
@@ -1763,22 +2218,9 @@ ${registrosExcluir.length} registro(s).`
 
         )
 
+      )
 
-      );
-
-
-
-
-
-
-
-    await Promise.all(
-      exclusoes
     );
-
-
-
-
 
 
 
@@ -1792,14 +2234,10 @@ ${registrosExcluir.length} registro(s).`
 
 
 
-
-
-
-
   }
 
 
-  catch(error){
+  catch(error) {
 
 
     console.error(error);
@@ -1813,8 +2251,14 @@ ${registrosExcluir.length} registro(s).`
   }
 
 
-
 };
+
+
+
+
+
+
+
 /* =====================================
    INICIALIZAÇÃO
 ===================================== */
@@ -1828,10 +2272,6 @@ document.addEventListener(
     mostrarAbaAlteracao(
       "lojas"
     );
-
-
-    buscarDados();
-
 
 
   }
