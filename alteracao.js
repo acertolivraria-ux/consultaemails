@@ -27,6 +27,37 @@ let contatos = [];
 
 let abaAtual = "lojas";
 
+function nomeEditora(cnpj) {
+
+  const editora =
+    editoras.find(
+      item =>
+        item.cnpj === cnpj
+    );
+
+
+  return editora
+    ? editora.nome
+    : cnpj;
+
+}
+
+
+
+function nomeLoja(numero) {
+
+  const loja =
+    lojas.find(
+      item =>
+        item.numero === numero
+    );
+
+
+  return loja
+    ? loja.nome
+    : numero;
+
+}
 
 
 /* =====================================
@@ -602,10 +633,10 @@ function(id) {
       ">
 
 
-        <strong>
-          🏢 Editora:
-          ${editora}
-        </strong>
+<strong>
+  🏢 Editora:
+  ${nomeEditora(editora)}
+</strong>
 
 
         <ul>
@@ -887,10 +918,10 @@ function(id) {
       ">
 
 
-        <strong>
-          🏬 Loja:
-          ${loja}
-        </strong>
+<strong>
+  🏬 Loja:
+  ${nomeLoja(loja)}
+</strong>
 
 
         <ul>
@@ -1264,10 +1295,10 @@ function(email) {
     ">
 
 
-      <strong>
-        🏢 Editora:
-        ${editora}
-      </strong>
+<strong>
+  🏢 Editora:
+  ${nomeEditora(editora)}
+</strong>
 
 
       <ul>
@@ -1285,10 +1316,10 @@ function(email) {
       html += `
 
 
-        <li>
-          🏬 Loja:
-          ${loja}
-        </li>
+<li>
+  🏬 Loja:
+  ${nomeLoja(loja)}
+</li>
 
 
       `;
@@ -1769,7 +1800,7 @@ function escolherEditoraContato(contato) {
     (editora, index) => {
 
       mensagem +=
-        `${index + 1} - ${editora}\n`;
+        `${index + 1} - ${nomeEditora(editora)}\n`;
 
     }
   );
