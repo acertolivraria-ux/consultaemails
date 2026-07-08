@@ -281,17 +281,13 @@ async function() {
 
 
         if (
-          abaAtual === "lojas"
-          &&
-          (
-            !texto ||
-            busca.includes(texto)
-          )
-        ) {
+  !texto ||
+  busca.includes(texto)
+) {
 
-          lojas.push(dado);
+  lojas.push(dado);
 
-        }
+}
 
 
       }
