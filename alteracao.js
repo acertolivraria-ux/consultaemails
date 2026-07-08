@@ -323,17 +323,13 @@ async function() {
 
 
         if (
-          abaAtual === "editoras"
-          &&
-          (
-            !texto ||
-            busca.includes(texto)
-          )
-        ) {
+  !texto ||
+  busca.includes(texto)
+) {
 
-          editoras.push(dado);
+  editoras.push(dado);
 
-        }
+}
 
 
       }
@@ -372,18 +368,14 @@ async function() {
 
 
 
-        if (
-          abaAtual === "contatos"
-          &&
-          (
-            !texto ||
-            busca.includes(texto)
-          )
-        ) {
+if (
+  !texto ||
+  busca.includes(texto)
+) {
 
-          contatos.push(dado);
+  contatos.push(dado);
 
-        }
+}
 
 
       }
