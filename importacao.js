@@ -1,8 +1,6 @@
 import {
   collection,
-  addDoc,
   getDocs,
-  deleteDoc,
   doc,
   query,
   where,
@@ -10,251 +8,722 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 import { db } from "./firebase-config.js";
+
+
 let progressoAtual = 0;
 let totalLinhas = 0;
 
 let criados = 0;
 let removidos = 0;
 let ignorados = 0;
+
+
+
 function limparTexto(t) {
+
   if (!t) return "";
 
   return t
     .toString()
     .trim()
     .replace(/\r/g, "")
-    .replace(/^"+|"+$/g, ""); // remove aspas externas
+    .replace(/^"+|"+$/g, "");
+
 }
+
+
+
 function emailValido(email) {
+
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
 }
+
+
+
+function removerDuplicados(lista) {
+
+  const mapa = new Map();
+
+
+  for (const item of lista) {
+
+
+    const chave =
+      `${item.loja}_${item.editora}_${item.email}`;
+
+
+    mapa.set(
+      chave,
+      item
+    );
+
+
+  }
+
+
+  return Array.from(
+    mapa.values()
+  );
+
+}
+
+
+
 function parseCSV(texto) {
 
-  // 🔥 normaliza quebras de linha quebradas dentro do campo de emails
-  const normalizado = texto.replace(/\|\s*\n\s*/g, "|");
 
-  const linhas = normalizado
-    .split("\n")
-    .map(l => limparTexto(l))
-    .filter(l => l);
+  const normalizado =
+    texto.replace(
+      /\|\s*\n\s*/g,
+      "|"
+    );
+
+
+  const linhas =
+    normalizado
+      .split("\n")
+      .map(
+        linha =>
+          limparTexto(linha)
+      )
+      .filter(
+        linha =>
+          linha
+      );
+
+
 
   const resultado = [];
 
-  for (let i = 0; i < linhas.length; i++) {
 
-    const linha = linhas[i];
 
-    // 🔥 ignora cabeçalho (linha 1)
-    if (i === 0 && linha.toLowerCase().includes("loja")) {
-      continue;
-    }
+  for (
+    const linha of linhas
+  ) {
 
-    const partes = linha.split(";");
 
-    const loja = limparTexto(partes[0]);
-    const editora = limparTexto(partes[1]);
-    const emailsRaw = limparTexto(partes[2]);
-    const nome = limparTexto(partes[3]);
+    const partes =
+      linha.split(";");
 
-    if (!loja || !editora || !emailsRaw) {
+
+
+    const loja =
+      limparTexto(
+        partes[0]
+      );
+
+
+    const editora =
+      limparTexto(
+        partes[1]
+      );
+
+
+    const emailsRaw =
+      limparTexto(
+        partes[2]
+      );
+
+
+    const nome =
+      limparTexto(
+        partes[3]
+      );
+
+
+
+    if (
+      !loja ||
+      !editora ||
+      !emailsRaw
+    ) {
+
       ignorados++;
+
       continue;
+
     }
 
-    const emails = emailsRaw.split("|");
 
-    for (let email of emails) {
 
-      email = limparTexto(email);
+    const emails =
+      emailsRaw.split("|");
 
-      if (!email || !emailValido(email)) {
+
+
+    for (
+      let email of emails
+    ) {
+
+
+      email =
+        limparTexto(
+          email
+        );
+
+
+
+      if (
+        !email ||
+        !emailValido(email)
+      ) {
+
         ignorados++;
+
         continue;
+
       }
 
+
+
       resultado.push({
+
         loja,
+
         editora,
+
         email,
-        nome: nome || null
+
+        nome:
+          nome || null
+
       });
+
+
     }
+
+
   }
+
+
 
   return resultado;
+
+
 }
 function agruparContatos(lista) {
+
   const mapa = new Map();
 
-  for (const item of lista) {
-    const chave = `${item.loja}_${item.editora}`;
 
-    if (!mapa.has(chave)) {
-      mapa.set(chave, []);
+  for (
+    const item of lista
+  ) {
+
+
+    const chave =
+      `${item.loja}_${item.editora}`;
+
+
+
+    if (
+      !mapa.has(chave)
+    ) {
+
+      mapa.set(
+        chave,
+        []
+      );
+
     }
 
-    mapa.get(chave).push(item);
+
+
+    mapa
+      .get(chave)
+      .push(item);
+
+
   }
+
+
 
   return mapa;
+
 }
-async function buscarContatosExistentes(loja, editora) {
-  const q = query(
-    collection(db, "contatos"),
-    where("loja", "==", loja),
-    where("editora", "==", editora)
+
+
+
+
+async function buscarContatosExistentes(
+  loja,
+  editora
+) {
+
+
+  const q =
+    query(
+
+      collection(
+        db,
+        "contatos"
+      ),
+
+
+      where(
+        "loja",
+        "==",
+        loja
+      ),
+
+
+      where(
+        "editora",
+        "==",
+        editora
+      )
+
+    );
+
+
+
+  const snap =
+    await getDocs(q);
+
+
+
+  return snap.docs.map(
+    d => ({
+
+      id:
+        d.id,
+
+      ...d.data()
+
+    })
   );
 
-  const snap = await getDocs(q);
 
-  return snap.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
 }
+
+
+
+
 async function removerContatos(lista) {
-  const batch = writeBatch(db);
+
+
+  let batch =
+    writeBatch(db);
+
 
   let count = 0;
 
-  for (const item of lista) {
-    batch.delete(doc(db, "contatos", item.id));
+
+
+  for (
+    const item of lista
+  ) {
+
+
+    batch.delete(
+      doc(
+        db,
+        "contatos",
+        item.id
+      )
+    );
+
+
     removidos++;
+
     count++;
 
-    // Firestore limita 500 operações por batch
-    if (count === 500) {
+
+
+    if (
+      count === 500
+    ) {
+
+
       await batch.commit();
+
+
+      batch =
+        writeBatch(db);
+
+
       count = 0;
+
+
     }
+
+
   }
 
-  if (count > 0) {
+
+
+  if (
+    count > 0
+  ) {
+
     await batch.commit();
+
   }
+
+
 }
+
+
+
+
 async function criarContatos(lista) {
-  let batch = writeBatch(db);
+
+
+  let batch =
+    writeBatch(db);
+
+
+
   let count = 0;
 
-  for (const item of lista) {
-    const ref = doc(collection(db, "contatos"));
 
-    batch.set(ref, {
-      email: item.email,
-      nome: item.nome || null,
-      loja: item.loja,
-      editora: item.editora
-    });
+
+  for (
+    const item of lista
+  ) {
+
+
+
+    const ref =
+      doc(
+        collection(
+          db,
+          "contatos"
+        )
+      );
+
+
+
+    batch.set(
+      ref,
+      {
+
+        email:
+          item.email,
+
+        nome:
+          item.nome || null,
+
+        loja:
+          item.loja,
+
+        editora:
+          item.editora
+
+      }
+    );
+
+
 
     criados++;
+
     count++;
 
-    if (count === 500) {
+
+
+    if (
+      count === 500
+    ) {
+
+
       await batch.commit();
-      batch = writeBatch(db);
+
+
+      batch =
+        writeBatch(db);
+
+
       count = 0;
+
+
     }
+
+
   }
 
-  if (count > 0) {
+
+
+  if (
+    count > 0
+  ) {
+
     await batch.commit();
+
   }
+
+
 }
+
+
+
+
 function atualizarProgresso() {
-  const el = document.getElementById("importProgress");
 
-  if (!el) return;
 
-  const percent = totalLinhas
-    ? Math.round((progressoAtual / totalLinhas) * 100)
-    : 0;
+  const el =
+    document.getElementById(
+      "importProgress"
+    );
+
+
+
+  if (
+    !el
+  ) return;
+
+
+
+  const percent =
+    totalLinhas
+      ? Math.round(
+          (
+            progressoAtual /
+            totalLinhas
+          ) * 100
+        )
+      : 0;
+
+
 
   el.innerHTML = `
+
     <p>📦 Importando...</p>
-    <p>${progressoAtual} / ${totalLinhas} (${percent}%)</p>
-    <p>✔ Criados: ${criados} | 🗑 Removidos: ${removidos} | ⚠ Ignorados: ${ignorados}</p>
+
+    <p>
+      ${progressoAtual} / ${totalLinhas}
+      (${percent}%)
+    </p>
+
+    <p>
+      ✔ Criados: ${criados}
+      |
+      🗑 Removidos: ${removidos}
+      |
+      ⚠ Ignorados: ${ignorados}
+    </p>
+
   `;
+
+
 }
-async function processarGrupo(chave, itens) {
-  const [loja, editora] = chave.split("_");
+async function processarGrupo(
+  chave,
+  itens
+) {
 
-  // 1. Buscar antigos
-  const existentes = await buscarContatosExistentes(loja, editora);
 
-  // 2. Remover antigos
-  if (existentes.length > 0) {
-    await removerContatos(existentes);
+  const partes =
+    chave.split("_");
+
+
+  const loja =
+    partes[0];
+
+
+  const editora =
+    partes[1];
+
+
+
+  const existentes =
+    await buscarContatosExistentes(
+      loja,
+      editora
+    );
+
+
+
+  if (
+    existentes.length > 0
+  ) {
+
+    await removerContatos(
+      existentes
+    );
+
   }
 
-  // 3. Criar novos
-  await criarContatos(itens);
+
+
+  await criarContatos(
+    itens
+  );
+
+
 }
+
+
+
+
 async function executarImportacao(lista) {
-  const grupos = agruparContatos(lista);
 
-  const chaves = Array.from(grupos.keys());
 
-  for (let i = 0; i < chaves.length; i++) {
-    const chave = chaves[i];
-    const itens = grupos.get(chave);
+  const grupos =
+    agruparContatos(
+      lista
+    );
 
-    await processarGrupo(chave, itens);
 
-    progressoAtual += itens.length;
+
+  const chaves =
+    Array.from(
+      grupos.keys()
+    );
+
+
+
+  for (
+    let i = 0;
+    i < chaves.length;
+    i++
+  ) {
+
+
+    const chave =
+      chaves[i];
+
+
+    const itens =
+      grupos.get(
+        chave
+      );
+
+
+
+    await processarGrupo(
+      chave,
+      itens
+    );
+
+
+
+    progressoAtual +=
+      itens.length;
+
+
+
     atualizarProgresso();
+
+
   }
+
+
 }
-window.importarCSV = async function () {
+
+
+
+
+window.importarCSV =
+async function() {
+
 
   try {
 
-    const file = document.getElementById("csvFile").files[0];
 
-    if (!file) {
-      alert("Selecione um arquivo CSV");
+    const file =
+      document
+        .getElementById(
+          "csvFile"
+        )
+        .files[0];
+
+
+
+    if (
+      !file
+    ) {
+
+      alert(
+        "Selecione um arquivo CSV."
+      );
+
       return;
+
     }
 
+
+
     progressoAtual = 0;
+
     totalLinhas = 0;
+
     criados = 0;
+
     removidos = 0;
+
     ignorados = 0;
 
-    const text = await file.text();
 
-    const linhasBrutas = text
-      .split("\n")
-      .map(l => l.trim())
-      .filter(l => l);
 
-    totalLinhas = linhasBrutas.length;
+    const text =
+      await file.text();
 
-    const lista = parseCSV(text);
 
-    totalLinhas = lista.length;
+
+    const lista =
+      removerDuplicados(
+        parseCSV(text)
+      );
+
+
+
+    totalLinhas =
+      lista.length;
+
+
 
     atualizarProgresso();
 
-    await executarImportacao(lista);
 
-    atualizarProgresso();
 
-    alert(
-      `Importação concluída!\n\n` +
-      `✔ Criados: ${criados}\n` +
-      `🗑 Removidos: ${removidos}\n` +
-      `⚠ Ignorados: ${ignorados}`
+    await executarImportacao(
+      lista
     );
 
-    document.querySelectorAll("#lojasDropdownList input")
-      .forEach(cb => cb.checked = false);
 
-    document.getElementById("csvFile").value = "";
 
-  } catch (e) {
-    console.error(e);
-    alert("Erro na importação. Veja o console.");
+    atualizarProgresso();
+
+
+
+    alert(
+
+      `Importação concluída!\n\n` +
+
+      `✔ Criados: ${criados}\n` +
+
+      `🗑 Removidos: ${removidos}\n` +
+
+      `⚠ Ignorados: ${ignorados}`
+
+    );
+
+
+
+    document
+      .getElementById(
+        "csvFile"
+      )
+      .value = "";
+
+
+
   }
+
+
+  catch(e) {
+
+
+    console.error(e);
+
+
+    alert(
+      "Erro na importação. Veja o console."
+    );
+
+
+  }
+
+
 };
