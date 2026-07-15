@@ -48,7 +48,6 @@ function removerDuplicados(lista) {
 
   for (const item of lista) {
 
-
     const chave =
       `${item.loja}_${item.editora}_${item.email}`;
 
@@ -57,7 +56,6 @@ function removerDuplicados(lista) {
       chave,
       item
     );
-
 
   }
 
@@ -80,6 +78,7 @@ function parseCSV(texto) {
     );
 
 
+
   const linhas =
     normalizado
       .split("\n")
@@ -88,8 +87,7 @@ function parseCSV(texto) {
           limparTexto(linha)
       )
       .filter(
-        linha =>
-          linha
+        Boolean
       );
 
 
@@ -307,6 +305,7 @@ async function removerContatos(lista) {
     writeBatch(db);
 
 
+
   let count = 0;
 
 
@@ -458,6 +457,26 @@ async function criarContatos(lista) {
 
 
 
+async function buscarNovosContatos(
+  novos,
+  existentes
+) {
+
+
+  return novos.filter(
+    item =>
+
+      !existentes.some(
+        existente =>
+
+          existente.email === item.email
+
+      )
+
+  );
+
+
+}
 function atualizarProgresso() {
 
 
@@ -507,9 +526,15 @@ function atualizarProgresso() {
 
 
 }
+
+
+
+
+
 async function processarGrupo(
   chave,
-  itens
+  itens,
+  modo
 ) {
 
 
@@ -534,21 +559,70 @@ async function processarGrupo(
 
 
 
+  /*
+    MODO SOBRESCREVER
+
+    Remove todos os contatos
+    daquela loja + editora
+    e recria com o CSV.
+  */
+
   if (
-    existentes.length > 0
+    modo === "sobrescrever"
   ) {
 
-    await removerContatos(
-      existentes
+
+    if (
+      existentes.length > 0
+    ) {
+
+      await removerContatos(
+        existentes
+      );
+
+    }
+
+
+
+    await criarContatos(
+      itens
     );
+
+
+    return;
+
 
   }
 
 
 
-  await criarContatos(
-    itens
-  );
+
+
+  /*
+    MODO ACRESCENTAR
+
+    Mantém os existentes
+    e cria somente novos.
+  */
+
+
+  const novos =
+    await buscarNovosContatos(
+      itens,
+      existentes
+    );
+
+
+
+  if (
+    novos.length > 0
+  ) {
+
+    await criarContatos(
+      novos
+    );
+
+  }
 
 
 }
@@ -556,7 +630,11 @@ async function processarGrupo(
 
 
 
-async function executarImportacao(lista) {
+
+async function executarImportacao(
+  lista,
+  modo
+) {
 
 
   const grupos =
@@ -584,6 +662,7 @@ async function executarImportacao(lista) {
       chaves[i];
 
 
+
     const itens =
       grupos.get(
         chave
@@ -593,7 +672,8 @@ async function executarImportacao(lista) {
 
     await processarGrupo(
       chave,
-      itens
+      itens,
+      modo
     );
 
 
@@ -610,10 +690,6 @@ async function executarImportacao(lista) {
 
 
 }
-
-
-
-
 window.importarCSV =
 async function() {
 
@@ -634,13 +710,26 @@ async function() {
       !file
     ) {
 
+
       alert(
         "Selecione um arquivo CSV."
       );
 
+
       return;
 
+
     }
+
+
+
+
+    const modo =
+      document
+        .getElementById(
+          "modoImportacao"
+        )
+        .value;
 
 
 
@@ -656,8 +745,10 @@ async function() {
 
 
 
+
     const text =
       await file.text();
+
 
 
 
@@ -668,22 +759,46 @@ async function() {
 
 
 
+
     totalLinhas =
       lista.length;
 
 
 
+
+    if (
+      totalLinhas === 0
+    ) {
+
+
+      alert(
+        "Nenhum contato válido encontrado no arquivo."
+      );
+
+
+      return;
+
+
+    }
+
+
+
+
     atualizarProgresso();
+
 
 
 
     await executarImportacao(
-      lista
+      lista,
+      modo
     );
 
 
 
+
     atualizarProgresso();
+
 
 
 
@@ -701,6 +816,7 @@ async function() {
 
 
 
+
     document
       .getElementById(
         "csvFile"
@@ -708,8 +824,8 @@ async function() {
       .value = "";
 
 
-
   }
+
 
 
   catch(e) {
