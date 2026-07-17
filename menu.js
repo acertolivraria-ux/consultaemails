@@ -1,4 +1,4 @@
-import { auth } from "./firebase-config.js";
+import { auth, db } from "./firebase-config.js";
 
 import {
   signInWithEmailAndPassword,
@@ -6,183 +6,194 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
+
+import {
+  collection,
+  getDocs,
+  query,
+  where
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+
+
 /* =====================================
    CONFIGURAÇÃO
 ===================================== */
 
-const ADMIN_EMAIL = "acertoscentralizados@gmail.com";
+
+const ADMIN_EMAIL =
+  "acertoscentralizados@gmail.com";
+
+
+
+let usuarioAtual = null;
+
+let operadorAtual = null;
+
+
 
 /* =====================================
    ELEMENTOS
 ===================================== */
 
-const adminMenu = document.getElementById("adminMenu");
-const adminToggle = document.getElementById("adminToggle");
-const adminDropdown = document.getElementById("adminDropdown");
 
-const profileToggle = document.getElementById("profileToggle");
-const profileDropdown = document.getElementById("profileDropdown");
+const adminToggle =
+  document.getElementById(
+    "adminToggle"
+  );
 
-const loginForm = document.getElementById("loginForm");
-const logoutBox = document.getElementById("logoutBox");
-const loginStatus = document.getElementById("loginStatus");
 
-const loginBtn = document.getElementById("loginBtn");
+const adminDropdown =
+  document.getElementById(
+    "adminDropdown"
+  );
 
-/* =====================================
-   DROPDOWNS
-===================================== */
 
-if (adminToggle && adminDropdown) {
 
-  adminToggle.addEventListener("click", (e) => {
+const profileToggle =
+  document.getElementById(
+    "profileToggle"
+  );
 
-    e.stopPropagation();
 
-    profileDropdown?.classList.remove("show");
+const profileDropdown =
+  document.getElementById(
+    "profileDropdown"
+  );
 
-    adminDropdown.classList.toggle("show");
 
-  });
 
-}
+const loginForm =
+  document.getElementById(
+    "loginForm"
+  );
 
-if (profileToggle && profileDropdown) {
 
-  profileToggle.addEventListener("click", (e) => {
+const logoutBox =
+  document.getElementById(
+    "logoutBox"
+  );
 
-    e.stopPropagation();
 
-    adminDropdown?.classList.remove("show");
+const loginStatus =
+  document.getElementById(
+    "loginStatus"
+  );
 
-    profileDropdown.classList.toggle("show");
 
-  });
+const loginBtn =
+  document.getElementById(
+    "loginBtn"
+  );
 
-}
 
-document.addEventListener("click", () => {
-
-  adminDropdown?.classList.remove("show");
-  profileDropdown?.classList.remove("show");
-
-});
-
-adminDropdown?.addEventListener("click", (e) => {
-  e.stopPropagation();
-});
-
-profileDropdown?.addEventListener("click", (e) => {
-  e.stopPropagation();
-});
 
 /* =====================================
-   LOGIN
+   VERIFICA ADMIN
 ===================================== */
 
-if (loginBtn) {
 
-  loginBtn.addEventListener("click", async () => {
+function isAdmin(user){
 
-    const email =
-      document.getElementById("loginEmail").value.trim();
 
-    const senha =
-      document.getElementById("loginSenha").value;
-
-    if (!email || !senha) {
-
-      alert("Informe e-mail e senha.");
-      return;
-
-    }
-
-    try {
-
-      await signInWithEmailAndPassword(
-        auth,
-        email,
-        senha
-      );
-
-      profileDropdown?.classList.remove("show");
-
-    } catch (err) {
-
-      alert(err.message);
-
-    }
-
-  });
-
-}
-
-/* =====================================
-   LOGOUT
-===================================== */
-
-window.logout = async function () {
-
-  await signOut(auth);
-
-  profileDropdown?.classList.remove("show");
-
-};
-/* =====================================
-   CONTROLE DE PERMISSÃO
-===================================== */
-
-function isAdmin(user) {
-
-  if (!user || !user.email)
+  if(
+    !user ||
+    !user.email
+  )
     return false;
 
 
+
   return (
-    user.email.toLowerCase() ===
+    user.email.toLowerCase()
+    ===
     ADMIN_EMAIL.toLowerCase()
   );
+
 
 }
 
 
+
+
 /* =====================================
-   CONTROLE DE PÁGINAS ADMIN
+   BUSCAR OPERADOR
 ===================================== */
 
-function verificarAcessoPagina(user) {
+
+async function buscarOperador(email){
 
 
-  const pagina =
-    window.location.pathname
-      .split("/")
-      .pop()
-      .toLowerCase();
+  try{
+
+
+    const q =
+      query(
+
+        collection(
+          db,
+          "operadores"
+        ),
+
+        where(
+          "email",
+          "==",
+          email
+        )
+
+      );
 
 
 
-  const paginasRestritas = [
-
-    "admin.html",
-    "alteracao.html"
-
-  ];
+    const snap =
+      await getDocs(q);
 
 
 
-  if (
-    paginasRestritas.includes(pagina)
-    &&
-    !isAdmin(user)
-  ) {
+    if(
+      snap.empty
+    )
+      return null;
 
-    alert(
-      "Você não possui permissão para acessar esta página."
+
+
+
+    const dados =
+      snap.docs[0].data();
+
+
+
+    if(
+      dados.ativo === false
+    )
+      return null;
+
+
+
+    return {
+
+      id:
+        snap.docs[0].id,
+
+      ...dados
+
+    };
+
+
+
+  }
+
+
+  catch(error){
+
+
+    console.error(
+      error
     );
 
 
-    window.location.href =
-      "index.html";
+    return null;
+
 
   }
 
@@ -191,112 +202,104 @@ function verificarAcessoPagina(user) {
 
 
 
+
+
 /* =====================================
-   CONTROLE DO MENU ADMIN
+   DROPDOWNS
 ===================================== */
 
-function atualizarMenuAdmin(admin) {
+
+if(
+  adminToggle &&
+  adminDropdown
+){
 
 
-  if (!adminDropdown)
-    return;
+  adminToggle.addEventListener(
+    "click",
+    e=>{
+
+
+      e.stopPropagation();
+
+
+      profileDropdown
+      ?.classList
+      .remove("show");
 
 
 
-  const links =
-    adminDropdown.querySelectorAll("a");
+      adminDropdown
+      .classList
+      .toggle(
+        "show"
+      );
 
-
-
-  links.forEach(link => {
-
-    if (admin) {
-
-      link.style.display =
-        "block";
-
-    } else {
-
-      link.style.display =
-        "none";
 
     }
-
-  });
-
+  );
 
 
 }
 
 
 
-/* =====================================
-   ESTADO DE LOGIN
-===================================== */
-
-onAuthStateChanged(
-  auth,
-  (user) => {
 
 
-
-    const admin =
-      isAdmin(user);
-
-
-
-    atualizarMenuAdmin(admin);
+if(
+  profileToggle &&
+  profileDropdown
+){
 
 
+  profileToggle.addEventListener(
+    "click",
+    e=>{
 
-    verificarAcessoPagina(user);
+
+      e.stopPropagation();
 
 
-
-    if (!loginForm || !logoutBox)
-      return;
+      adminDropdown
+      ?.classList
+      .remove("show");
 
 
 
-    if (user) {
-
-
-
-      loginForm.style.display =
-        "none";
-
-
-
-      logoutBox.style.display =
-        "block";
-
-
-
-      if (loginStatus) {
-
-        loginStatus.textContent =
-          user.email;
-
-      }
-
-
-
-    } else {
-
-
-
-      loginForm.style.display =
-        "block";
-
-
-
-      logoutBox.style.display =
-        "none";
-
+      profileDropdown
+      .classList
+      .toggle(
+        "show"
+      );
 
 
     }
+  );
 
+
+}
+
+
+
+
+
+document.addEventListener(
+  "click",
+  ()=>{
+
+
+    adminDropdown
+    ?.classList
+    .remove(
+      "show"
+    );
+
+
+    profileDropdown
+    ?.classList
+    .remove(
+      "show"
+    );
 
 
   }
@@ -304,16 +307,492 @@ onAuthStateChanged(
 
 
 
+adminDropdown
+?.addEventListener(
+  "click",
+  e=>
+    e.stopPropagation()
+);
+
+
+
+profileDropdown
+?.addEventListener(
+  "click",
+  e=>
+    e.stopPropagation()
+);
+
+
+
+
+
+
 /* =====================================
-   EXPORTA PARA OUTROS ARQUIVOS
+   LOGIN
 ===================================== */
 
-export function usuarioEhAdmin() {
 
-  const user =
-    auth.currentUser;
+if(loginBtn){
 
 
-  return isAdmin(user);
+loginBtn.addEventListener(
+"click",
+async()=>{
+
+
+const email =
+document
+.getElementById(
+"loginEmail"
+)
+.value
+.trim();
+
+
+
+const senha =
+document
+.getElementById(
+"loginSenha"
+)
+.value;
+
+
+
+if(
+!email ||
+!senha
+){
+
+
+alert(
+"Informe e-mail e senha."
+);
+
+
+return;
+
+
+}
+
+
+
+try{
+
+
+await signInWithEmailAndPassword(
+
+auth,
+
+email,
+
+senha
+
+);
+
+
+
+profileDropdown
+?.classList
+.remove(
+"show"
+);
+
+
+
+}
+
+
+catch(error){
+
+
+alert(
+"Usuário ou senha inválidos."
+);
+
+
+console.error(
+error
+);
+
+
+}
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+/* =====================================
+   LOGOUT
+===================================== */
+
+
+window.logout =
+async function(){
+
+
+await signOut(
+auth
+);
+
+
+
+profileDropdown
+?.classList
+.remove(
+"show"
+);
+
+
+
+};
+
+
+
+
+
+
+
+/* =====================================
+   CONTROLE DE PÁGINAS
+===================================== */
+
+
+function verificarAcessoPagina(){
+
+
+const pagina =
+window.location.pathname
+.split("/")
+.pop()
+.toLowerCase();
+
+
+
+const paginasAdmin = [
+
+"admin.html"
+
+];
+
+
+
+const paginasOperador = [
+
+"divergencias.html"
+
+];
+
+
+
+
+if(
+paginasAdmin.includes(pagina)
+){
+
+
+if(
+!isAdmin(usuarioAtual)
+){
+
+
+alert(
+"Acesso restrito ao administrador."
+);
+
+
+
+window.location.href =
+"index.html";
+
+
+}
+
+
+}
+
+
+
+
+
+if(
+paginasOperador.includes(pagina)
+){
+
+
+
+if(
+!usuarioAtual
+){
+
+
+window.location.href =
+"index.html";
+
+
+return;
+
+
+}
+
+
+
+if(
+!isAdmin(usuarioAtual)
+&&
+!operadorAtual
+){
+
+
+alert(
+"Usuário sem permissão."
+);
+
+
+
+window.location.href =
+"index.html";
+
+
+}
+
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+/* =====================================
+   MENU ADMIN
+===================================== */
+
+
+function atualizarMenuAdmin(){
+
+
+if(
+!adminDropdown
+)
+return;
+
+
+
+const links =
+adminDropdown
+.querySelectorAll(
+"a"
+);
+
+
+
+links.forEach(
+link=>{
+
+
+if(
+isAdmin(usuarioAtual)
+){
+
+
+link.style.display =
+"block";
+
+
+}
+
+else{
+
+
+link.style.display =
+"none";
+
+
+}
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+/* =====================================
+   ESTADO LOGIN
+===================================== */
+
+
+onAuthStateChanged(
+auth,
+async user=>{
+
+
+usuarioAtual =
+user;
+
+
+
+operadorAtual =
+null;
+
+
+
+if(
+user &&
+!isAdmin(user)
+){
+
+
+operadorAtual =
+await buscarOperador(
+user.email
+);
+
+
+}
+
+
+
+
+atualizarMenuAdmin();
+
+
+
+verificarAcessoPagina();
+
+
+
+
+
+if(
+!loginForm ||
+!logoutBox
+)
+return;
+
+
+
+
+
+if(user){
+
+
+
+loginForm.style.display =
+"none";
+
+
+
+logoutBox.style.display =
+"block";
+
+
+
+if(loginStatus){
+
+
+if(
+isAdmin(user)
+){
+
+
+loginStatus.textContent =
+"Administrador";
+
+
+}
+
+else if(
+operadorAtual
+){
+
+
+loginStatus.textContent =
+operadorAtual.nome;
+
+
+}
+
+else{
+
+
+loginStatus.textContent =
+user.email;
+
+
+}
+
+
+}
+
+
+
+}
+
+else{
+
+
+loginForm.style.display =
+"block";
+
+
+logoutBox.style.display =
+"none";
+
+
+}
+
+
+
+});
+
+
+
+/* =====================================
+   EXPORTAÇÃO
+===================================== */
+
+
+export function usuarioEhAdmin(){
+
+
+return isAdmin(
+auth.currentUser
+);
+
+
+}
+
+
+
+export function usuarioOperador(){
+
+
+return operadorAtual;
+
 
 }
