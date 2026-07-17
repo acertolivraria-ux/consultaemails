@@ -1,6 +1,5 @@
-import { db } from "./firebase-config.js";
+import { db, auth } from "./firebase-config.js";
 
-import { auth } from "./firebase-config.js";
 
 import {
   onAuthStateChanged
@@ -8,64 +7,84 @@ import {
 
 
 import {
+
   collection,
+
   addDoc,
+
   getDocs,
+
   query,
+
   where,
+
   limit
+
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 
 
 /* =====================================
-   CONTROLE DE ADMIN
+   CONFIGURAÇÃO
 ===================================== */
 
 
 const ADMIN_EMAIL =
-  "acertoscentralizados@gmail.com";
+"acertoscentralizados@gmail.com";
+
 
 
 const painel =
-  document.getElementById("painel");
+document.getElementById(
+  "painel"
+);
 
+
+
+/* =====================================
+   SEGURANÇA ADMIN
+===================================== */
 
 
 onAuthStateChanged(
-  auth,
-  (user)=>{
+auth,
+(user)=>{
 
 
-    if(!painel)
-      return;
+  if(!painel)
+    return;
 
 
 
-    if(
-      user &&
-      user.email.toLowerCase()
-      === ADMIN_EMAIL.toLowerCase()
-    ){
+  if(
 
-      painel.style.display =
-        "block";
+    user &&
 
+    user.email.toLowerCase()
+    === ADMIN_EMAIL.toLowerCase()
 
-    }
-
-    else{
+  ){
 
 
-      painel.style.display =
-        "none";
-
-
-    }
+    painel.style.display =
+    "block";
 
 
   }
-);
+
+  else{
+
+
+    painel.style.display =
+    "none";
+
+
+  }
+
+
+
+});
+
 
 
 
@@ -79,33 +98,78 @@ window.mostrarAba =
 function(aba){
 
 
-  document
-    .querySelectorAll(".aba")
-    .forEach(
-      elemento=>{
 
-        elemento.style.display =
-          "none";
-
-      }
-    );
+document
+.querySelectorAll(".aba")
+.forEach(
+(elemento)=>{
 
 
-  const alvo =
-    document.getElementById(
-      "aba-" + aba
-    );
+  elemento.style.display =
+  "none";
 
 
-  if(alvo){
+});
 
-    alvo.style.display =
-      "block";
 
-  }
+
+
+const alvo =
+document.getElementById(
+"aba-" + aba
+);
+
+
+
+if(alvo){
+
+
+  alvo.style.display =
+  "block";
+
+
+}
+
 
 
 };
+
+
+
+
+
+
+
+
+/* =====================================
+   FUNÇÃO AUXILIAR EMAILS
+===================================== */
+
+
+function separarEmails(texto){
+
+
+if(!texto)
+return [];
+
+
+
+return texto
+.split(";")
+.map(
+email =>
+email.trim()
+)
+.filter(
+email =>
+email
+);
+
+
+
+}
+
+
 
 
 
@@ -116,188 +180,198 @@ function(aba){
 ===================================== */
 
 
+
 window.salvarLoja =
 async function(){
 
 
-  const numero =
-    document
-      .getElementById("numeroLoja")
-      .value
-      .trim();
 
+const numero =
+document
+.getElementById(
+"numeroLoja"
+)
+.value
+.trim();
 
-  const nome =
-    document
-      .getElementById("nomeLoja")
-      .value
-      .trim();
 
 
-  const cnpj =
-    document
-      .getElementById("cnpjLoja")
-      .value
-      .trim();
+const nome =
+document
+.getElementById(
+"nomeLoja"
+)
+.value
+.trim();
 
 
 
+const cnpj =
+document
+.getElementById(
+"cnpjLoja"
+)
+.value
+.trim();
 
-  if(
-    !numero ||
-    !nome ||
-    !cnpj
-  ){
 
-    alert(
-      "Preencha número, nome e CNPJ da loja."
-    );
 
-    return;
+const emails =
+separarEmails(
 
-  }
+document
+.getElementById(
+"emailsLoja"
+)
+.value
 
+);
 
 
 
-  try{
 
 
-    const existeNumero =
-      await getDocs(
+if(
+!numero ||
+!nome ||
+!cnpj
+){
 
-        query(
 
-          collection(
-            db,
-            "lojas"
-          ),
+alert(
+"Preencha número, nome e CNPJ."
+);
 
-          where(
-            "numero",
-            "==",
-            numero
-          ),
 
-          limit(1)
+return;
 
-        )
 
-      );
+}
 
 
 
-    if(!existeNumero.empty){
 
-      alert(
-        "Já existe uma loja com esse número."
-      );
 
-      return;
+try{
 
-    }
 
 
+const existente =
+await getDocs(
 
+query(
 
-    const existeCnpj =
-      await getDocs(
+collection(
+db,
+"lojas"
+),
 
-        query(
 
-          collection(
-            db,
-            "lojas"
-          ),
+where(
+"numero",
+"==",
+numero
+),
 
-          where(
-            "cnpj",
-            "==",
-            cnpj
-          ),
+limit(1)
 
-          limit(1)
 
-        )
+)
 
-      );
+);
 
 
 
-    if(!existeCnpj.empty){
 
-      alert(
-        "Já existe uma loja com esse CNPJ."
-      );
 
-      return;
+if(!existente.empty){
 
-    }
 
+alert(
+"Já existe uma loja com esse número."
+);
 
 
+return;
 
-    await addDoc(
 
-      collection(
-        db,
-        "lojas"
-      ),
+}
 
-      {
 
-        numero,
-        nome,
-        cnpj
 
-      }
 
-    );
 
+await addDoc(
 
+collection(
+db,
+"lojas"
+),
 
-    alert(
-      "Loja cadastrada com sucesso!"
-    );
+{
 
 
+numero,
 
-    document.getElementById(
-      "numeroLoja"
-    ).value = "";
+nome,
 
+cnpj,
 
+emails
 
-    document.getElementById(
-      "nomeLoja"
-    ).value = "";
 
+}
 
 
-    document.getElementById(
-      "cnpjLoja"
-    ).value = "";
+);
 
 
 
-  }
 
+alert(
+"Loja cadastrada com sucesso!"
+);
 
-  catch(err){
 
 
-    console.error(err);
+limparCampos([
 
+"numeroLoja",
 
-    alert(
-      "Erro ao salvar loja."
-    );
+"nomeLoja",
 
+"cnpjLoja",
 
-  }
+"emailsLoja"
+
+]);
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.error(error);
+
+
+alert(
+"Erro ao cadastrar loja."
+);
+
+
+
+}
+
 
 
 };
+
+
+
 
 
 
@@ -314,130 +388,964 @@ async function(){
 
 
 
-  const cnpj =
-    document
-      .getElementById("cnpjEditora")
-      .value
-      .trim();
-
-
-  const nome =
-    document
-      .getElementById("nomeEditora")
-      .value
-      .trim();
+const cnpj =
+document
+.getElementById(
+"cnpjEditora"
+)
+.value
+.trim();
 
 
 
 
-  if(
-    !cnpj ||
-    !nome
-  ){
-
-    alert(
-      "Preencha todos os campos."
-    );
-
-    return;
-
-  }
+const nome =
+document
+.getElementById(
+"nomeEditora"
+)
+.value
+.trim();
 
 
 
 
-  try{
+const emails =
+separarEmails(
 
+document
+.getElementById(
+"emailsEditora"
+)
+.value
 
-    const existe =
-      await getDocs(
-
-        query(
-
-          collection(
-            db,
-            "editoras"
-          ),
-
-          where(
-            "cnpj",
-            "==",
-            cnpj
-          ),
-
-          limit(1)
-
-        )
-
-      );
-
-
-
-    if(!existe.empty){
-
-      alert(
-        "Já existe uma editora com esse CNPJ."
-      );
-
-      return;
-
-    }
+);
 
 
 
 
-    await addDoc(
-
-      collection(
-        db,
-        "editoras"
-      ),
-
-      {
-
-        cnpj,
-        nome
-
-      }
-
-    );
 
 
+if(
+!cnpj ||
+!nome
+){
 
-    alert(
-      "Editora cadastrada com sucesso!"
-    );
+
+alert(
+"Preencha todos os campos."
+);
+
+
+return;
+
+
+}
 
 
 
-    document.getElementById(
-      "cnpjEditora"
-    ).value = "";
 
 
 
-    document.getElementById(
-      "nomeEditora"
-    ).value = "";
+try{
 
 
 
-  }
+const existente =
+await getDocs(
+
+query(
+
+collection(
+db,
+"editoras"
+),
+
+where(
+"cnpj",
+"==",
+cnpj
+),
+
+limit(1)
+
+)
+
+);
 
 
-  catch(err){
 
 
-    console.error(err);
+if(!existente.empty){
 
 
-    alert(
-      "Erro ao salvar editora."
-    );
+alert(
+"Já existe uma editora com esse CNPJ."
+);
 
 
-  }
+return;
+
+
+}
+
+
+
+
+await addDoc(
+
+collection(
+db,
+"editoras"
+),
+
+{
+
+
+cnpj,
+
+nome,
+
+emails
+
+
+}
+
+
+);
+
+
+
+
+
+alert(
+"Editora cadastrada com sucesso!"
+);
+
+
+
+
+limparCampos([
+
+"cnpjEditora",
+
+"nomeEditora",
+
+"emailsEditora"
+
+]);
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.error(error);
+
+
+alert(
+"Erro ao cadastrar editora."
+);
+
+
+}
+
+
+
+};
+/* =====================================
+   OPERADORES
+===================================== */
+
+
+window.salvarOperador =
+async function(){
+
+
+const nome =
+document
+.getElementById(
+"nomeOperador"
+)
+.value
+.trim();
+
+
+
+const email =
+document
+.getElementById(
+"emailOperador"
+)
+.value
+.trim()
+.toLowerCase();
+
+
+
+
+if(
+!nome ||
+!email
+){
+
+
+alert(
+"Preencha nome e e-mail do operador."
+);
+
+
+return;
+
+
+}
+
+
+
+
+
+try{
+
+
+const existente =
+await getDocs(
+
+query(
+
+collection(
+db,
+"operadores"
+),
+
+
+where(
+"email",
+"==",
+email
+),
+
+limit(1)
+
+)
+
+);
+
+
+
+
+
+if(!existente.empty){
+
+
+alert(
+"Já existe um operador cadastrado com este e-mail."
+);
+
+
+return;
+
+
+}
+
+
+
+
+
+await addDoc(
+
+collection(
+db,
+"operadores"
+),
+
+{
+
+
+nome,
+
+email,
+
+ativo:true,
+
+permissao:
+"operador"
+
+
+}
+
+
+);
+
+
+
+
+
+alert(
+"Operador cadastrado com sucesso!"
+);
+
+
+
+limparCampos([
+
+"nomeOperador",
+
+"emailOperador"
+
+]);
+
+
+
+carregarOperadores();
+
+
+
+}
+
+
+catch(error){
+
+
+console.error(error);
+
+
+alert(
+"Erro ao cadastrar operador."
+);
+
+
+
+}
+
 
 
 };
 
+
+
+
+
+
+
+
+
+/* =====================================
+   CARREGAR OPERADORES
+===================================== */
+
+
+async function carregarOperadores(){
+
+
+
+const select =
+document.getElementById(
+"operadorAssinatura"
+);
+
+
+
+
+if(!select)
+return;
+
+
+
+
+select.innerHTML =
+`
+
+<option value="">
+Selecione o operador
+</option>
+
+`;
+
+
+
+
+const snapshot =
+await getDocs(
+
+collection(
+db,
+"operadores"
+)
+
+);
+
+
+
+
+
+snapshot.forEach(
+(documento)=>{
+
+
+const operador =
+documento.data();
+
+
+
+
+
+const option =
+document.createElement(
+"option"
+);
+
+
+
+option.value =
+documento.id;
+
+
+
+option.textContent =
+operador.nome;
+
+
+
+select.appendChild(
+option
+);
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+
+
+/* =====================================
+   ASSINATURAS
+===================================== */
+
+
+window.salvarAssinatura =
+async function(){
+
+
+
+const operadorId =
+document
+.getElementById(
+"operadorAssinatura"
+)
+.value;
+
+
+
+const texto =
+document
+.getElementById(
+"textoAssinatura"
+)
+.value
+.trim();
+
+
+
+
+
+
+if(
+!operadorId ||
+!texto
+){
+
+
+alert(
+"Selecione o operador e informe a assinatura."
+);
+
+
+return;
+
+
+}
+
+
+
+
+
+
+
+try{
+
+
+
+const operadorDoc =
+await getDocs(
+
+query(
+
+collection(
+db,
+"operadores"
+)
+
+
+)
+
+);
+
+
+
+
+let nomeOperador = "";
+
+
+
+operadorDoc.forEach(
+(item)=>{
+
+
+if(
+item.id === operadorId
+){
+
+
+nomeOperador =
+item.data().nome;
+
+
+}
+
+
+
+});
+
+
+
+
+
+
+
+await addDoc(
+
+collection(
+db,
+"assinaturas"
+),
+
+{
+
+
+operadorId,
+
+nome:
+nomeOperador,
+
+texto
+
+
+}
+
+);
+
+
+
+
+
+
+alert(
+"Assinatura cadastrada com sucesso!"
+);
+
+
+
+
+
+limparCampos([
+
+"textoAssinatura"
+
+]);
+
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.error(error);
+
+
+alert(
+"Erro ao cadastrar assinatura."
+);
+
+
+
+}
+
+
+
+};
+
+
+
+
+
+
+
+
+
+/* =====================================
+   LIMPEZA DE CAMPOS
+===================================== */
+
+
+function limparCampos(lista){
+
+
+lista.forEach(
+(id)=>{
+
+
+const campo =
+document.getElementById(
+id
+);
+
+
+
+if(campo){
+
+
+campo.value =
+"";
+
+
+}
+
+
+
+});
+
+
+}
+
+
+
+
+
+/* =====================================
+   INICIALIZAÇÃO
+===================================== */
+
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+
+carregarOperadores();
+
+
+}
+);
+/* =====================================
+   MODELOS DE EMAIL
+===================================== */
+
+
+window.salvarModeloEmail =
+async function(){
+
+
+
+const motivo =
+document
+.getElementById(
+"motivoEmail"
+)
+.value
+.trim();
+
+
+
+
+const titulo =
+document
+.getElementById(
+"tituloEmail"
+)
+.value
+.trim();
+
+
+
+
+const corpo =
+document
+.getElementById(
+"corpoEmail"
+)
+.value
+.trim();
+
+
+
+
+
+const destinoLoja =
+document
+.getElementById(
+"destinoLoja"
+)
+.checked;
+
+
+
+
+const destinoEditora =
+document
+.getElementById(
+"destinoEditora"
+)
+.checked;
+
+
+
+
+
+
+if(
+!motivo ||
+!titulo ||
+!corpo
+){
+
+
+alert(
+"Preencha motivo, título e corpo do e-mail."
+);
+
+
+return;
+
+
+}
+
+
+
+
+
+
+if(
+!destinoLoja &&
+!destinoEditora
+){
+
+
+alert(
+"Selecione pelo menos um destinatário."
+);
+
+
+return;
+
+
+}
+
+
+
+
+
+
+
+try{
+
+
+
+await addDoc(
+
+collection(
+db,
+"emailsPadrao"
+),
+
+{
+
+
+motivo,
+
+titulo,
+
+corpo,
+
+
+destinatarios:{
+
+
+loja:
+destinoLoja,
+
+
+editora:
+destinoEditora
+
+
+}
+
+
+
+}
+
+);
+
+
+
+
+
+
+alert(
+"Modelo de e-mail cadastrado com sucesso!"
+);
+
+
+
+
+
+limparCampos([
+
+"motivoEmail",
+
+"tituloEmail",
+
+"corpoEmail"
+
+]);
+
+
+
+
+document
+.getElementById(
+"destinoLoja"
+)
+.checked =
+false;
+
+
+
+
+document
+.getElementById(
+"destinoEditora"
+)
+.checked =
+false;
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.error(error);
+
+
+alert(
+"Erro ao cadastrar modelo."
+);
+
+
+
+}
+
+
+
+};
+
+
+
+
+
+
+
+
+
+/* =====================================
+   VALIDAÇÃO DE ACESSO
+===================================== */
+
+
+function usuarioEhAdmin(){
+
+
+
+const user =
+auth.currentUser;
+
+
+
+
+return (
+
+user &&
+
+user.email.toLowerCase()
+===
+ADMIN_EMAIL.toLowerCase()
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+/* =====================================
+   CARREGAR DADOS INICIAIS
+===================================== */
+
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+
+
+if(
+usuarioEhAdmin()
+){
+
+
+carregarOperadores();
+
+
+}
+
+
+
+
+}
+);
