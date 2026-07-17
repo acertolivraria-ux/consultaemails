@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>E-mails</title>
+
+<link rel="stylesheet" href="style.css">
+
+
+<script>
+
+(function(){
+
+  const theme =
+    localStorage.getItem("theme")
+    || "light";
+
+
+  document.documentElement.setAttribute(
+    "data-theme",
+    theme
+  );
+
+
+})();
+
+</script>
+
+</head>
+
+
+<body>
+
+
+<!-- ================= MENU ================= -->
+
+
+<div class="menu">
+
+
+<div class="menu-left">
+
+
+<a href="index.html">
+🔎 Consulta
+</a>
+
+
+<div
+class="admin-menu"
+id="adminMenu"
+>
+
+
+<button
+id="adminToggle"
+class="theme-toggle"
+>
+
+⚙️ Admin ▾
+
+</button>
+
+
+<div
+id="adminDropdown"
+class="profile-dropdown"
+>
+
+
+<a href="admin.html">
+📝 Cadastro
+</a>
+
+
+<a href="alteracao.html">
+🔍 Alteração / Consulta
+</a>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="menu-right">
+
+
+<button
+id="themeToggle"
+class="theme-toggle"
+>
+🌙
+</button>
+
+
+
+
+<div class="profile-menu">
+
+
+<button
+id="profileToggle"
+class="theme-toggle"
+>
+👤
+</button>
+
+
+
+<div
+id="profileDropdown"
+class="profile-dropdown"
+>
+
+
+<div id="loginForm">
+
+
+<input
+id="loginEmail"
+placeholder="Email"
+>
+
+
+<input
+id="loginSenha"
+type="password"
+placeholder="Senha"
+>
+
+
+<button id="loginBtn">
+
+Entrar
+
+</button>
+
+
+</div>
+
+
+
+
+
+<div
+id="logoutBox"
+style="display:none;"
+>
+
+
+<p id="loginStatus">
+Logado
+</p>
+
+
+<button onclick="logout()">
+
+🚪 Sair
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- ================= CONTEÚDO ================= -->
+
+
+<div class="container">
+
+
+<h2>
+Gerador de E-mails
+</h2>
+
+
+<div id="areaLoginOperador">
+
+
+<h3>
+Login do operador
+</h3>
+
+
+<input
+id="operadorUsuario"
+placeholder="Usuário"
+>
+
+
+<input
+id="operadorSenha"
+type="password"
+placeholder="Senha"
+>
+
+
+<button onclick="entrarOperador()">
+
+Entrar
+
+</button>
+
+
+</div>
+
+
+
+
+
+<div
+id="areaEmail"
+style="display:none;"
+>
+
+
+<h3>
+Novo e-mail
+</h3>
+
+
+<label>
+Motivo:
+</label>
+
+
+<select
+id="modeloEmail"
+>
+
+<option value="">
+Selecione o motivo
+</option>
+
+</select>
+
+
+<br><br>
+
+
+
+<label>
+Loja:
+</label>
+
+
+<select
+id="selecionarLoja"
+>
+
+<option value="">
+Selecione a loja
+</option>
+
+</select>
+
+
+<br><br>
+
+
+
+<label>
+Editora:
+</label>
+
+
+<select
+id="selecionarEditora"
+>
+
+<option value="">
+Selecione a editora
+</option>
+
+</select>
+
+
+<br><br>
+
+
+<div id="camposModelo">
+
+
+</div>
+
+
+<br>
+
+
+<label>
+Assunto:
+</label>
+
+
+<input
+id="assuntoEmail"
+>
+
+
+<label>
+Corpo:
+</label>
+
+
+<textarea
+id="corpoEmail"
+rows="18"
+></textarea>
+
+
+<label>
+Destinatários:
+</label>
+
+
+<input
+id="destinatarios"
+>
+
+
+<button onclick="gerarEmail()">
+
+🔄 Gerar novamente
+
+</button>
+
+
+<button onclick="copiarEmail()">
+
+📋 Copiar
+
+</button>
+
+
+<button onclick="salvarDivergencia()">
+
+💾 Registrar divergência
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<script
+type="module"
+src="theme.js"
+></script>
+
+
+<script
+type="module"
+src="menu.js"
+></script>
+
+
+<script
+type="module"
+src="email.js"
+></script>
+
+
+</body>
+
+</html>
