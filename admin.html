@@ -30,7 +30,6 @@
 
 </script>
 
-
 </head>
 
 
@@ -39,154 +38,154 @@
 
 <!-- ================= MENU ================= -->
 
+
 <div class="menu">
 
 
-  <div class="menu-left">
+<div class="menu-left">
 
 
-    <a href="index.html">
-      🔎 Consulta
-    </a>
+<a href="index.html">
+🔎 Consulta
+</a>
 
 
 
-    <div
-      class="admin-menu"
-      id="adminMenu"
-    >
+<div
+class="admin-menu"
+id="adminMenu"
+>
 
 
-      <button
-        id="adminToggle"
-        class="theme-toggle"
-      >
+<button
+id="adminToggle"
+class="theme-toggle"
+>
 
-        🔐 Admin ▾
+⚙️ Admin ▾
 
-      </button>
+</button>
 
 
 
-      <div
-        id="adminDropdown"
-        class="profile-dropdown"
-      >
+<div
+id="adminDropdown"
+class="profile-dropdown"
+>
 
 
-        <a href="admin.html">
-          📝 Cadastro
-        </a>
+<a href="admin.html">
+📝 Cadastro
+</a>
 
 
-        <a href="alteracao.html">
-          🔍 Alteração / Consulta
-        </a>
+<a href="alteracao.html">
+🔍 Alteração / Consulta
+</a>
 
 
-      </div>
+<a href="divergencias.html">
+📊 Divergências
+</a>
 
 
-    </div>
+</div>
 
 
-  </div>
+</div>
 
 
+</div>
 
 
 
-  <div class="menu-right">
 
 
+<div class="menu-right">
 
-    <button
-      id="themeToggle"
-      class="theme-toggle"
-    >
-      🌙
-    </button>
 
+<button
+id="themeToggle"
+class="theme-toggle"
+>
+🌙
+</button>
 
 
 
 
-    <div class="profile-menu">
+<div class="profile-menu">
 
 
-      <button
-        id="profileToggle"
-        class="theme-toggle"
-      >
-        👤
-      </button>
+<button
+id="profileToggle"
+class="theme-toggle"
+>
+👤
+</button>
 
 
 
+<div
+id="profileDropdown"
+class="profile-dropdown"
+>
 
 
-      <div
-        id="profileDropdown"
-        class="profile-dropdown"
-      >
 
+<div id="loginForm">
 
 
-        <div id="loginForm">
+<input
+id="loginEmail"
+placeholder="Email"
+>
 
 
-          <input
-            id="loginEmail"
-            placeholder="Email"
-          >
+<input
+id="loginSenha"
+type="password"
+placeholder="Senha"
+>
 
 
-          <input
-            id="loginSenha"
-            type="password"
-            placeholder="Senha"
-          >
+<button id="loginBtn">
+Entrar
+</button>
 
 
-          <button id="loginBtn">
-            Entrar
-          </button>
+</div>
 
 
-        </div>
 
 
+<div
+id="logoutBox"
+style="display:none;"
+>
 
 
+<p id="loginStatus">
+Logado
+</p>
 
-        <div
-          id="logoutBox"
-          style="display:none;"
-        >
 
+<button onclick="logout()">
+🚪 Sair
+</button>
 
-          <p id="loginStatus">
-            Logado
-          </p>
 
+</div>
 
-          <button onclick="logout()">
-            🚪 Sair
-          </button>
 
 
-        </div>
+</div>
 
 
+</div>
 
-      </div>
 
-
-    </div>
-
-
-
-  </div>
+</div>
 
 
 </div>
@@ -197,6 +196,7 @@
 
 <!-- ================= CONTEÚDO ================= -->
 
+
 <div class="container">
 
 
@@ -204,11 +204,10 @@
 
 
 <h2>
-  Painel Administrativo
+Painel Administrativo
 </h2>
 
 
-<!-- ================= ABAS ================= -->
 
 <div class="tabs">
 
@@ -228,11 +227,25 @@
 </button>
 
 
+<button onclick="mostrarAba('operadores')">
+👤 Operadores
+</button>
+
+
+<button onclick="mostrarAba('assinaturas')">
+✍️ Assinaturas
+</button>
+
+
+<button onclick="mostrarAba('modelos')">
+✉️ Modelos de E-mail
+</button>
+
+
 </div>
 
 
 <hr>
-
 
 
 
@@ -269,16 +282,18 @@ placeholder="CNPJ da loja"
 >
 
 
+<textarea
+id="emailsLoja"
+placeholder="E-mails da loja separados por ;"
+></textarea>
+
+
 <button onclick="salvarLoja()">
-
 Salvar Loja
-
 </button>
 
 
 </div>
-
-
 
 
 
@@ -311,16 +326,18 @@ placeholder="Nome da editora"
 >
 
 
+<textarea
+id="emailsEditora"
+placeholder="E-mails da editora separados por ;"
+></textarea>
+
+
 <button onclick="salvarEditora()">
-
 Salvar Editora
-
 </button>
 
 
 </div>
-
-
 
 
 
@@ -341,43 +358,9 @@ Importação de Contatos (CSV)
 </h3>
 
 
-
-<div class="csv-info">
-
-
-<strong>
-Padrão do arquivo CSV
-</strong>
-
-
-<ul>
-
-<li>
-Coluna A: Número da Loja *
-</li>
-
-<li>
-Coluna B: CNPJ da Editora *
-</li>
-
-<li>
-Coluna C: E-mails separados por |
-</li>
-
-<li>
-Coluna D: Nome do representante
-</li>
-
-
-</ul>
-
-
-</div>
-
-
-
-
-<br>
+<p>
+A importação continua utilizando o arquivo CSV.
+</p>
 
 
 <input
@@ -387,42 +370,223 @@ accept=".csv"
 >
 
 
-<br><br>
-
-
-<label for="modoImportacao">
-Modo de importação:
-</label>
-
-
 <select id="modoImportacao">
 
-  <option value="acrescentar">
-    Acrescentar contatos
-  </option>
+<option value="acrescentar">
+Acrescentar contatos
+</option>
 
 
-  <option value="sobrescrever">
-    Sobrescrever loja/editora
-  </option>
+<option value="sobrescrever">
+Sobrescrever loja/editora
+</option>
 
 </select>
 
 
-<br><br>
-
-
 <button onclick="importarCSV()">
-
 Importar CSV
+</button>
+
+
+<div id="importProgress"></div>
+
+
+</div>
+<!-- ================= OPERADORES ================= -->
+
+
+<div
+id="aba-operadores"
+class="aba"
+style="display:none"
+>
+
+
+<h3>
+Cadastrar Operador
+</h3>
+
+
+
+<input
+id="nomeOperador"
+placeholder="Nome do operador"
+>
+
+
+
+<input
+id="emailOperador"
+placeholder="E-mail do operador"
+>
+
+
+
+<button onclick="salvarOperador()">
+Salvar Operador
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+<!-- ================= ASSINATURAS ================= -->
+
+
+<div
+id="aba-assinaturas"
+class="aba"
+style="display:none"
+>
+
+
+
+<h3>
+Cadastrar Assinatura
+</h3>
+
+
+
+
+<select
+id="operadorAssinatura"
+>
+
+<option value="">
+Selecione o operador
+</option>
+
+
+</select>
+
+
+
+
+
+<textarea
+id="textoAssinatura"
+placeholder="Digite a assinatura"
+></textarea>
+
+
+
+
+
+<button onclick="salvarAssinatura()">
+
+Salvar Assinatura
 
 </button>
 
 
+
+</div>
+
+
+
+
+
+
+
+<!-- ================= MODELOS DE EMAIL ================= -->
+
+
 <div
-id="importProgress"
-style="margin-top:10px"
-></div>
+id="aba-modelos"
+class="aba"
+style="display:none"
+>
+
+
+
+<h3>
+Cadastrar Modelo de E-mail
+</h3>
+
+
+
+
+
+<input
+id="motivoEmail"
+placeholder="Motivo da divergência"
+>
+
+
+
+
+
+<input
+id="tituloEmail"
+placeholder="Título do e-mail"
+>
+
+
+
+
+
+<textarea
+id="corpoEmail"
+placeholder="Corpo do e-mail. Use campos como {{LOJA}}, {{EDITORA}}, {{NOTA}}"
+></textarea>
+
+
+
+
+
+<h4>
+Enviar para:
+</h4>
+
+
+
+<label>
+
+<input
+type="checkbox"
+id="destinoLoja"
+>
+
+Loja
+
+</label>
+
+
+
+<br>
+
+
+
+<label>
+
+<input
+type="checkbox"
+id="destinoEditora"
+>
+
+Editora
+
+</label>
+
+
+
+<br><br>
+
+
+
+
+<button onclick="salvarModeloEmail()">
+
+Salvar Modelo
+
+</button>
+
 
 
 
@@ -430,12 +594,12 @@ style="margin-top:10px"
 
 
 
-</div>
 
 
 </div>
 
 
+</div>
 
 
 
@@ -443,15 +607,36 @@ style="margin-top:10px"
 
 <!-- ================= SCRIPTS ================= -->
 
-<script type="module" src="theme.js"></script>
 
-<script type="module" src="menu.js"></script>
+<script
+type="module"
+src="theme.js"
+></script>
 
-<script type="module" src="admin.js"></script>
 
-<script type="module" src="importacao.js"></script>
+
+<script
+type="module"
+src="menu.js"
+></script>
+
+
+
+<script
+type="module"
+src="admin.js"
+></script>
+
+
+
+<script
+type="module"
+src="importacao.js"
+></script>
 
 
 </body>
 
+
 </html>
+
